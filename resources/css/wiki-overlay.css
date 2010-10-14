@@ -1,0 +1,28 @@
+#wiki-embed-iframe{
+	text-align: left;
+	background: #FFF;
+	padding: 10px 10px 10px;
+	font-size:12px;
+}
+.wiki-embed-title {
+	color:#333;
+}
+#wiki-embed-iframe ul,
+#wiki-embed-iframe ol{
+	padding-left: 1em;
+	list-style: inherit;
+}
+#wiki-embed-iframe h2{
+	margin-top: 1em;
+}
+.wiki-embed-source{
+	position: fixed;
+	top:0;
+	right: 5px;
+	background: #FFF;
+	padding: 2px;
+	filter:alpha(opacity=50);
+	-moz-opacity:0.8;
+	-khtml-opacity: 0.8;
+	opacity: 0.8;
+}
