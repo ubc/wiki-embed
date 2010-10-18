@@ -151,7 +151,7 @@ function wikiembed_load_page()
 	// do we need to redirect the page ?
 	
 	$wiki_page_id = esc_url($_GET['wikiembed-url']).",";
-		
+	$wiki_page_url = esc_url($_GET['wikiembed-url']);
 	if($wikiembed_options['default']['tabs'])
 		$wiki_page_id .= "tabs,";
 	
@@ -164,8 +164,8 @@ function wikiembed_load_page()
 	$wiki_page_id = substr($wiki_page_id,0,-1);
 
 	
-	if(isset($wikiembeds[$wiki_page_id]['url']))
-		wp_redirect(esc_url($wikiembeds[$wiki_page_id]['url']));
+	if(isset($wikiembeds[$wiki_page_url]['url']))
+		wp_redirect(esc_url($wikiembeds[$wiki_page_url]['url']));
 	
 	// no we have no where to redirect the page to just stay here
 		
@@ -248,7 +248,7 @@ function wikiembed_shortcode($atts)
 	/* url is the unique identifier */
 	extract(shortcode_atts(array(
 		'url' => NULL,
-		'update' => 30, /* 30 minutes */
+		'update' => NULL, /* 30 minutes */
 		'remove'=>NULL,
 	), $atts));
 	
@@ -263,9 +263,9 @@ function wikiembed_shortcode($atts)
 	
 	// $has_overlay 	 = ( in_array("overlay", 	$atts)? true: false ); // this is just for backwards compatibility 
 	
-	$content = memory_get_peak_usage();
+	
 	$content .= wikiembed_get_wiki_content($url,$has_tabs,$has_no_contents,$has_no_edit,$update,$has_source,$remove);
-	$content .= memory_get_peak_usage();	
+		
 	return $content; 
 
 
@@ -275,8 +275,9 @@ function wikiembed_get_wiki_content($url,$has_tabs,$has_no_contents,$has_no_edit
 {
 	global $wikiembeds,$wikiembed_options,$wikiembed_content_count;
 	
-	if( !is_numeric($update) || $update < 30)
-	$update = 30;
+	if( !is_numeric($update) || $update < 5)
+	$update = $wikiembed_options['wiki-update']; 
+	
 	// create the unique id 
 	$wiki_page_id = esc_url($url).",";
 		
@@ -297,27 +298,16 @@ function wikiembed_get_wiki_content($url,$has_tabs,$has_no_contents,$has_no_edit
 	if (false === ( $wiki_page_body = get_transient($wiki_page_id_hash ) ) ): 
 		
 		// lets try to get the  
-    	$wiki_page = wp_remote_request(wikiembed_action_url($url));
-     	if( !is_wp_error($wiki_page)):
-     		$wiki_page_body = $wiki_page['body'];
-     	else:
-     		// try getting the content again
-     		$wiki_page = wp_remote_request(wikiembed_action_url($url));
-     		
-     		if( is_wp_error($wiki_page) ):
-     			// error occured while fetching content 
-     			return '<span class="alert">
+    	$wiki_page_body  = wp_remote_request_wikipage($url,$update);
+    	if(!$wiki_page_body)
+    		return '<span class="alert">
 						We were not able to Retrieve the content of this page, at this time.<br />
 						You can: <br />
 						1. Try refreshing the page.<br />
 						2. Go to the <a href="'.esc_url($url).'" >source</a><br />
 						</span>';
-			endif;		
-			
-     		$wiki_page_body = $wiki_page['body'];
-     	endif;
-     	
-     	
+    	
+
      	// Do we need to modify the content? 
 		if( $has_no_edit || $has_no_contents || $has_tabs ): 
 			require_once("resources/simple_html_dom.php");
@@ -426,6 +416,46 @@ function wikiembed_get_wiki_content($url,$has_tabs,$has_no_contents,$has_no_edit
 	
 	return "<div class='wiki-embed ".$wiki_embed_class."'>".$wiki_page_body."</div>".$wiki_embed_end; 
 }
+/**
+ * wp_remote_request_wikipage function.
+ * This function get the content from the url and stores in an transient. 
+ * @access public
+ * @param mixed $url
+ * @param mixed $update
+ * @return void
+ */
+function wp_remote_request_wikipage($url,$update)
+{
+	global $wikiembeds;
+	$wiki_page_id_hash = md5($url);
+	// grab the content from the cache
+	if (false === ( $wiki_page_body = get_transient( $wiki_page_id_hash ) ) ): 
+	
+		// else return the 
+		$wiki_page = wp_remote_request(wikiembed_action_url($url));
+		
+		if( !is_wp_error($wiki_page) ):
+	    	
+	     	$wiki_page_body = $wiki_page['body'];
+	     		
+	    else:
+	     	// an error occured try getting the content again
+	     	$wiki_page = wp_remote_request(wikiembed_action_url($url));
+	     	
+	     	// error occured while fetching content 
+	     	if( is_wp_error($wiki_page) ) return false;
+	     	$wiki_page_body = $wiki_page['body']; 
+	     endif;
+     		
+     endif;
+				
+		$wikiembeds[$url]['expires_on'] =  time() + ($update * 60);
+		update_option( 'wikiembeds', $wikiembeds );
+		
+     return $wiki_page_body;
+     	
+
+}
 
 
 
@@ -481,7 +511,7 @@ function wikiembed_overlay_ajax() {
 	$wiki_page_id = substr($wiki_page_id,0,-1);
 
 	
-	$content = wikiembed_get_wiki_content(	
+	$content = wikiembed_get_wiki_content(
 			$url,
 			$wikiembed_options['default']['tabs'],
 			$wikiembed_options['default']['no-contents'],

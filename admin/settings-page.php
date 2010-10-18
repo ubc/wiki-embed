@@ -66,11 +66,11 @@ function wikiembed_settings_page() {
 				</th>
 				<td class="field">
 				<select name="wikiembed_options[wiki-update]" id="wiki-embed-update">
-					<option value="5" <?php selected( $wikiembed_options['wiki-links'], "5" ); ?>>Every 5 minutes </option>
-					<option value="30" <?php selected( $wikiembed_options['wiki-links'], "30" ); ?>>Every 30 minutes </option>
-					<option value="360" <?php selected( $wikiembed_options['wiki-links'], "360" ); ?>>Every 6 hours </option>
-					<option value="1440" <?php selected( $wikiembed_options['wiki-links'], "1440" ); ?>>Daily </option>
-					<option value="262974383" <?php selected( $wikiembed_options['wiki-links'], "262974383" ); ?>>Manually</option>
+					<option value="5" <?php selected( $wikiembed_options['wiki-update'], "5" ); ?>>Every 5 minutes </option>
+					<option value="30" <?php selected( $wikiembed_options['wiki-update'], "30" ); ?>>Every 30 minutes </option>
+					<option value="360" <?php selected( $wikiembed_options['wiki-update'], "360" ); ?>>Every 6 hours </option>
+					<option value="1440" <?php selected( $wikiembed_options['wiki-update'], "1440" ); ?>>Daily </option>
+					<option value="262974383" <?php selected( $wikiembed_options['wiki-update'], "262974383" ); ?>>Manually</option>
 				</select>
 				<div class="help-div">Set the duration the content of the wiki page will be stored on your site, before it is refreshed again.<br /> <em>Manually</em> means the content will be stored for <em>6 months</em> which will allow you to refresh the content manually.</div>
 				</td>

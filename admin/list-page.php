@@ -14,19 +14,43 @@ function wikiembed_list_page()
   		switch($_POST['action'])
   		{
   			case 'trash':
-  			
-  				foreach($_POST['wikiembed'] as $wiki_page_id):
-  					$undoItems[] = $wikiembeds[$wiki_page_id];;
-	  				unset($wikiembeds[$wiki_page_id]);
-	  				
-	  				
-					delete_transient( md5($wiki_page_id) );
-					
-				endforeach;
-				
+  				if($_POST['wikiembed']):
+  				
+	  				foreach($wikiembeds  as $wikiembeds_hash => $wikiembeds_item):
+	  					$bits = explode(",",$wikiembeds_hash);
+			
+	  					if(in_array($bits[0],$_POST['wikiembed']))
+	  					{
+	  						unset($wikiembeds[$wikiembeds_hash]);
+							delete_transient( md5($wikiembeds_hash) );
+	  						$undoItems[] = $wikiembeds[$wiki_page_id];
+	  					}
+	  				endforeach;
+	  				unset($bits);
+  				
   				update_option( 'wikiembeds', $wikiembeds );
+  				endif;
   			break;
   			
+  			case 'clear-cache':
+  				if($_POST['wikiembed']):
+  				
+	  				foreach($wikiembeds  as $wikiembeds_hash => $wikiembeds_item):
+	  					$bits = explode(",",$wikiembeds_hash);
+			
+	  					if(in_array($bits[0],$_POST['wikiembed']))
+	  					{
+	  						unset($wikiembeds[$wikiembeds_hash]['expires_on']);
+							delete_transient( md5($wikiembeds_hash) );
+	  						$undoItems[] = $wikiembeds[$wiki_page_id];
+	  					}
+	  				endforeach;
+	  				unset($bits);
+  				
+  				update_option( 'wikiembeds', $wikiembeds );
+  				endif;
+  			
+  			break;
   		}	
 	}
 	
@@ -43,6 +67,16 @@ function wikiembed_list_page()
 	<style type="text/css">
 	.help-div{ display: none; padding-bottom: 10px; font-size: 10px; color:#777; width: 400px; }
 	th .help-div{ width: 200px;}
+	tr.child td.desciption-title{
+	padding-left: 20px;
+	}
+	.widefat td,.widefat th {
+	 border:0;
+	}
+	tr.parent  td,
+	tr.parent  th{
+	 border-top:1px solid #DFDFDF;
+	}
 	#show-help{
 	background:#21759B; padding:3px 10px; font-size:9px; text-decoration:none; color:#FFF;
 	-moz-border-radius:4px;
@@ -83,7 +117,8 @@ function wikiembed_list_page()
 		<div class="alignleft actions">
 		<select name="action">
 			<option selected="selected" value="-1">Bulk Actions</option>
-			<option value="trash">Delete Cache</option>
+			<option value="clear-cache">Clear Cache</option>
+			<option value="trash">Delete Entry</option>
 		</select>
 		
 		<input type="submit" class="button-secondary action" id="doaction" name="doaction" value="Apply">
@@ -119,17 +154,23 @@ function wikiembed_list_page()
 	<?php if($wikiembeds):
 		$counter = 0;
 		ksort($wikiembeds);
+		$previous_url = null;
 		foreach($wikiembeds as $hash => $item): 
 			
 			$bits = explode(",",$hash);
-			$counter++;
-		
+			
+			
 			$url = parse_url($bits[0],PHP_URL_PATH);
+			
+			if($previous_url != $bits[0]):
+			$previous_url = $bits[0];
+			$counter++;
 		?>
-	<tr valign="top" <?php echo ( ($counter % 2) ? 'class="alternate"': ''); ?> >
+	<tr valign="top" class="<?php echo ( ($counter % 2) ? 'alternate': ''); ?> parent" >
 		<th class="check-column" scope="row"><input type="checkbox" value="<?php echo $hash; ?>" name="wikiembed[]"></th>
 		<td><a href="<?php echo esc_url( $bits[0] ); ?>"><?php echo $url; ?></a><br />
-		<?php echo "[wiki-embed " ;
+		<?php
+		/* echo "[wiki-embed " ;
 		foreach($bits as $count => $bit):
 		 	if($count == 0)
 		 		echo 'url="'.$bit.'" ';
@@ -137,7 +178,7 @@ function wikiembed_list_page()
 				echo " {$bit} ";
 		
 		endforeach; 
-		echo "]"; ?>
+		echo "]"; */ ?>
 		</td>
 		
 		<td>
@@ -153,7 +194,7 @@ function wikiembed_list_page()
 			<p><span class="spacer"><a href="<?php echo esc_url($item['url']); ?>"><?php echo $item['url']; ?></a></span> 
 			<a href="#" class="add-target-url" id="<?php echo urlencode($hash); ?>">Edit</a> <span class="divider">|</span> <span class="trash"><a class="remove-link" rel="<?php echo urlencode($hash); ?>" href="#remove">Remove</a></span></p>
 			<p style="display:none;">
-				<input type="text" name="<?php echo urlencode($hash); ?>" value="<?php echo $item['url']; ?>" size="80" />
+				<input type="text" name="<?php echo urlencode($hash); ?>" class="" value="<?php echo $item['url']; ?>" size="80" />
 				<input type="button" value="Edit Target URL" class="button submit-target-url button-primary" /> 
 				<a href="#" class="cancel-tagert-url button-secondary">cancel</a>
 			</p>
@@ -161,12 +202,44 @@ function wikiembed_list_page()
 		</td>
 		<td><?php 
 		if($item['expires_on'] > time())
-			echo date("Y/m/d h:i:s A",$item['expires_on']);
+			echo date("Y/m/d h:i A",$item['expires_on']);
 		else
 			echo "expired";
 		 ?></td>
 	</tr>	
-	<?php endforeach;
+	<?php 
+	else: ?>
+	<tr valign="top" class="<?php echo ( ($counter % 2) ? 'alternate': ''); ?> child " style="display:none;" ref="" >
+		<th class="check-column" scope="row"></th>
+		<td class="desciption-title"><a href="<?php echo esc_url( $bits[0] ); ?>"><?php echo $url; ?></a><br />
+		<?php echo "[wiki-embed " ;
+		foreach($bits as $count => $bit):
+		 	if($count == 0)
+		 		echo 'url="'.$bit.'" ';
+			else
+				echo " {$bit} ";
+		
+		endforeach; 
+		echo "]"; ?>
+		</td>
+		
+		<td>
+		
+		</td>
+		<td><?php 
+		if($item['expires_on'] > time())
+			echo date("Y/m/d h:i A",$item['expires_on']);
+		else
+			echo "expired";
+		 ?></td>
+	</tr>	
+	
+	<?php 
+	endif;
+	
+
+	
+	endforeach;
 	else: ?>
 	 <tr valign="top" class="alternate">
 		<td>
@@ -187,19 +260,64 @@ function wikiembed_list_page()
 	
 	
 	</table>
-	
+	current time: <?php echo date("Y/m/d h:i:s A",time()); ?>
 	 <?php wp_nonce_field('wikiembed-list','wikiembed-list'); ?>
 
 	</form>
 	
 	<script type="text/javascript" >
+	
+	function isURL(s) {
+ 		var regexp = /http:\/\/[A-Za-z0-9\.-]{3,}\.[A-Za-z]{3}/;
+ 	alert(regexp.test(s));
+	}
+
+
 	jQuery(function($){
-		$(".add-target-url").click(function(){
+		$("a.add-target-url").click(function(e){
 		 $(this).parent().hide().next().show();
+		 // make the text box be focus 
 		 
+		var input =  $(this).parent().next().children('input[type=text]');
+			input.focus().select();
+		 	input.keypress(function(e)
+         	{
+            code= (e.keyCode ? e.keyCode : e.which);
+            if (code == 13) {
+           		var data = {
+				action: 'wiki_embed_add_link',
+				url: input.val(),
+				id: input.attr('name')
+				};
+				var el = $(this).siblings('input.button');
+				// since 2.8 ajaxurl is always defined in the admin header and points to admin-ajax.php
+				
+								
+				jQuery.post(ajaxurl, data, function(response) {
+					if(response == "success")
+					{
+						el.parent().hide().prev().show();
+						var patent = el.parent().prev();
+						patent.children('a').html("Edit");
+						patent.children('span.spacer').html("<a href='"+input.val()+"'>"+input.val()+"</a> ");
+						if(el.val() == "Add Target URL")
+						{
+							el.val("Edit Target URL");
+							patent.append(" <span class='divider'>|</span> <span class='trash'><a class='remove-link' rel='"+input.attr('name')+"' href='#remove'>Remove</a></span>");
+						}
+						
+					}
+				});
+			e.preventDefault();
+            }
+            
+          });
+
+		 e.preventDefault();
 		});
-		$('.cancel-tagert-url').click(function(){
+		$('a.cancel-tagert-url').click(function(e){
 			$(this).parent().hide().prev().show();
+			e.preventDefault();
 		});
 		
 		// remove links 
@@ -220,8 +338,6 @@ function wikiembed_list_page()
 					// change the Button 
 					el.parent().parent().next().children('input.button').val("Add Target URL");
 
-					
-					
 					// replace the the link with 
 					el.parent().parent().children(".spacer").html("none");
 					el.parent().parent().children(".divider").remove();
@@ -234,11 +350,12 @@ function wikiembed_list_page()
 		});
 		
 		/// submit the form and save the 
-		$('.submit-target-url').click(function(){
+		$('input.submit-target-url').click(function(){
 			
 			// get the image rolling 
 			var el = $(this);
 			var input = el.prev();
+			
 			
 			var data = {
 			action: 'wiki_embed_add_link',
@@ -259,7 +376,7 @@ function wikiembed_list_page()
 						el.val("Edit Target URL");
 						patent.append(" <span class='divider'>|</span> <span class='trash'><a class='remove-link' rel='"+input.attr('name')+"' href='#remove'>Remove</a></span>");
 					}
-		
+					
 				}
 			});
 		}); // end of submit click 
