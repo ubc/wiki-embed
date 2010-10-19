@@ -15,21 +15,24 @@ function wikiembed_list_page()
   		{
   			case 'trash':
   				if($_POST['wikiembed']):
-  				
+  					
+  				  					
 	  				foreach($wikiembeds  as $wikiembeds_hash => $wikiembeds_item):
 	  					$bits = explode(",",$wikiembeds_hash);
-			
-	  					if(in_array($bits[0],$_POST['wikiembed']))
+						
+	  					if(in_array($bits[0],$_POST['wikiembed']) || in_array($wikiembeds_hash,$_POST['wikiembed']))
 	  					{
 	  						unset($wikiembeds[$wikiembeds_hash]);
 							delete_transient( md5($wikiembeds_hash) );
-	  						$undoItems[] = $wikiembeds[$wiki_page_id];
+	  						
 	  					}
 	  				endforeach;
 	  				unset($bits);
   				
   				update_option( 'wikiembeds', $wikiembeds );
+  				
   				endif;
+  				
   			break;
   			
   			case 'clear-cache':
@@ -54,17 +57,46 @@ function wikiembed_list_page()
   		}	
 	}
 	
-	// lets try to recreate the undo funcnction
+	// sort $wikiembeds by page parent and 
+	if(is_array($wikiembeds)):
+		ksort($wikiembeds);
 	
-	 if(is_array($undoItems))
+	$previous_url = null;
+	$parent_count = 0;
+	foreach($wikiembeds as $hash => $item): 
+		$bits = explode(",",$hash);
+		if($previous_url != $bits[0]):
+			$wikiembeds_parents[$parent_count][$hash] = $item;
+			$parent_count++;
+			$previous_url = $bits[0];
+		else:
+			
+		endif;
+	endforeach;
+	endif;
+	
+	// lets try to recreate the undo funcnction
+	// maybe in future relieses
+	/* if(is_array($undoItems))
 	 {
 	 
-	 
-	 
+	 ?><div class="notice"><a href="#Undo" id="undo">undo</a> - You can retrieve the links.</div>
+	 <?php
 	 }	
-	
+	*/
 	?>
 	<style type="text/css">
+	.notice{
+	 border: 1px solid #E6DB55;
+
+	 background: #FFFBCC;
+	 color:#555555;
+	 margin: 10px 5px 0;
+     -moz-border-radius: 3px; /* FF1+ */
+  -webkit-border-radius: 3px; /* Saf3-4 */
+          border-radius: 3px; /* Opera 10.5, IE 9, Saf5, Chrome */
+	padding: 10px;
+	}
 	.help-div{ display: none; padding-bottom: 10px; font-size: 10px; color:#777; width: 400px; }
 	th .help-div{ width: 200px;}
 	tr.child td.desciption-title{
@@ -108,9 +140,16 @@ function wikiembed_list_page()
 	          border-radius: 3px; /* Opera 10.5, IE 9, Saf5, Chrome */
 
 	}
+	td a span{
+	display: none;
+	}
+	td a:hover span{ display: block; color:#555;}
+	#icon-wiki-embed{
+		background: url(<?php echo plugins_url('/wiki-embed/resources/img/icon_large.gif'); ?>) no-repeat; 
+	}
 	</style>
 	<div class="wrap">
-	<h2>Wiki Embed</h2>
+	<div id="icon-wiki-embed" class="icon32"><br></div><h2>Wiki Embed</h2>
 	<p>Here is a list of all the wiki content that is being embedded</p>
 	<form method="post" acction=""> 
 	<div class="tablenav">
@@ -143,7 +182,7 @@ function wikiembed_list_page()
 	<th style="" class="manage-column column-cb check-column" id="cb" scope="col"><input type="checkbox"></th>
 	<th style="" class="manage-column column-title" id="title" scope="col">URL</th>
 	<th style="" class="manage-column column-url" id="url" scope="col">Target URL <?php echo ($wikiembed_options['wiki-links'] == 'new-page'? "<span class='active' >active</span>": "<span class='non-active'>not applicable</span>"); ?></th>
-	<th style="" class="manage-column column-date" id="date" scope="col">Cache Expires On</th>
+	<th style="" class="manage-column column-date" id="date" scope="col">Cache Expires In</th>
 	
 	</tr>
 	</tfoot>
@@ -151,35 +190,34 @@ function wikiembed_list_page()
 	
 	<tbody>
 	
-	<?php if($wikiembeds):
-		$counter = 0;
-		ksort($wikiembeds);
-		$previous_url = null;
-		foreach($wikiembeds as $hash => $item): 
+	<?php if($wikiembeds_parents):
+		$total_size = sizeof($wikiembeds_parents);
+		
+		$items_per_page  = 20;
+		
+		if(isset($_GET['p']) && is_int(intval($_GET['p'])))
+			$page = intval($_GET['p']);
+		else
+			$page = 1;
 			
+		// $page = floor($page);
+		$count_till = $page*$items_per_page;
+		
+		if($count_till> $total_size)
+			$count_till = $total_size;
+			for($i=($page-1)*$items_per_page ; $i<($count_till) ; $i++)
+		{ 
+		
+			$hash = key($wikiembeds_parents[$i]);
+			$item = $wikiembeds_parents[$i][$hash];		
 			$bits = explode(",",$hash);
-			
-			
 			$url = parse_url($bits[0],PHP_URL_PATH);
 			
-			if($previous_url != $bits[0]):
-			$previous_url = $bits[0];
-			$counter++;
+			
 		?>
-	<tr valign="top" class="<?php echo ( ($counter % 2) ? 'alternate': ''); ?> parent" >
+	<tr valign="top" class="<?php echo ( ($i % 2) ? 'alternate': ''); ?> parent" >
 		<th class="check-column" scope="row"><input type="checkbox" value="<?php echo $hash; ?>" name="wikiembed[]"></th>
-		<td><a href="<?php echo esc_url( $bits[0] ); ?>"><?php echo $url; ?></a><br />
-		<?php
-		/* echo "[wiki-embed " ;
-		foreach($bits as $count => $bit):
-		 	if($count == 0)
-		 		echo 'url="'.$bit.'" ';
-			else
-				echo " {$bit} ";
-		
-		endforeach; 
-		echo "]"; */ ?>
-		</td>
+		<td><a href="<?php echo esc_url( $bits[0] ); ?>"><?php echo $url; ?><br /><span><?php echo esc_url($bits[0]);?></span></a></td>
 		
 		<td>
 		<?php if( !$item['url'] ): ?>
@@ -202,44 +240,13 @@ function wikiembed_list_page()
 		</td>
 		<td><?php 
 		if($item['expires_on'] > time())
-			echo date("Y/m/d h:i A",$item['expires_on']);
+			echo human_time_diff( date('U',$item['expires_on']),current_time('timestamp') );
 		else
 			echo "expired";
 		 ?></td>
 	</tr>	
 	<?php 
-	else: ?>
-	<tr valign="top" class="<?php echo ( ($counter % 2) ? 'alternate': ''); ?> child " style="display:none;" ref="" >
-		<th class="check-column" scope="row"></th>
-		<td class="desciption-title"><a href="<?php echo esc_url( $bits[0] ); ?>"><?php echo $url; ?></a><br />
-		<?php echo "[wiki-embed " ;
-		foreach($bits as $count => $bit):
-		 	if($count == 0)
-		 		echo 'url="'.$bit.'" ';
-			else
-				echo " {$bit} ";
-		
-		endforeach; 
-		echo "]"; ?>
-		</td>
-		
-		<td>
-		
-		</td>
-		<td><?php 
-		if($item['expires_on'] > time())
-			echo date("Y/m/d h:i A",$item['expires_on']);
-		else
-			echo "expired";
-		 ?></td>
-	</tr>	
-	
-	<?php 
-	endif;
-	
-
-	
-	endforeach;
+	}
 	else: ?>
 	 <tr valign="top" class="alternate">
 		<td>
@@ -260,8 +267,45 @@ function wikiembed_list_page()
 	
 	
 	</table>
-	current time: <?php echo date("Y/m/d h:i:s A",time()); ?>
-	 <?php wp_nonce_field('wikiembed-list','wikiembed-list'); ?>
+	<!-- current time: <?php echo date("Y/m/d h:i:s A",time()); ?> -->
+	<?php 
+		if($wikiembeds_parents):
+		?>
+		<div class="tablenav">
+		<div class="tablenav-pages">
+		<span class="displaying-num">Displaying <?php echo (($page-1)*$items_per_page)+1; ?> &ndash;<?php echo ($count_till); ?> of <?php echo $total_size; ?></span>
+		<?php
+		for($i=1; $i<=ceil($total_size/$items_per_page); $i ++)
+		{
+			if($i == $page)
+				{?> <span class="page-numbers current"><?php echo $i; ?></span><?php }
+			else
+				{?> <a href="admin.php?page=wiki-embed&p=<?php echo $i; ?>" class="page-numbers"> <?php echo $i; ?></a> <?php }
+		} 
+		?>
+		</div></div>
+		<?php
+		endif;
+	/*if(<a href="/elearning/wp-admin/edit.php?post_type=page&amp;paged=2" class="next page-numbers">È</a>)
+	?>
+<a href="/elearning/wp-admin/edit.php?post_type=page&amp;paged=2" class="page-numbers">2</a>
+<a href="/elearning/wp-admin/edit.php?post_type=page&amp;paged=3" class="page-numbers">3</a>
+<span class="page-numbers dots">...</span>
+<a href="/elearning/wp-admin/edit.php?post_type=page&amp;paged=6" class="page-numbers">6</a>
+
+	<?php 
+	if($wikiembeds_parents):
+	for($i=1; $i<=($total_size/$items_per_page); $i ++)
+	{
+		?><a href="admin.php?page=wiki-embed&p=<?php echo $i; ?>"><?php echo $i; ?></a> 
+		
+		<?php
+	} 
+	endif;
+	?>
+	 <?php
+	 */
+	  wp_nonce_field('wikiembed-list','wikiembed-list'); ?>
 
 	</form>
 	

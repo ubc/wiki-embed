@@ -3,7 +3,7 @@
 Plugin Name: Wiki Embed
 Plugin URI: 
 Description: Enables the inclusion of mediawiki pages into your own blog page or post. Though the use of shortcodes. 
-Version: 0.9
+Version: 0.9.1
 Author: OLT UBC
 Author URI: http://blogs.ubc.ca/oltdev
 */
@@ -80,6 +80,10 @@ require_once("admin/admin.php");
 
 // GLOBAL variables 
 $wikiembed_options 	= get_option('wikiembed_options'); // wikiemebed options
+
+if(!$wikiembed_options)
+	$wikiembed_options = wikiembed_settings();
+
 $wikiembeds 		= get_option('wikiembeds');
 $wikiembed_content_count; // wiki content count needed by the shortcode 
 $wikiembed_version = 0.8;
@@ -255,14 +259,14 @@ function wikiembed_shortcode($atts)
 	// other possbile attributes
 	
 	
-	$has_source 	 = ( in_array("source",		$atts)? true: false );
+	
 	
 	$has_no_edit 	 = ( in_array("no-edit", 	$atts)? true: false );	
 	$has_no_contents = ( in_array("no-contents",$atts)? true: false );
 	$has_tabs 		 = ( in_array("tabs", 		$atts)? true: false );
 	
 	// $has_overlay 	 = ( in_array("overlay", 	$atts)? true: false ); // this is just for backwards compatibility 
-	
+	// $has_source 	 = ( in_array("source",		$atts)? true: false ); 
 	
 	$content .= wikiembed_get_wiki_content($url,$has_tabs,$has_no_contents,$has_no_edit,$update,$has_source,$remove);
 		
@@ -552,6 +556,31 @@ function wikiembed_overlay_ajax() {
  *
  *
  ********************************************************************/
+/**
+ * wikiembed_settings function.
+ * 
+ * @access public
+ * @return void
+ */
+function wikiembed_settings()
+{
+	$wikiembed_options['tabs'] = 1;
+	$wikiembed_options['style'] = 1;
+	$wikiembed_options['tabs-style'] = 1;
+	$wikiembed_options['wiki-update'] = "30";
+	
+	$wikiembed_options['wiki-links'] = "default";
+	$wikiembed_options['default']['source'] = 1;
+	$wikiembed_options['default']['pre-source'] = "source:";
+	
+	
+	$wikiembed_options['default']['no-contents'] = 1;
+	$wikiembed_options['default']['no-edit'] = 1;
+	$wikiembed_options['default']['tabs'] = 1;
+
+
+	return $wikiembed_options;
+}
 
 /**
  * wikiembed_action_url function.

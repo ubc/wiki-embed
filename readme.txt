@@ -36,6 +36,14 @@ Maybe, but why would you want to? That is not what the tool was designed to do.
 
 
 == Changelog ==
+= 0.9.1 = 
+* Pagination added 
+* Icons added 
+* How the content gets saved and stored improved. For example if you are querying the same wiki content only you will only request the content from the wiki once.
+* Default Settings added
+* This is the version before that is undergoing verification testing
+
+
 = 0.9 =
 * Is the pre production release, please help us test it.
  

@@ -4,6 +4,7 @@
 // this function is used in the 
 function wikiembed_settings_page() {
 	global $wikiembed_options, $wikiembed_version;
+	
 	?>
 	<style type="text/css">
 	.help-div{ display: none; padding-bottom: 10px; font-size: 10px; color:#777; width: 400px; }
@@ -152,7 +153,7 @@ function wikiembed_settings_page() {
 }
 
 //display contextual help for Books
-add_action( 'contextual_help', 'wiki_embed_add_help_text', 10, 3 );
+// add_action( 'contextual_help', 'wiki_embed_add_help_text', 10, 3 );
 
 function wiki_embed_add_help_text($contextual_help, $screen_id, $screen) { 
   if ('wiki-embed_page_wikiembed_settings_page' == $screen->id ) {
@@ -180,14 +181,20 @@ function wiki_embed_add_help_text($contextual_help, $screen_id, $screen) {
 
 
 // Sanitize and validate input. Accepts an array, return a sanitized array.
-function wikiembed_options_validate($input) {
+function wikiembed_options_validate($wikiembed_options) {
+	$wikiembed_options['tabs'] =  ( $wikiembed_options['tabs'] == 1 ? 1 : 0 );
+	$wikiembed_options['style'] =  ( $wikiembed_options['style'] == 1 ? 1 : 0 );
+	$wikiembed_options['tabs-style'] =  ( $wikiembed_options['tabs-style'] == 1 ? 1 : 0 );
+	$wikiembed_options['wiki-update'] =  ( is_numeric($wikiembed_options['wiki-update']) ? $wikiembed_options['wiki-update'] : "30" );
 	
-	$input['tabs'] = ( $input['tabs'] == 1 ? 1 : 0 );
-	
-	$input['overlay'] = ( $input['overlay'] == 1 ? 1 : 0 );
-	
-	$input['style'] = ( $input['style'] == 1 ? 1 : 0 );
+	$wikiembed_options['wiki-links'] = ( in_array($wikiembed_options['wiki-links'],array("default","overlay","new-page")) ? $wikiembed_options['wiki-links']:"default" );
+	$wikiembed_options['default']['source'] =  ( $wikiembed_options['default']['source'] == 1 ? 1 : 0 );
+	$wikiembed_options['default']['pre-source'] = wp_rel_nofollow($wikiembed_options['default']['pre-source']);
 	
 	
-	return $input;
+	$wikiembed_options['default']['no-contents'] =  ( $wikiembed_options['default']['no-contents'] == 1 ? 1 : 0 );
+	$wikiembed_options['default']['no-edit'] =  ( $wikiembed_options['default']['no-edit'] == 1 ? 1 : 0 );
+	$wikiembed_options['default']['tabs'] =  ( $wikiembed_options['default']['tabs'] == 1 ? 1 : 0 );
+
+	return $wikiembed_options;
 }
