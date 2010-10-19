@@ -17,10 +17,10 @@ if(in_array($pagenow, array( "post.php", "post-new.php" )))
  */
 function wikiembed_overlay_buttons($context)
 {
-	 $wiki_embed_overlay_image_button = plugins_url('/wiki-embed/resources/img/icon.png');
-    $output_link = '<a href="#TB_inline?height=400&width=670&inlineId=wiki_embed_form" class="thickbox" title="' .__("Wiki Embed", 'wiki-embed') . '"><img src="'.$wiki_embed_overlay_image_button.'" alt="' . __("Wiki Embed", 'wiki-embed') . '" /></a><style>#wiki_embed_form{ display:none;}</style>';
+	$wiki_embed_overlay_image_button = plugins_url('/wiki-embed/resources/img/icon.png');
+    $output_link = '<a href="#TB_inline?height=400&width=670&inlineId=wiki_embed_form" class="thickbox" title="' .__("Wiki Embed", 'wiki-embed') . '" id="wiki-embed-overlay-button"><img src="'.				$wiki_embed_overlay_image_button.'" alt="' . __("Wiki Embed", 'wiki-embed') . '" /></a><style>#wiki_embed_form{ display:none;}</style>';
     return $context.$output_link;
-
+	
 }
 
 
@@ -34,7 +34,8 @@ function wikiembed_overlay_popup_form()
 {
 	global $wikiembed_options;
     ?>
-    <script >
+    <script type="text/javascript">
+    	
         function wiki_embed_insert_overlay_form(){
 		   	var wikiEmbedUrl = jQuery("#wiki-embed-src").attr('value');
 			var wikiEmbedUpdate = jQuery("#wiki-embed-update").attr('value');
