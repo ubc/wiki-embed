@@ -81,8 +81,7 @@ require_once("admin/admin.php");
 // GLOBAL variables 
 $wikiembed_options 	= get_option('wikiembed_options'); // wikiemebed options
 
-if(!$wikiembed_options)
-	$wikiembed_options = wikiembed_settings();
+$wikiembed_options = shortcode_atts( wikiembed_settings(), $wikiembed_options);
 
 $wikiembeds 		= get_option('wikiembeds');
 $wikiembed_content_count; // wiki content count needed by the shortcode 
@@ -280,7 +279,7 @@ function wikiembed_get_wiki_content($url,$has_tabs,$has_no_contents,$has_no_edit
 	global $wikiembeds,$wikiembed_options,$wikiembed_content_count;
 	
 	if( !is_numeric($update) || $update < 5)
-	$update = $wikiembed_options['wiki-update']; 
+		$update = $wikiembed_options['wiki-update']; 
 	
 	// create the unique id 
 	$wiki_page_id = esc_url($url).",";
@@ -298,8 +297,9 @@ function wikiembed_get_wiki_content($url,$has_tabs,$has_no_contents,$has_no_edit
 	
 	$wiki_page_id_hash  = md5($wiki_page_id); // if we don't md5 the hash we can't really 
 	
+
 	// Get any existing copy of our transient data
-	if (false === ( $wiki_page_body = get_transient($wiki_page_id_hash ) ) ): 
+	if (false === ( $wiki_page_body = get_transient( $wiki_page_id_hash ) ) ): 
 		
 		// lets try to get the  
     	$wiki_page_body  = wp_remote_request_wikipage($url,$update);
@@ -566,7 +566,7 @@ function wikiembed_settings()
 {
 	$wikiembed_options['tabs'] = 1;
 	$wikiembed_options['style'] = 1;
-	$wikiembed_options['tabs-style'] = 1;
+	$wikiembed_options['tabs-style'] = 0;
 	$wikiembed_options['wiki-update'] = "30";
 	
 	$wikiembed_options['wiki-links'] = "default";

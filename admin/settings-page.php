@@ -10,8 +10,14 @@ function wikiembed_settings_page() {
 	.help-div{ display: none; padding-bottom: 10px; font-size: 10px; color:#777; width: 400px; }
 	th .help-div{ width: 200px;}
 	#show-help{
-	background:#21759B; padding:3px 10px; font-size:10px; text-decoration:none; color:#FFF;
-	-moz-border-radius:4px;
+	background:#21759B; 
+	padding:3px 10px; 
+	font-size:10px; 
+	text-decoration:none; 
+	color:#FFF;
+	-moz-border-radius: 4px; /* FF1+ */
+  -webkit-border-radius: 4px; /* Saf3-4 */
+          border-radius: 4px; 
 	font-family:"Lucida Grande",Verdana,Arial,"Bitstream Vera Sans",sans-serif;
 	font-style: normal;
 	font-weight: 100;
