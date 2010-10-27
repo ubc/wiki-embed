@@ -1,12 +1,10 @@
 <?php
 
-// init process for button control
-// add_action('init', 'wikiembed_addbuttons');
 
-add_action('media_buttons_context', 'wikiembed_overlay_buttons');
-
-if(in_array($pagenow, array( "post.php", "post-new.php" )))
+if(in_array($pagenow, array( "post.php", "post-new.php" ))):
 	add_action('admin_footer', 'wikiembed_overlay_popup_form');
+	add_action('media_buttons_context', 'wikiembed_overlay_buttons');
+endif;
 
 /**
  * wikiembed_overlay_buttons function.
@@ -20,9 +18,7 @@ function wikiembed_overlay_buttons($context)
 	$wiki_embed_overlay_image_button = plugins_url('/wiki-embed/resources/img/icon.png');
     $output_link = '<a href="#TB_inline?height=400&width=670&inlineId=wiki_embed_form" class="thickbox" title="' .__("Wiki Embed", 'wiki-embed') . '" id="wiki-embed-overlay-button"><img src="'.				$wiki_embed_overlay_image_button.'" alt="' . __("Wiki Embed", 'wiki-embed') . '" /></a><style>#wiki_embed_form{ display:none;}</style>';
     return $context.$output_link;
-	
 }
-
 
 /**
  * wikiembed_overlay_popup_form function.
@@ -38,8 +34,8 @@ function wikiembed_overlay_popup_form()
     	
         function wiki_embed_insert_overlay_form(){
 		   	var wikiEmbedUrl = jQuery("#wiki-embed-src").attr('value');
-			var wikiEmbedUpdate = jQuery("#wiki-embed-update").attr('value');
-			
+			// var wikiEmbedUpdate = jQuery("#wiki-embed-update").attr('value');
+			// update='"+wikiEmbedUpdate+"'
 			var wikiEmbedSource 	= (jQuery("#wiki-embed-display-links").attr('checked') 	? jQuery("#wiki-embed-display-links").attr('value'):"");
 			var wikiEmbedOverlay 	= (jQuery("#wiki-embed-overlay").attr('checked') 		? jQuery("#wiki-embed-overlay").attr('value'):"");
 			var wikiEmbedTabs 		= (jQuery("#wiki-embed-tabs").attr('checked') 			? jQuery("#wiki-embed-tabs").attr('value'):"");
@@ -47,7 +43,7 @@ function wikiembed_overlay_popup_form()
 			var wikiEmbedNoContents = (jQuery("#wiki-embed-contents").attr('checked') 		? jQuery("#wiki-embed-contents").attr('value'):"");
             
             var win = window.dialogArguments || opener || parent || top;
-            win.send_to_editor("[wiki-embed url='"+wikiEmbedUrl+"' update='"+wikiEmbedUpdate+"' "+ wikiEmbedSource + wikiEmbedOverlay + wikiEmbedTabs + wikiEmbedNoEdit + wikiEmbedNoContents +" ]");
+            win.send_to_editor("[wiki-embed url='"+wikiEmbedUrl+"' "+ wikiEmbedSource + wikiEmbedOverlay + wikiEmbedTabs + wikiEmbedNoEdit + wikiEmbedNoContents +" ]");
         }
     </script>
 
