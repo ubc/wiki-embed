@@ -1,6 +1,6 @@
 /* Wiki page opens up in a new page */
 jQuery(document).ready(function ($) {
-	$(".wiki-embed-new-page a:not(.external,.new,sup.reference a,.wiki-embed-tabs-nav a)").each(function() {
+	$(".wiki-embed-new-page a:not(.external,.image,.new,sup.reference a,.wiki-embed-tabs-nav a)").each(function() {
 		$(this).attr("href",WikiEmbedSettings.siteurl+"?wikiembed-url="+$.URLEncode(this.href)+"&wikiembed-title="+$.URLEncode(this.innerHTML));
 	});
 		

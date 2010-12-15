@@ -5,6 +5,18 @@
 function wikiembed_settings_page() {
 	global $wikiembed_options, $wikiembed_version;
 	
+	$option = "wikiembed_options";
+	if ( isset($_POST[$option]) ):
+			$value = $_POST[$option];
+		if ( !is_array($value) )
+			$value = trim($value);
+		$value = stripslashes_deep($value);
+		
+		$updated = update_option($option, $value);
+		$wikiembed_options = $value;
+		
+	endif; 
+
 	?>
 	<style type="text/css">
 	.help-div{ display: none; padding-bottom: 10px; font-size: 10px; color:#777; width: 400px; }
@@ -30,11 +42,16 @@ function wikiembed_settings_page() {
 	</style>
 	
 	<div class="wrap">
+		
 	    <div class="icon32" id="icon-options-general"><br></div>
 		<h2>Wiki Embed Settings </h2>
-		<form method="post" action="options.php">
+		
+		<form method="post" action="admin.php?page=wikiembed_settings_page">
 			<?php settings_fields('wikiembed_options'); ?>
 						<a href="#" id="show-help" >Explain More</a>
+		<?php if($updated): ?>
+		<div class="updated below-h2" id="message"><p>Wiki Embed Settings Updated</p></div>
+		<?php endif; ?>
 		<h3>Enable Wiki Embed Functionality </h3>
 		<p>If there is functionality that wiki embed has that you don't want &mdash; disable it. This will keep pages lean and mean. </p>
 		<table class="form-table">
@@ -63,7 +80,7 @@ function wikiembed_settings_page() {
 			</table>
 			
 			
-			<h3>Global Settings </h3> 
+			<h3>Global Settings </h3>
 			<p>These settings are applied site-wide</p>
 			
 			<table class="form-table">
@@ -93,6 +110,9 @@ function wikiembed_settings_page() {
 					
 					<label><input name="wikiembed_options[wiki-links]" type="radio" value="new-page" <?php checked($wikiembed_options['wiki-links'],"new-page"); ?>  /> WordPress Page &mdash; links open a WordPress page with the content of the wiki</label>  <br />
 					Note: You can make the links open in specific page by specifying a <a href="?page=wiki-embed">target url</a>. 
+					
+					<br /><label>email
+					<input type="text" name="wikiembed_options[wiki-links-new-page-email]" value="<?php echo $wikiembed_options['wiki-links-new-page-email']; ?>"   /></label> <div class="help-div">Specify an email address if you would like to be contacted when some access a new page. that has not been cached yet. This will help you create a better site structure as the content on the wiki grows.</div>
 				</td>
 			</tr>
 			<tr>
@@ -188,12 +208,13 @@ function wiki_embed_add_help_text($contextual_help, $screen_id, $screen) {
 
 // Sanitize and validate input. Accepts an array, return a sanitized array.
 function wikiembed_options_validate($wikiembed_options) {
-	$wikiembed_options['tabs'] =  ( $wikiembed_options['tabs'] == 1 ? 1 : 0 );
+		$wikiembed_options['tabs'] =  ( $wikiembed_options['tabs'] == 1 ? 1 : 0 );
 	$wikiembed_options['style'] =  ( $wikiembed_options['style'] == 1 ? 1 : 0 );
 	$wikiembed_options['tabs-style'] =  ( $wikiembed_options['tabs-style'] == 1 ? 1 : 0 );
 	$wikiembed_options['wiki-update'] =  ( is_numeric($wikiembed_options['wiki-update']) ? $wikiembed_options['wiki-update'] : "30" );
 	
 	$wikiembed_options['wiki-links'] = ( in_array($wikiembed_options['wiki-links'],array("default","overlay","new-page")) ? $wikiembed_options['wiki-links']:"default" );
+	$wikiembed_options['wiki-links-new-page-email'] = wp_rel_nofollow($wikiembed_options['wiki-links-new-page-email']);
 	$wikiembed_options['default']['source'] =  ( $wikiembed_options['default']['source'] == 1 ? 1 : 0 );
 	$wikiembed_options['default']['pre-source'] = wp_rel_nofollow($wikiembed_options['default']['pre-source']);
 	
@@ -201,6 +222,5 @@ function wikiembed_options_validate($wikiembed_options) {
 	$wikiembed_options['default']['no-contents'] =  ( $wikiembed_options['default']['no-contents'] == 1 ? 1 : 0 );
 	$wikiembed_options['default']['no-edit'] =  ( $wikiembed_options['default']['no-edit'] == 1 ? 1 : 0 );
 	$wikiembed_options['default']['tabs'] =  ( $wikiembed_options['default']['tabs'] == 1 ? 1 : 0 );
-
 	return $wikiembed_options;
 }

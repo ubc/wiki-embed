@@ -5,7 +5,7 @@ jQuery(document).ready(function ($) {
 			iframe: true, 
 			innerWidth: 800, 
 			innerHeight: "80%",
-			href: WikiEmbedSettings.ajaxurl+"?url="+$.URLEncode(this.href)+"&action=wiki_embed&title="+$.URLEncode(this.innerHTML),
+			href: WikiEmbedSettings.wiki_embed_ajaxurl+"?url="+$.URLEncode(this.href)+"&action=wiki_embed&title="+$.URLEncode(this.innerHTML),
 			transition:"none"
 			});
 		return false;		

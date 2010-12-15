@@ -36,6 +36,18 @@ Maybe, but why would you want to? That is not what the tool was designed to do.
 
 
 == Changelog ==
+
+= 1.0 = 
+* removed not needed code 
+* improved setting menu navigation 
+* improved Wiki Embed List | added the ability to see embeds that don't have a target url easier
+* bug fix. embedded images are not conceded as internal links any more 
+* bug fix. editor can now save settings. Added email to setting to which notifications are sent to if a visitor stumbles on a link that is not part of the navigation. 
+* improvement easier to add target urls to wiki embeds. 
+* version bumped up to 1.0 
+* ajaxurl changed to wiki_embed_ajaxurl 
+* version bumped up to 1.0
+
 = 0.9.1 = 
 * Pagination added 
 * Icons added 

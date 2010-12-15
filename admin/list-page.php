@@ -61,13 +61,34 @@ function wikiembed_list_page()
 	if(is_array($wikiembeds)):
 		ksort($wikiembeds);
 	
+	
 	$previous_url = null;
 	$parent_count = 0;
-	foreach($wikiembeds as $hash => $item): 
+	$count_non_url_items = 0;
+	$total_parent_count = 0;
+	foreach($wikiembeds as $hash => $item): // group wiki embeds with the same url together. so they can have the same url 
 		$bits = explode(",",$hash);
-		if($previous_url != $bits[0]):
-			$wikiembeds_parents[$parent_count][$hash] = $item;
-			$parent_count++;
+		if($previous_url != $bits[0]): // only group the parent url
+			
+			if($_GET['non_url_items'] && !$item['url']):
+				$wikiembeds_parents[$parent_count][$hash] = $item;
+				$count_non_url_items++;
+				$parent_count++;
+			elseif(isset($_GET['url'])):
+				if($_GET['url'] == $bits[0]):
+				$wikiembeds_parents[$parent_count][$hash] = $item;
+				$count_non_url_items++;
+				$parent_count++;
+				endif;
+			else:
+				if(!$_GET['non_url_items']):
+					$wikiembeds_parents[$parent_count][$hash] = $item;
+					$parent_count++;
+				endif;
+				if(!$item['url'])
+					$count_non_url_items++;
+			endif;
+			$total_parent_count++;
 			$previous_url = $bits[0];
 		else:
 			
@@ -149,9 +170,13 @@ function wikiembed_list_page()
 	}
 	</style>
 	<div class="wrap">
-	<div id="icon-wiki-embed" class="icon32"><br></div><h2>Wiki Embed</h2>
+	<div id="icon-wiki-embed" class="icon32"><br></div><h2>Wiki Embed List</h2>
 	<p>Here is a list of all the wiki content that is being embedded</p>
+	
 	<form method="post" acction=""> 
+	<ul class="subsubsub">
+		<li><a href="?page=wiki-embed">All <span class="count">(<?php echo $total_parent_count; ?> )</span></a> |</li>
+		<li><a href="?page=wiki-embed&non_url_items=true">No Target URL  <span class="count">(<?php echo $count_non_url_items;?>)</span></a></li></ul>
 	<div class="tablenav">
 		<div class="alignleft actions">
 		<select name="action">
@@ -160,8 +185,7 @@ function wikiembed_list_page()
 			<option value="trash">Delete Entry</option>
 		</select>
 		
-		<input type="submit" class="button-secondary action" id="doaction" name="doaction" value="Apply">
-		
+		<input type="submit" class="button-secondary action" id="doaction" name="doaction" value="Apply" />
 		</div>
 				
 		<div class="clear"></div>
@@ -200,12 +224,11 @@ function wikiembed_list_page()
 		else
 			$page = 1;
 			
-		// $page = floor($page);
 		$count_till = $page*$items_per_page;
 		
 		if($count_till> $total_size)
 			$count_till = $total_size;
-			for($i=($page-1)*$items_per_page ; $i<($count_till) ; $i++)
+		for($i=($page-1)*$items_per_page ; $i<($count_till) ; $i++)
 		{ 
 		
 			$hash = key($wikiembeds_parents[$i]);
