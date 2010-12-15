@@ -263,7 +263,7 @@ function wikiembed_list_page()
 		</td>
 		<td><?php 
 		if($item['expires_on'] > time())
-			echo human_time_diff( date('U',$item['expires_on']),current_time('timestamp') );
+			echo human_time_diff( date('U',$item['expires_on']) );
 		else
 			echo "expired";
 		 ?></td>

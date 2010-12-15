@@ -388,7 +388,7 @@ function wikiembed_shortcode($atts)
 	$wiki_page_id = substr($wiki_page_id,0,-1);
 		
 	
-	$admin = "<div class='wiki-admin' style='position:relative; border:1px solid #CCC; margin-top:20px;padding:10px;'> <span style='background:#EEE; padding:0 5px; position:absolute; top:-1em; left:10px;'>Only visible to admins</span> Wiki content expires in: ".human_time_diff( date('U', $wikiembeds[$wiki_page_id]["expires_on"] ),current_time('timestamp') ). " <a href='?refresh=".wp_create_nonce(urlencode($url))."'>Refresh Wiki Content</a> | <a href='".admin_url('admin.php')."?page=wiki-embed&url=".$url."'>in Wiki Embed List</a>";
+	$admin = "<div class='wiki-admin' style='position:relative; border:1px solid #CCC; margin-top:20px;padding:10px;'> <span style='background:#EEE; padding:0 5px; position:absolute; top:-1em; left:10px;'>Only visible to admins</span> Wiki content expires in: ".human_time_diff( date('U', $wikiembeds[$wiki_page_id]["expires_on"] ) ). " <a href='?refresh=".wp_create_nonce(urlencode($url))."'>Refresh Wiki Content</a> | <a href='".admin_url('admin.php')."?page=wiki-embed&url=".$url."'>in Wiki Embed List</a>";
 	
  	
 	if($wikiembed_options['wiki-links'] == "new-page"):
