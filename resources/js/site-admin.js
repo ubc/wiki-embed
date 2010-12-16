@@ -17,8 +17,16 @@ jQuery(document).ready(function($){
 			{
 				link.hide().after('<span>Traget URL set: '+link.attr('rel')+'</span>');
 				window.location.hash = 'blah';
-				
+			} else if(response == -1) {
+				jQuery.post(wiki_embed_ajaxurl.replace("http://", "https://"), data, function(response) {
+				if(response == "success")
+				{
+					link.hide().after('<span>Traget URL set: '+link.attr('rel')+'</span>');
+				}
+				});
+
 			}
+			
 		});
 		e.preventDefault();
 	});

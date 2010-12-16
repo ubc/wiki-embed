@@ -401,9 +401,9 @@ function wikiembed_shortcode($atts)
 		endif;
 	endif;
 
-	
-	endif;
 	$admin .= "</div>";
+	endif;
+	
 	return $content.$admin; 
 
 
@@ -505,6 +505,7 @@ function wikiembed_get_wiki_content($url,$has_tabs,$has_no_contents,$has_no_edit
 				else:
 					$tabs = '<div class="wiki-embed-shell wiki-embed-fragment-count-'.$count.'">';
 				endif;
+				
 				$tabs .= '<div id="fragment-'.$wikiembed_content_count.'-0" class="wikiembed-fragment wikiembed-fragment-counter-0">';
 			
 				// if(isset($list)):
@@ -512,7 +513,10 @@ function wikiembed_get_wiki_content($url,$has_tabs,$has_no_contents,$has_no_edit
 						$headlines[0]->parent()->outertext = $tabs.'<h2><span class="mw-headline">'.$headlines[0]->innertext.'</span></h2>';				
 			
 					if($headlines)		
-					$wiki_embed_end_tabs   .="</div></div>";
+					$wiki_embed_end_tabs   .="</div>";
+					
+					if($has_tabs)
+						$wiki_embed_end_tabs   .="</div>";
 				// endif;							
 			
 		
