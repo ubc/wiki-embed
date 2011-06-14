@@ -17,7 +17,8 @@ jQuery(document).ready(function($){
 			{
 				link.hide().after('<span>Traget URL set: '+link.attr('rel')+'</span>');
 				window.location.hash = 'blah';
-			} else if(response == -1) {
+			} else if(response == "-1") {
+				// try again
 				jQuery.post(wiki_embed_ajaxurl.replace("http://", "https://"), data, function(response) {
 				if(response == "success")
 				{

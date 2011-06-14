@@ -37,6 +37,20 @@ Maybe, but why would you want to? That is not what the tool was designed to do.
 
 == Changelog ==
 
+= 1.2 = 
+* Added a security feature that only allows certain sites to be wiki embedable in your site.
+* Bug fixes, TOC is not hijacked by js any more and is treated as an internal link, update the overlay to use HTML5
+* allow default a get parameter to be passed to the url. so you can do stuff like [wiki-embed url='http://en.wikipedia.org/wiki/%page%' get=page default_get=WordPress]
+* and now if you go to the page that has that shortcode and pass in a ?page=English in the url
+* it will embed the http://en.wikipedia.org/wiki/English instead of the default http://en.wikipedia.org/wiki/WordPress
+* allow for plan html view by going to the {siteurl}/wp-admin/admin-ajax.php?url={encoded_url}&action=wiki_embed&plain_html=1
+* this make the wiki embed act like a scraper.
+
+
+= 1.1 = 
+* Bug fix will display the admin overlay again, this bug occurs only when wiki embed is network activated 
+
+
 = 1.0 = 
 * removed not needed code 
 * improved setting menu navigation 

@@ -2,22 +2,29 @@
 jQuery(document).ready(function ($) {
 
 		
-		$(".wiki-embed-overlay a:not(.external,.new,sup.reference a,.wiki-embed-tabs-nav a)").click(function() {
+		$(".wiki-embed-overlay a:not(.external,.new,sup.reference a,.wiki-embed-tabs-nav a, #toc a)").click(function() {
 			
 			// add the remove attribute 
 			var remove = $(this).parents(".wiki-embed").attr("remove");
 			remove  = ( remove ) ? "&remove="+$.URLEncode(remove) : "";
-
+			
+			
 			$.fn.colorbox({
 				iframe: true, 
-				innerWidth: 800, 
+				innerWidth: 900, 
 				innerHeight: "80%",
 				href: WikiEmbedSettings.wiki_embed_ajaxurl+"?url="+$.URLEncode(this.href)+"&action=wiki_embed&title="+$.URLEncode(this.innerHTML)+remove,
-				transition:"none"
+				transition:"none",
+				onLoad: function () { $('#colorbox').show();
+					
+				
+				 }
 				});
+				
+				
 			return false;		
 		});
-		
+			
 });
 
 

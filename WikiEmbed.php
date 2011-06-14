@@ -3,7 +3,7 @@
 Plugin Name: Wiki Embed
 Plugin URI: 
 Description: Enables the inclusion of mediawiki pages into your own blog page or post. Though the use of shortcodes. 
-Version: 1.0
+Version: 1.2
 Author: OLT UBC
 Author URI: http://blogs.ubc.ca/oltdev
 */
@@ -345,7 +345,26 @@ function wikiembed_shortcode($atts)
 		'url' => NULL,
 		'update' => NULL, /* 30 minutes */
 		'remove'=>NULL,
+		'get'	=>NULL,
+		'default_get' =>NULL,
 	), $atts));
+	
+	
+	if($get)
+	{
+		$gets = explode(",",$get);
+		$default_gets = explode(",",$default_get);
+		$count_get = 0;
+		foreach($gets as $get_parameter):
+			$gets_replace[] = ( esc_html($_GET[trim($get_parameter)]) != "" ? esc_html($_GET[trim($get_parameter)]): $default_gets[$count_get]) ;
+			$gets_search[]	= "%".trim($get_parameter)."%";
+			$count_get++;
+
+		endforeach;
+		
+		$url = str_replace($gets_search, $gets_replace, $url);
+		
+	}
 	
 	// other possbile attributes
 	
@@ -393,7 +412,6 @@ function wikiembed_shortcode($atts)
  	
 	if($wikiembed_options['wiki-links'] == "new-page"):
 		if(!$wikiembeds[$url]['url']):
-		//var_dump($wikiembeds[$url],$url);
 		
 		$admin .= " <br /> <a href='' alt='".urlencode($url)."' title='Set this {$post->post_type} as Target URL' class='wiki-embed-set-target-url' rel='".get_permalink($post->post_ID)."'>Set this {$post->post_type} as Target URL</a>";
 		else:
@@ -408,13 +426,28 @@ function wikiembed_shortcode($atts)
 
 
 }
-
+/**
+ * wikiembed_get_wiki_content function.
+ * 
+ * @access public
+ * @param mixed $url
+ * @param mixed $has_tabs
+ * @param mixed $has_no_contents
+ * @param mixed $has_no_edit
+ * @param mixed $update
+ * @param bool $has_source. (default: false)
+ * @param mixed $remove. (default: null)
+ * @return void
+ */
 function wikiembed_get_wiki_content($url,$has_tabs,$has_no_contents,$has_no_edit,$update,$has_source=false,$remove=null)
 {
 	global $wikiembeds,$wikiembed_options,$wikiembed_content_count;
 	
 	if( !is_numeric($update) || $update < 5)
 		$update = $wikiembed_options['wiki-update']; 
+	
+	// make sure that ?action=render is removed
+	
 	
 	// create the unique id 
 	$wiki_page_id = esc_url($url).",";
@@ -482,41 +515,45 @@ function wikiembed_get_wiki_content($url,$has_tabs,$has_no_contents,$has_no_edit
 						
 			
 				
-				$index = 0;
+			$index = 0;
 			
-				$headlines = $html->find("h2 span.mw-headline");
-				$count = count($headlines)-1;
-				foreach($headlines as $headline):
+			$headlines = $html->find("h2 span.mw-headline");
+			$count = count($headlines)-1;
+			foreach($headlines as $headline):
+			
 					if( $has_tabs ): // create tabs 
 					$list .= '<li><a href="#fragment-'.$wikiembed_content_count.'-'.$index.'" ><span>'.$headline->innertext.'</span></a></li>';
 					endif; // end of creating tabs 
-					if($index !=0)
+					
+					if($index !=0):
 						$class = "wikiembed-fragment wikiembed-fragment-counter-".$index;
+						
 						if($count == $index)
 							$class .= " wikiembed-fragment-last";
-						$headline->parent()->outertext = '</div><div id="fragment-'.$wikiembed_content_count.'-'.$index.'" class="'.$class.'"><h2><span class="mw-headline">'.$headline->innertext.'</span></h2>';
 						
+						$headline->parent()->outertext = 
+						'</div><div id="fragment-'.$wikiembed_content_count.'-'.$index.'" class="'.$class.'"><h2><span class="mw-headline">'.$headline->innertext.'</span></h2>';
+					endif;
 					$index++;
-				endforeach;
+			endforeach;
+				
 				if( $has_tabs ):	// create tabs 
-				$tabs = '<div class="wiki-embed-tabs wiki-embed-fragment-count-'.$count.'">';
-				
-				$tabs .= '<ul class="wiki-embed-tabs-nav">'.$list.'</ul>';
+					$tabs = '<div class="wiki-embed-tabs wiki-embed-fragment-count-'.$count.'">'; // shell div
+					$tabs .= '<ul class="wiki-embed-tabs-nav">'.$list.'</ul>';
 				else:
-					$tabs = '<div class="wiki-embed-shell wiki-embed-fragment-count-'.$count.'">';
+					$tabs = '<div class="wiki-embed-shell wiki-embed-fragment-count-'.$count.'">'; // shell div 
 				endif;
-				
+				// the first div inside for the first tab
 				$tabs .= '<div id="fragment-'.$wikiembed_content_count.'-0" class="wikiembed-fragment wikiembed-fragment-counter-0">';
 			
-				// if(isset($list)):
-					if($headlines[0])
-						$headlines[0]->parent()->outertext = $tabs.'<h2><span class="mw-headline">'.$headlines[0]->innertext.'</span></h2>';				
+				
+				if($headlines[0])
+					$headlines[0]->parent()->outertext = $tabs.'<h2><span class="mw-headline">'.$headlines[0]->innertext.'</span></h2>';				
 			
-					if($headlines)		
-					$wiki_embed_end_tabs   .="</div>";
-					
-					if($has_tabs)
-						$wiki_embed_end_tabs   .="</div>";
+				if($headlines[0])
+					$wiki_embed_end_tabs   .="</div></div>";
+				
+				
 				// endif;							
 			
 		
@@ -543,6 +580,7 @@ function wikiembed_get_wiki_content($url,$has_tabs,$has_no_contents,$has_no_edit
 		     	
 	endif; // end of updating 
 	
+	$url = wikiembed_remove_action_render($url);
 	// display the source 
 	if($has_source || $wikiembed_options['default']['source'] ):
 		$source_text = ( isset( $wikiembed_options['default']['pre-source'] ) ? $wikiembed_options['default']['pre-source'] : "source:" ); 
@@ -590,6 +628,23 @@ function wp_remote_request_wikipage($url,$update)
 {
 	global $wikiembeds,$wikiembed_options;
 	$wiki_page_id_hash = md5($url);
+	
+	if($wikiembed_options['security']['whitelist']):
+		$white_list_pass = false;
+		$white_list_urls = preg_split( '/\r\n|\r|\n/', $wikiembed_options['security']['whitelist'] ); // http://blog.motane.lu/2009/02/16/exploding-new-lines-in-php/
+			
+			foreach($white_list_urls as $check_url):
+			
+			if( substr($url, 0 , strlen( $check_url ) )  == $check_url):
+				$white_list_pass = true;
+				break;
+			endif;
+		endforeach;
+		
+		if(!$white_list_pass)
+			return "This url does not meet the site security guidelines.";
+	endif;
+	
 	// grab the content from the cache
 	if (false === ( $wiki_page_body = get_transient( $wiki_page_id_hash ) ) ): 
 	
@@ -616,6 +671,20 @@ function wp_remote_request_wikipage($url,$update)
      return $wiki_page_body;
      	
 }
+
+/**
+ * wikiembed_remove_action_render function.
+ * removed any add action from the url 
+ * @access public
+ * @param mixed $url
+ * @return void
+ */
+function wikiembed_remove_action_render($url) {
+	if(substr($url,-14) == "?action=render")
+	return substr($url,0,-14);
+
+}
+
 
 
 
@@ -655,6 +724,9 @@ function wikiembed_overlay_ajax() {
 	$source_url = esc_url(urldecode($_GET['url']));
 	$remove = esc_attr(urldecode($_GET['remove']));
 	$title = esc_html(urldecode($_GET['title']));
+	$plain_html = ( isset($_GET['plain_html']) ? true: false );
+	$source_url = wikiembed_remove_action_render($source_url);
+	
 	
 	// constuct 
 	$wiki_page_id = esc_url($_GET['wikiembed-url']).",";
@@ -670,7 +742,6 @@ function wikiembed_overlay_ajax() {
 		
 	$wiki_page_id = substr($wiki_page_id,0,-1);
 
-	
 	$content = wikiembed_get_wiki_content(
 			$url,
 			$wikiembed_options['default']['tabs'],
@@ -679,11 +750,16 @@ function wikiembed_overlay_ajax() {
 			$wikiembed_options['wiki-links'],
 			$has_source,
 			$remove);
-	
-	
-	?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">
-<head profile="http://gmpg.org/xfn/11">
+	if(!$plain_html):
+	?>
+<!doctype html>
+
+<!--[if lt IE 7 ]> <html class="ie6" <?php language_attributes(); ?>> <![endif]-->
+<!--[if IE 7 ]>    <html class="ie7" <?php language_attributes(); ?>> <![endif]-->
+<!--[if IE 8 ]>    <html class="ie8" <?php language_attributes(); ?>> <![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--> <html <?php language_attributes(); ?>> <!--<![endif]-->
+<head>
+<meta http-equiv="Content-Type" content="<?php bloginfo( 'html_type' ); ?>; charset=<?php bloginfo( 'charset' ); ?>" />
 <title><?php echo urldecode(esc_attr($_GET['title'])); ?></title>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js"></script>
 <link media="screen" href="<?php bloginfo('stylesheet_url')?>" type="text/css" rel="stylesheet" >
@@ -693,18 +769,21 @@ function wikiembed_overlay_ajax() {
 
 </head>
 <body>
+
 	<div id="wiki-embed-iframe">
-	<div class="wiki-embed-source">source: <a target="_top" href="<?php echo $source_url; ?>"><?php echo $source_url; ?></a></div>
+	
 	<div class="wiki-embed-content">
 	<h1 class="wiki-embed-title" ><?php echo $title; ?></h1>
 	<?php 
+	endif;
 	echo $content;
+	if(!$plain_html):
 	?>
 	</div>
 	</div>
 	</body></html>
 	<?php
-	
+	endif;
 	die(); // don't need any more help 
 }
 
@@ -735,6 +814,7 @@ function wikiembed_settings()
 	$wikiembed_options['default']['no-contents'] = 1;
 	$wikiembed_options['default']['no-edit'] = 1;
 	$wikiembed_options['default']['tabs'] = 1;
+	$wikiembed_options['security']['whitelist'] = null;
 
 
 	return $wikiembed_options;

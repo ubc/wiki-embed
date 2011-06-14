@@ -1,10 +1,8 @@
 <?php
 
+add_action('admin_footer', 'wikiembed_overlay_popup_form');
+add_action('media_buttons_context', 'wikiembed_overlay_buttons');
 
-if(in_array($pagenow, array( "post.php", "post-new.php" ))):
-	add_action('admin_footer', 'wikiembed_overlay_popup_form');
-	add_action('media_buttons_context', 'wikiembed_overlay_buttons');
-endif;
 
 /**
  * wikiembed_overlay_buttons function.
@@ -15,9 +13,14 @@ endif;
  */
 function wikiembed_overlay_buttons($context)
 {
+	global $pagenow;
+	if(in_array($pagenow, array( "post.php", "post-new.php" ))):
 	$wiki_embed_overlay_image_button = plugins_url('/wiki-embed/resources/img/icon.png');
     $output_link = '<a href="#TB_inline?height=400&width=670&inlineId=wiki_embed_form" class="thickbox" title="' .__("Wiki Embed", 'wiki-embed') . '" id="wiki-embed-overlay-button"><img src="'.				$wiki_embed_overlay_image_button.'" alt="' . __("Wiki Embed", 'wiki-embed') . '" /></a><style>#wiki_embed_form{ display:none;}</style>';
     return $context.$output_link;
+    else:
+    return $context;
+    endif;
 }
 
 /**
@@ -28,7 +31,9 @@ function wikiembed_overlay_buttons($context)
  */
 function wikiembed_overlay_popup_form()
 {
-	global $wikiembed_options;
+	global $wikiembed_options,$pagenow;
+	if(in_array($pagenow, array( "post.php", "post-new.php" ))):
+	
     ?>
     <script type="text/javascript">
     	
@@ -100,4 +105,6 @@ function wikiembed_overlay_popup_form()
         </div>
     </div>
     <?php
+    
+    endif;
 }

@@ -15,8 +15,7 @@ function wikiembed_settings_page() {
 		$updated = update_option($option, $value);
 		$wikiembed_options = $value;
 		
-	endif; 
-
+	endif; 	
 	?>
 	<style type="text/css">
 	.help-div{ display: none; padding-bottom: 10px; font-size: 10px; color:#777; width: 400px; }
@@ -106,7 +105,7 @@ function wikiembed_settings_page() {
 				</th>
 				<td class="field">
 					<label><input name="wikiembed_options[wiki-links]" type="radio" value="default"  <?php checked($wikiembed_options['wiki-links'],"default"); ?> /> Default &mdash; links takes you back to the wiki</label>  <br />
-					<label><input name="wikiembed_options[wiki-links]" type="radio" value="overlay" <?php checked($wikiembed_options['wiki-links'],"overlay"); ?> /> Overlay &mdash; links open with the content in an overlay window <br />
+					<label><input name="wikiembed_options[wiki-links]" type="radio" value="overlay" <?php checked($wikiembed_options['wiki-links'],"overlay"); ?> /> Overlay &mdash; links open with the content in an overlay window</label> <br />
 					
 					<label><input name="wikiembed_options[wiki-links]" type="radio" value="new-page" <?php checked($wikiembed_options['wiki-links'],"new-page"); ?>  /> WordPress Page &mdash; links open a WordPress page with the content of the wiki</label>  <br />
 					Note: You can make the links open in specific page by specifying a <a href="?page=wiki-embed">target url</a>. 
@@ -152,7 +151,20 @@ function wikiembed_settings_page() {
 			</tr>
 
 			</table>
-		
+			
+			<h3>Security</h3>
+			<p>Restrict the urls of wikis that you want content to be embedded from. This way only url from </p>
+			<table class="form-table">
+			<tr>
+				<th valign="top" class="label" scope="row">
+				</th>
+				<td class="field">
+				<span>Separate urls by new lines</span><br />
+				<textarea name="wikiembed_options[security][whitelist]"  rows="10" cols="50"><?php echo $wikiembed_options['security']['whitelist']; ?></textarea>
+					<div class="help-div">We are checking only the beginning of the url if it matches the url that you provided.  So for example: <em>http://en.wikipedia.org/wiki/</em> would allow any urls from the english wikipedia, but not from <em>http://de.wikipedia.org/wiki/</em> German wikipedia</div>
+				</td>
+			</tr>
+			</table>
 		
 		<p class="submit">
 			<input type="submit" class="button-primary" value="<?php _e('Save Changes') ?>" />
@@ -208,7 +220,8 @@ function wiki_embed_add_help_text($contextual_help, $screen_id, $screen) {
 
 // Sanitize and validate input. Accepts an array, return a sanitized array.
 function wikiembed_options_validate($wikiembed_options) {
-		$wikiembed_options['tabs'] =  ( $wikiembed_options['tabs'] == 1 ? 1 : 0 );
+
+	$wikiembed_options['tabs'] =  ( $wikiembed_options['tabs'] == 1 ? 1 : 0 );
 	$wikiembed_options['style'] =  ( $wikiembed_options['style'] == 1 ? 1 : 0 );
 	$wikiembed_options['tabs-style'] =  ( $wikiembed_options['tabs-style'] == 1 ? 1 : 0 );
 	$wikiembed_options['wiki-update'] =  ( is_numeric($wikiembed_options['wiki-update']) ? $wikiembed_options['wiki-update'] : "30" );
@@ -222,5 +235,9 @@ function wikiembed_options_validate($wikiembed_options) {
 	$wikiembed_options['default']['no-contents'] =  ( $wikiembed_options['default']['no-contents'] == 1 ? 1 : 0 );
 	$wikiembed_options['default']['no-edit'] =  ( $wikiembed_options['default']['no-edit'] == 1 ? 1 : 0 );
 	$wikiembed_options['default']['tabs'] =  ( $wikiembed_options['default']['tabs'] == 1 ? 1 : 0 );
+	
+	$wikiembed_options['security']['whitelist'] = ( isset($wikiembed_options['security']['whitelist'] ) ? $wikiembed_options['security']['whitelist'] : null);
+	
+	
 	return $wikiembed_options;
 }
