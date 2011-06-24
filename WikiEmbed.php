@@ -3,9 +3,9 @@
 Plugin Name: Wiki Embed
 Plugin URI: 
 Description: Enables the inclusion of mediawiki pages into your own blog page or post. Though the use of shortcodes. 
-Version: 1.2
-Author: OLT UBC
-Author URI: http://blogs.ubc.ca/oltdev
+Version: 1.2.1
+Author: Enej Bajgoric - CTLT - UBC
+Author URI: http://blogs.ubc.ca/beta/
 */
 
 /*
@@ -347,12 +347,14 @@ function wikiembed_shortcode($atts)
 		'remove'=>NULL,
 		'get'	=>NULL,
 		'default_get' =>NULL,
+
 	), $atts));
 	
 	
 	if($get)
 	{
 		$gets = explode(",",$get);
+
 		$default_gets = explode(",",$default_get);
 		$count_get = 0;
 		foreach($gets as $get_parameter):
@@ -363,7 +365,7 @@ function wikiembed_shortcode($atts)
 		endforeach;
 		
 		$url = str_replace($gets_search, $gets_replace, $url);
-		
+
 	}
 	
 	// other possbile attributes
@@ -580,12 +582,12 @@ function wikiembed_get_wiki_content($url,$has_tabs,$has_no_contents,$has_no_edit
 		     	
 	endif; // end of updating 
 	
-	$url = wikiembed_remove_action_render($url);
+	$url = wikiembed_remove_action_render($url); 
 	// display the source 
 	if($has_source || $wikiembed_options['default']['source'] ):
 		$source_text = ( isset( $wikiembed_options['default']['pre-source'] ) ? $wikiembed_options['default']['pre-source'] : "source:" ); 
 		
-			$wiki_embed_end .= '<span class="wiki-embed-source">'.$source_text.' <a href="'.esc_url($url).'">'.esc_url($url).'</a></span>';
+		$wiki_embed_end .= '<span class="wiki-embed-source">'.$source_text.' <a href="'.esc_url($url).'">'.esc_url($url).'</a></span>';
 	endif;
 	
 	switch($wikiembed_options['wiki-links']){
@@ -681,7 +683,9 @@ function wp_remote_request_wikipage($url,$update)
  */
 function wikiembed_remove_action_render($url) {
 	if(substr($url,-14) == "?action=render")
-	return substr($url,0,-14);
+		return substr($url,0,-14);
+	else
+		return $url;	
 
 }
 

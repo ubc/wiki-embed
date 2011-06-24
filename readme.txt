@@ -32,10 +32,12 @@ Maybe, but why would you want to? That is not what the tool was designed to do.
 3. A way to embed a media wiki page inside your site. 
 
 
-
-
-
 == Changelog ==
+= 1.2.1 = 
+* bug fix
+* #toc links weren't ignored properly 
+* force styles that might not be present
+
 
 = 1.2 = 
 * Added a security feature that only allows certain sites to be wiki embedable in your site.

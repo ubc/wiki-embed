@@ -1142,6 +1142,8 @@ table.rimage {
 	vertical-align: top;
 }
 /* All tabs should have this styling  */
+.wiki-embed b { font-weight: bold; }
+.wiki-embed i { font-style: italic; }
 .wiki-embed .ui-tabs { padding: .2em; zoom: 1;  clear: both; }
 .wiki-embed .ui-tabs .ui-tabs-nav { list-style: none !important; position: relative; padding: .2em .2em 0!important;  overflow: hidden; }
 .wiki-embed .ui-tabs .ui-tabs-nav li { position: relative; float: left; border-bottom-width: 0 !important; list-style: none !important; height: 100%;  }
