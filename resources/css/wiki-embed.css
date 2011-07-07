@@ -21,7 +21,7 @@ body.page-Main_Page #mp-topbanner {
     height: 22px;
     margin-bottom: 6px;
 }
-
+.wiki-embed p br{ display: none;}
 /* Margins for <ol> and <ul> */
 #content ol, #content ul,
 #mw_content ol, #mw_content ul {

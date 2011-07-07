@@ -33,6 +33,14 @@ Maybe, but why would you want to? That is not what the tool was designed to do.
 
 
 == Changelog ==
+
+= 1.2.2 = 
+* removed unnecessary javascript files
+* add files for css and js on admin side
+* lots of bug fixes 
+* better url recognition
+* bug fix for table of content anchor linking 
+
 = 1.2.1 = 
 * bug fix
 * #toc links weren't ignored properly 

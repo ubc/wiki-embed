@@ -3,7 +3,7 @@
 Plugin Name: Wiki Embed
 Plugin URI: 
 Description: Enables the inclusion of mediawiki pages into your own blog page or post. Though the use of shortcodes. 
-Version: 1.2.1
+Version: 1.2.2
 Author: Enej Bajgoric - CTLT - UBC
 Author URI: http://blogs.ubc.ca/beta/
 */
@@ -45,14 +45,6 @@ Author URI: http://blogs.ubc.ca/beta/
 \--------------------------------------------------------------------/
 */
 
-
-// Add pre as a valid element to TinyMCE with lang and line arguments
-// add_filter('tiny_mce_before_init', 'wikiembed_mce_valid_elements', 0);
-
-// Modify the version when tinyMCE plugins are changed.
-// add_filter('tiny_mce_version', 'wikiembed_change_tinymce_version');
-
-
 // load the necessery scripts for the site 
 add_action('init','wikiembed_init');
 
@@ -62,13 +54,12 @@ add_action("init","wikiemebed_add_ajax");
 // removed the wiki emebed custom field on save. 
 add_action('save_post','wikiembed_save_post');
 
-// wiki embed shortcode
-add_shortcode('wiki-embed', 'wikiembed_shortcode');
+// display a page when you are clicked from a wiki page
 add_action('template_redirect','wikiembed_load_page');
 
 
 
-add_filter('page_link','wikiembed_page_link');
+
 require_once("admin/admin-overlay.php");
 require_once("admin/admin.php");
 
@@ -102,7 +93,13 @@ function wikiembed_init()
 	
 
 	if(!is_admin()): // never display this stuff in the admin 
-	
+		add_filter('page_link','wikiembed_page_link');
+		
+		// wiki embed shortcode
+		if(!isset($_GET['wikiembed-url'])):
+			add_shortcode('wiki-embed', 'wikiembed_shortcode');
+		endif;
+		
 		if($wikiembed_options['tabs']):
 		// embed this if tabs enabled 
 			wp_enqueue_script( 'wiki-embed-tabs', plugins_url( '/wiki-embed/resources/js/tabs.js'),array("jquery","jquery-ui-tabs"), $wikiembed_version );
@@ -125,8 +122,9 @@ function wikiembed_init()
 			break;
 			case "new-page":
 				wp_enqueue_script( 'wiki-embed-new-page', plugins_url( '/wiki-embed/resources/js/new-page.js'),array("jquery"), $wikiembed_version );
-				if(current_user_can('pulish_pages')):
+				if(current_user_can('pulish_pages') || current_user_can('unfiltered_html')):
 					wp_enqueue_script( 'wiki-embed-admin-js', plugins_url( '/wiki-embed/resources/js/site-admin.js'),array("jquery"), $wikiembed_version );
+					
 					add_action("wp_head",'wikiembed_add_adminajax');
 					// add link 
 					add_action('wp_ajax_wiki_embed_add_link', 'wikiembed_list_page_add_link');
@@ -137,15 +135,13 @@ function wikiembed_init()
 					
 				endif;
 				wp_localize_script( 'wiki-embed-new-page', 'WikiEmbedSettings', array(
-		  		'siteurl' => get_bloginfo('siteurl'),
+		  		'siteurl' => get_site_url(),
 				));
 			break;
 			default:
 		
 		}
-		if($wikiembed_options['overlay'] ):
-		
-		endif;
+		// if($wikiembed_options['overlay'] ): endif;
 		
 		if($wikiembed_options['style']):
 		// add some great wiki styling 
@@ -157,6 +153,12 @@ function wikiembed_init()
 	
 
 }
+/**
+ * wikiembed_add_adminajax function.
+ * 
+ * @access public
+ * @return void
+ */
 function wikiembed_add_adminajax(){
 
 	?>
@@ -166,133 +168,148 @@ function wikiembed_add_adminajax(){
 	<?php
 
 }
+/**
+ * wikiembed_load_page function.
+ * 
+ * @access public
+ * @return void
+ */
 function wikiembed_load_page()
 {
-	global $wp_query,$wikiembeds,$wikiembed_options ;
+	if(!isset($_GET['wikiembed-url']) && !isset($_GET['wikiembed-title'])) 
+		return true; // do nothing 
 	
-	if(isset($_GET['wikiembed-url']) && isset($_GET['wikiembed-title'])) :
+	// call global variables 
+	global $wp_query,$wikiembeds,$wikiembed_options;
 		
 	// do we need to redirect the page ?
+	$wiki_page_url = esc_url($_GET['wikiembed-url']); 
+	$wiki_page_id = wikiembed_get_page_id( $wiki_page_url, $wikiembed_options['default']['tabs'], $wikiembed_options['default']['no-contents'], $wikiembed_options['default']['no-edit'] );
+	$wiki_embed_shortcode = "[wiki-embed url=".$wiki_page_url;
 	
-	$wiki_page_id = esc_url($_GET['wikiembed-url']).",";
-	$wiki_page_url = esc_url($_GET['wikiembed-url']);
-	if($wikiembed_options['default']['tabs'])
-		$wiki_page_id .= "tabs,";
 	
-	if($wikiembed_options['default']['no-contents'])
-		$wiki_page_id .= "no-contents,";
+	if($wikiembed_options['default']['tabs']):
+		$wiki_embed_shortcode .= " tabs";
+	endif;
 	
-	if($wikiembed_options['default']['no-edit'])
-		$wiki_page_id .= "no-edit,";
-		
-	$wiki_page_id = substr($wiki_page_id,0,-1);
-
+	if($wikiembed_options['default']['no-contents']):
+		$wiki_embed_shortcode .= " no-contents";
+	endif;
 	
-	if(isset($wikiembeds[$wiki_page_url]['url'])):
-				
-		wp_redirect(esc_url($wikiembeds[$wiki_page_url]['url']));
-		
+	if($wikiembed_options['default']['no-edit']):
+		$wiki_embed_shortcode .= " no-edit";
 		
 	endif;
 	
-	// no we have no where to redirect the page to just stay here
+	$wiki_embed_shortcode .= "]";
+	
+	if(isset($wikiembeds[$wiki_page_url]['url'])):
+	
+		wp_redirect(esc_url($wikiembeds[$wiki_page_url]['url']));
 		
-		$url = esc_url($_GET['wikiembed-url']);
-		$title = esc_html($_GET['wikiembed-title']);
-		$content = wikiembed_get_wiki_content(	
-			$url,
-			$wikiembed_options['default']['tabs'],
-			$wikiembed_options['default']['no-contents'],
-			$wikiembed_options['default']['no-edit'],
-			$wikiembed_options['wiki-links'],
-			$has_source,
-			$remove);
-		
-			
-		// display some admin ui help 
-		if(current_user_can( 'publish_pages' )):
-		
-		
-			$content.= "<div class='wiki-admin' style='position:relative; border:1px solid #CCC; margin-top:20px;padding:10px;'> <span style='background:#EEE; padding:0 5px; position:absolute; top:-1em; left:10px;'>Only visible to admins</span> <a href='".admin_url('admin.php')."?page=wiki-embed&url=".$url."'>in Wiki Embed List</a> | <a href='".admin_url('post-new.php?post_type=page')."'>Create a New Page</a></div>";
+	endif;
 
-		endif;
+// no we have no where to redirect the page to just stay here
+	if(!isset($has_source))
+		$has_source = $wikiembed_options['default']['source'];
 		
-		$wp_query->is_home = false;
-		$wp_query->is_page = true;
+	if(!isset($remove))
+		$remove =""; // nothing to remove 
 		
-		$wp_query->post_count = 1;
-		$post = (object) null;
-		$post->ID = 'wiki-embed';
-		$post->post_title = $title;
-		$post->guid = get_bloginfo('siteurl')."?wikiembed-url=".urlencode($url)."&wikiembed-title=".urlencode($title);
-		$post->post_content = $content;
-		$post->post_status = "published";
-		$post->comment_status = "closed";
-		$post->post_modified = date('Y-m-d H:i:s');
-		$post->post_excerpt = "excerpt nothing goes here";
-		$post->post_parent = 0;
-		$post->post_type = "page";
-		$post->post_date = date('Y-m-d H:i:s');
+	$url = wikiembed_esc_url($_GET['wikiembed-url']);
+	$title = esc_html($_GET['wikiembed-title']);
+	
+	// explode url - so that the title doesn't contain into 
+	$title_array = explode('#',$title);
+	if(isset($title_array[1])):
+		$title = $title_array[0]; 
+	endif;
+	$content = wikiembed_get_wiki_content(	
+		$url,
+		$wikiembed_options['default']['tabs'],
+		$wikiembed_options['default']['no-contents'],
+		$wikiembed_options['default']['no-edit'],
+		$wikiembed_options['wiki-links'],
+		$has_source,
+		$remove);
+	
+	if(current_user_can( 'publish_pages' )):
 		
-		$wp_query->posts = array($post);
+		$content.= '<div class="wiki-admin" style="position:relative; border:1px solid #CCC; margin-top:20px;padding:10px;"> <span style="background:#EEE; padding:0 5px; position:absolute; top:-1em; left:10px;">Only visible to admins</span> <a href="'.admin_url('admin.php').'?page=wiki-embed&url='.urlencode($url).'">in Wiki Embed List</a> | <a href="'.admin_url('post-new.php?post_type=page&content=').$wiki_embed_shortcode.'&post_title='.esc_attr($title).'">Create a New Page</a></div>';
+
+	endif;
+	
+	$admin_email = get_bloginfo('admin_email');
+	$user =  get_user_by('email', $admin_email);
+	
+	$wp_query->is_home = false;
+	$wp_query->is_page = true;
+	
+	$wp_query->post_count = 1;
+	$post = (object) null;
+	$post->ID = 0; // wiki-embed is set to 0
+	$post->post_title = $title;
+	$post->guid = get_site_url()."?wikiembed-url=".urlencode($url)."&wikiembed-title=".urlencode($title);
+	$post->post_content = $content;
+	$post->post_status = "published";
+	$post->comment_status = "closed";
+	$post->post_modified = date('Y-m-d H:i:s');
+	$post->post_excerpt = "excerpt nothing goes here";
+	$post->post_parent = 0;
+	$post->post_type = "page";
+	$post->post_date = date('Y-m-d H:i:s');
+	$post->post_author = $user->ID; // newly created posts are set as if they are created by the admin user
+	
+	$wp_query->posts = array($post);
+	$wp_query->queried_object = $post; // this helps remove some errors 
+	$flat_url = str_replace(".","_",$url);
+	
+	// email the telling the admin to do something about the newly visited link. 
+	if(is_email($wikiembed_options['wiki-links-new-page-email']) && !isset($_COOKIE["wiki_embed_urls_emailed:".$flat_url]) &&  !current_user_can( 'publish_pages' )):
 		
-		$flat_url = str_replace(".","_",$url);
 		
-		// email the telling the admin to do something about the newly visited link. 
-		if(is_email($wikiembed_options['wiki-links-new-page-email']) && !isset($_COOKIE["wiki_embed_urls_emailed:".$flat_url]) &&  !current_user_can( 'publish_pages' )):
-			
-			
-			
-			$current_url  =	get_bloginfo('siteurl')."?wikiembed-url=".urlencode($url)."&wikiembed-title=".urlencode($title);
-			$settings_url = get_bloginfo('siteurl')."/wp-admin/admin.php?page=wikiembed_settings_page";
-			$list_url     = get_bloginfo('siteurl')."/wp-admin/admin.php?page=wiki-embed";
-			$new_page     = get_bloginfo('siteurl')."/wp-admin/post-new.php?post_type=page";
-			
-			$list_url_item = get_bloginfo('siteurl')."/wp-admin/admin.php?page=wiki-embed&url={$url}";
-			
-			$attr = '';
-			if($wikiembed_options['default']['tabs'])
-				$attr .= 'tabs ';
-			if($wikiembed_options['default']['no-edit'])
-				$attr .= 'no-edit ';
-				
-			if($wikiembed_options['default']['no-contents'])
-				$attr .= 'no-contents ';
-			
-			$subject = "Wiki Embed Action Required!";
-			
-			$message = "
-			A User stumbled apon a page that is currently not a part of the site.
-			This is the url that they visited - {$current_url}
-			
-			You have a few options:
-			
-			Fix the problem by:
-			Creating a new page - and adding the shortcode 
-			Go to {$new_page} 
-			
-			Here is the shorcode that you might find useful:
-			[wiki-embed url='{$url}' {$attr} ]
-			
-			Then go to the Wiki-Embed list and add a Target URL to point to the site
-			{$list_url_item}
-			
-			and place the link that is suppoed to take you to the page that you just created.
-			
-			
-			
-			Or you should:
-			Do Nothing - remove your email from the wiki embed settings page - {$settings_url}			
 		
-			";
-			
-			$sent = wp_mail($wikiembed_options['wiki-links-new-page-email'], $subject, $message); 
-			// set the cookie do we don't send the email again
-			$expire=time()+60*60*24*30;
-			$set_the_cookie = setcookie("wiki_embed_urls_emailed:".$flat_url, "set", $expire);
-			
-		endif;
-			
+		$current_url  =	get_site_url()."?wikiembed-url=".urlencode($url)."&wikiembed-title=".urlencode($title);
+		$settings_url = get_site_url()."/wp-admin/admin.php?page=wikiembed_settings_page";
+		$list_url     = get_site_url()."/wp-admin/admin.php?page=wiki-embed";
+		$new_page     = get_site_url()."/wp-admin/post-new.php?post_type=page&post_title=".$title."&content=".$wiki_embed_shortcode;
+		
+		$list_url_item = get_site_url()."/wp-admin/admin.php?page=wiki-embed&url={$url}";
+		
+	
+		
+		$subject = "Wiki Embed Action Required!";
+		
+		$message = "
+		A User stumbled apon a page that is currently not a part of the site.
+		This is the url that they visited - {$current_url}
+		
+		You have a few options:
+		
+		Fix the problem by:
+		Creating a new page - and adding the shortcode 
+		Go to {$new_page} 
+		
+		Here is the shorcode that you might find useful:
+		{$wiki_embed_shortcode}
+		
+		Then go to the Wiki-Embed list and add a Target URL to point to the site
+		{$list_url_item}
+		
+		and place the link that is suppoed to take you to the page that you just created.
+		
+		
+		
+		Or you should:
+		Do Nothing - remove your email from the wiki embed settings page - {$settings_url}			
+	
+		";
+		
+		$sent = wp_mail($wikiembed_options['wiki-links-new-page-email'], $subject, $message); 
+		// set the cookie do we don't send the email again
+		$expire=time()+60*60*24*30;
+		$set_the_cookie = setcookie("wiki_embed_urls_emailed:".$flat_url, "set", $expire);
+		
 	endif;
 	
 }
@@ -300,7 +317,8 @@ function wikiembed_load_page()
 
 function wikiembed_page_link($url){
 	global $post;
-		if($post->ID == "wiki-embed")
+		
+		if($post->ID == 0)
 			$url = $post->guid;
 	return $url; 
 
@@ -315,11 +333,12 @@ function wikiembed_page_link($url){
 /* for backwards compatibility */
 function wikiembed_save_post($post_id) {	
 	
-	$post = get_post(wp_is_post_revision($post_id));
+	if(wp_is_post_revision($post_id)):
+		$post = get_post( wp_is_post_revision($post_id) );
 	
-	// start fresh each time you save the post or page
-	delete_post_meta($post->ID, "wiki_embed");
-	
+		// start fresh each time you save the post or page
+		delete_post_meta($post->ID, "wiki_embed");
+	endif;
 	return $post_id;
 } 
 
@@ -347,10 +366,31 @@ function wikiembed_shortcode($atts)
 		'remove'=>NULL,
 		'get'	=>NULL,
 		'default_get' =>NULL,
+		'has_source'  =>NULL,
 
 	), $atts));
 	
+	if(!$url) // checks to see if url is defined 
+		return "you need to set a url";
+		
+	$url = wikiembed_esc_url($url); // I am not sure how usefull this is at all 
 	
+	// other possbile attributes
+	$has_no_edit 	 = ( in_array("no-edit", 	$atts)? true: false );	
+	$has_no_contents = ( in_array("no-contents",$atts)? true: false );
+	$has_tabs 		 = ( in_array("tabs", 		$atts)? true: false );
+	
+	
+	if(!isset($has_source)) // this can be overwritten on per page basis
+		$has_source = $wikiembed_options['default']['source'];
+
+	
+	if( !is_numeric($update) || $update < 5)
+		$update = $wikiembed_options['wiki-update'];  // this can be overwritten on per page basis
+		
+	/**
+	 * code here lets you add the get and default_get parameter to your wiki-emebed
+	 */
 	if($get)
 	{
 		$gets = explode(",",$get);
@@ -358,23 +398,74 @@ function wikiembed_shortcode($atts)
 		$default_gets = explode(",",$default_get);
 		$count_get = 0;
 		foreach($gets as $get_parameter):
-			$gets_replace[] = ( esc_html($_GET[trim($get_parameter)]) != "" ? esc_html($_GET[trim($get_parameter)]): $default_gets[$count_get]) ;
+			$gets_replace[] = ( isset($_GET[trim($get_parameter)]) && esc_html($_GET[trim($get_parameter)]) != "" ? esc_html($_GET[trim($get_parameter)]): $default_gets[$count_get]) ;
 			$gets_search[]	= "%".trim($get_parameter)."%";
 			$count_get++;
 
 		endforeach;
 		
 		$url = str_replace($gets_search, $gets_replace, $url);
-
 	}
 	
-	// other possbile attributes
 	
-	$has_no_edit 	 = ( in_array("no-edit", 	$atts)? true: false );	
-	$has_no_contents = ( in_array("no-contents",$atts)? true: false );
-	$has_tabs 		 = ( in_array("tabs", 		$atts)? true: false );
+	$wiki_page_id = wikiembed_get_page_id( $url, $has_tabs, $has_no_contents, $has_no_edit, $remove );
+	
+	// check to see if we need a refresh was forced 
+	if(current_user_can( 'publish_pages' ) && isset($_GET['refresh']) && wp_verify_nonce($_GET['refresh'], $wiki_page_id)):		
+			
+			// we store stuff 
+			foreach($wikiembeds  as $wikiembeds_id => $wikiembeds_item):
+				$bits = explode(",",$wikiembeds_id);
+				if(esc_attr($bits[0]) == esc_attr($url)): // delete 
+					unset($wikiembeds[$wikiembeds_id]['expires_on']);
+					delete_transient( md5($wikiembeds_id) );
+					
+				endif;
+	  		endforeach;
+			unset($wikiembeds_id); 
+	endif;
+
+	
+	
+	// this function retuns the wiki content the way it is suppoed to come 
+	$content = wikiembed_get_wiki_content( $url, $has_tabs, $has_no_contents, $has_no_edit, $update, $has_source, $remove );
+	
+	// if the user is admin 
+	
 	if(current_user_can( 'publish_pages' )):
-		$wiki_page_id = esc_url($url).",";
+		
+		$admin = "<div class='wiki-admin' style='position:relative; border:1px solid #CCC; margin-top:20px;padding:10px;'> <span style='background:#EEE; padding:0 5px; position:absolute; top:-1em; left:10px;'>Only visible to admins</span> Wiki content expires in: ".human_time_diff( date('U', $wikiembeds[$wiki_page_id]["expires_on"] ) ). " <a href='?refresh=".wp_create_nonce($wiki_page_id)."'>Refresh Wiki Content</a> | <a href='".admin_url('admin.php')."?page=wiki-embed&url=".urlencode($url)."'>in Wiki Embed List</a>";
+	
+ 	
+		if($wikiembed_options['wiki-links'] == "new-page"):
+			if(!isset($wikiembeds[$url]['url'])):
+			
+				$admin .= " <br /> <a href='' alt='".urlencode($url)."' title='Set this {$post->post_type} as Target URL' class='wiki-embed-set-target-url' rel='".get_permalink($post->ID)."'>Set this {$post->post_type} as Target URL</a>";
+			else:
+				$admin .= " <br /> <span>Target URL set: ".esc_url($wikiembeds[$url]['url'])."</span>";
+			endif;
+		endif;
+
+		$admin .= "</div>";
+	
+		return $content.$admin; 
+	endif;
+	
+	return $content; 
+}
+/**
+ * wikiembed_get_page_id function.
+ * 
+ * @access public
+ * @param mixed $url
+ * @param mixed $has_tabs
+ * @param mixed $has_no_contents
+ * @param mixed $has_no_edi
+ * @return void
+ */
+function wikiembed_get_page_id( $url, $has_tabs, $has_no_contents, $has_no_edit, $remove=false ) {
+	
+	$wiki_page_id = esc_url($url).",";
 		if($has_tabs)
 			$wiki_page_id .= "tabs,";
 		
@@ -384,49 +475,10 @@ function wikiembed_shortcode($atts)
 		if($has_no_edit)
 			$wiki_page_id .= "no-edit,";
 		
-		if( isset($_GET['refresh']) && wp_verify_nonce($_GET['refresh'], urlencode($url))):
-			
-			foreach($wikiembeds  as $wikiembeds_hash => $wikiembeds_item):
-				$bits = explode(",",$wikiembeds_hash);
-	
-				if($bits[0] == $url):
-					unset($wikiembeds[$wikiembeds_hash]['expires_on']);
-					delete_transient( md5($wikiembeds_hash) );
-					$undoItems[] = $wikiembeds[$wiki_page_id];
-				endif;
-	  		endforeach;
-		
-		endif;
-	endif;
-	// $has_overlay 	 = ( in_array("overlay", 	$atts)? true: false ); // this is just for backwards compatibility 
-	// $has_source 	 = ( in_array("source",		$atts)? true: false ); 
-	
-	$content .= wikiembed_get_wiki_content($url,$has_tabs,$has_no_contents,$has_no_edit,$update,$has_source,$remove);
-	$admin = "";
-	if(current_user_can( 'publish_pages' )):
-	
-		
-	$wiki_page_id = substr($wiki_page_id,0,-1);
-		
-	
-	$admin = "<div class='wiki-admin' style='position:relative; border:1px solid #CCC; margin-top:20px;padding:10px;'> <span style='background:#EEE; padding:0 5px; position:absolute; top:-1em; left:10px;'>Only visible to admins</span> Wiki content expires in: ".human_time_diff( date('U', $wikiembeds[$wiki_page_id]["expires_on"] ) ). " <a href='?refresh=".wp_create_nonce(urlencode($url))."'>Refresh Wiki Content</a> | <a href='".admin_url('admin.php')."?page=wiki-embed&url=".$url."'>in Wiki Embed List</a>";
-	
- 	
-	if($wikiembed_options['wiki-links'] == "new-page"):
-		if(!$wikiembeds[$url]['url']):
-		
-		$admin .= " <br /> <a href='' alt='".urlencode($url)."' title='Set this {$post->post_type} as Target URL' class='wiki-embed-set-target-url' rel='".get_permalink($post->post_ID)."'>Set this {$post->post_type} as Target URL</a>";
-		else:
-			$admin .= " <br /> <span>Target URL set: ".esc_url($wikiembeds[$url]['url'])."</span>";
-		endif;
-	endif;
-
-	$admin .= "</div>";
-	endif;
-	
-	return $content.$admin; 
-
-
+		if($remove)
+			$wiki_page_id .= $remove.",";
+		$wiki_page_id =	substr($wiki_page_id,0,-1);
+	return $wiki_page_id;
 }
 /**
  * wikiembed_get_wiki_content function.
@@ -441,155 +493,54 @@ function wikiembed_shortcode($atts)
  * @param mixed $remove. (default: null)
  * @return void
  */
-function wikiembed_get_wiki_content($url,$has_tabs,$has_no_contents,$has_no_edit,$update,$has_source=false,$remove=null)
-{
+function wikiembed_get_wiki_content( $url, $has_tabs, $has_no_contents, $has_no_edit, $update, $has_source, $remove=null ) {
 	global $wikiembeds,$wikiembed_options,$wikiembed_content_count;
 	
-	if( !is_numeric($update) || $update < 5)
-		$update = $wikiembed_options['wiki-update']; 
 	
-	// make sure that ?action=render is removed
-	
-	
-	// create the unique id 
-	$wiki_page_id = esc_url($url).",";
-		
-	if($has_tabs)
-		$wiki_page_id .= "tabs,";
-	
-	if($has_no_contents)
-		$wiki_page_id .= "no-contents,";
-	
-	if($has_no_edit)
-		$wiki_page_id .= "no-edit,";
-		
-	$wiki_page_id = substr($wiki_page_id,0,-1);
-	
+	$wiki_page_id = wikiembed_get_page_id( $url, $has_tabs, $has_no_contents, $has_no_edit, $remove );
 	$wiki_page_id_hash  = md5($wiki_page_id); // if we don't md5 the hash we can't really 
 	
-
+	
 	// Get any existing copy of our transient data
 	if (false === ( $wiki_page_body = get_transient( $wiki_page_id_hash ) ) ): 
-		
+	
 		// lets try to get the  
     	$wiki_page_body  = wp_remote_request_wikipage($url,$update);
-    	if(!$wiki_page_body)
+    	
+    	if(!$wiki_page_body): // we couldn't get the wiki content
     		return '<span class="alert">
 						We were not able to Retrieve the content of this page, at this time.<br />
 						You can: <br />
 						1. Try refreshing the page. Press Ctrl + R (windows) or ⌘ Cmd + R (mac)<br />
 						2. Go to the <a href="'.esc_url($url).'" >source</a><br />
 					</span>';
-    	
-
-     	// Do we need to modify the content? 
-		if( $has_no_edit || $has_no_contents || $has_tabs ): 
-			require_once("resources/simple_html_dom.php");
-			
-			
-			$html = str_get_html($wiki_page_body);
+		endif; 
 		
-			$remove_elements = explode(",",$remove);
-			
-			// remove edit links 
-			if( $has_no_edit ):
-				$remove_elements[] = '.editsection';
-			endif; // end of removing links
-		
-			// remove table of contents 
-			if( $has_no_contents ):
-				$remove_elements[] = '#toc';
-			endif;
-
-			// bonus you can remove any element by passing in a css selected and seperating them by commas
-			if(!empty($remove_elements)):
-				foreach($remove_elements as $element):
-					
-					if($element):
-						foreach($html->find($element) as $e):
-							$e->outertext ='';
-						endforeach;	
-					$removed_elements[] = $element;
-					endif;
-					
-				endforeach;
-			endif; // end of removing of the elements 
-						
-			
-				
-			$index = 0;
-			
-			$headlines = $html->find("h2 span.mw-headline");
-			$count = count($headlines)-1;
-			foreach($headlines as $headline):
-			
-					if( $has_tabs ): // create tabs 
-					$list .= '<li><a href="#fragment-'.$wikiembed_content_count.'-'.$index.'" ><span>'.$headline->innertext.'</span></a></li>';
-					endif; // end of creating tabs 
-					
-					if($index !=0):
-						$class = "wikiembed-fragment wikiembed-fragment-counter-".$index;
-						
-						if($count == $index)
-							$class .= " wikiembed-fragment-last";
-						
-						$headline->parent()->outertext = 
-						'</div><div id="fragment-'.$wikiembed_content_count.'-'.$index.'" class="'.$class.'"><h2><span class="mw-headline">'.$headline->innertext.'</span></h2>';
-					endif;
-					$index++;
-			endforeach;
-				
-				if( $has_tabs ):	// create tabs 
-					$tabs = '<div class="wiki-embed-tabs wiki-embed-fragment-count-'.$count.'">'; // shell div
-					$tabs .= '<ul class="wiki-embed-tabs-nav">'.$list.'</ul>';
-				else:
-					$tabs = '<div class="wiki-embed-shell wiki-embed-fragment-count-'.$count.'">'; // shell div 
-				endif;
-				// the first div inside for the first tab
-				$tabs .= '<div id="fragment-'.$wikiembed_content_count.'-0" class="wikiembed-fragment wikiembed-fragment-counter-0">';
-			
-				
-				if($headlines[0])
-					$headlines[0]->parent()->outertext = $tabs.'<h2><span class="mw-headline">'.$headlines[0]->innertext.'</span></h2>';				
-			
-				if($headlines[0])
-					$wiki_embed_end_tabs   .="</div></div>";
-				
-				
-				// endif;							
-			
-		
-			$wiki_page_body = $html->save();
-			$wiki_page_body .= $wiki_embed_end_tabs;
-			
-		
-		endif; // end of content modifications 
-			
-		if(!empty($removed_elements))
-			$remove_att = 	'remove="'.implode(",",$removed_elements).'"';
-     	
-     	// set the cache
+		$wiki_page_body = wikiembed_render( $wiki_page_body, $has_no_edit , $has_no_contents , $has_tabs, $remove );
+    
+    	// place the rendered content in to db
      	$worked = set_transient($wiki_page_id_hash, $wiki_page_body, $update*60);
      	
-     	// keep a track of what needed 
-     	
-     	if( isset($wikiembeds) ):
+     	// keep a track of what how long it is going to be in there
+     	if( is_array($wikiembeds) ):
      		$wikiembeds[$wiki_page_id]['expires_on'] =  time() + ($update * 60);
 			update_option( 'wikiembeds', $wikiembeds );
   		else:
+  			$wikiembeds[$wiki_page_id]['expires_on'] =  time() + ($update * 60);
     		add_option( 'wikiembeds', $wikiembeds );
     	endif;
-		     	
-	endif; // end of updating 
-	
-	$url = wikiembed_remove_action_render($url); 
+    endif;
+    
+    
 	// display the source 
-	if($has_source || $wikiembed_options['default']['source'] ):
+	$wiki_embed_end = '';
+	if($has_source):
 		$source_text = ( isset( $wikiembed_options['default']['pre-source'] ) ? $wikiembed_options['default']['pre-source'] : "source:" ); 
 		
-		$wiki_embed_end .= '<span class="wiki-embed-source">'.$source_text.' <a href="'.esc_url($url).'">'.esc_url($url).'</a></span>';
+		$wiki_embed_end .= '<span class="wiki-embed-source">'.$source_text.' <a href="'.$url.'">'.$url.'</a></span>';
 	endif;
-	
+	// add special wiki embed classed depending on what should be happening
+	$wiki_embed_class = '';
 	switch($wikiembed_options['wiki-links']){
 		case "overlay":
 			$wiki_embed_class .= " wiki-embed-overlay ";
@@ -599,21 +550,14 @@ function wikiembed_get_wiki_content($url,$has_tabs,$has_no_contents,$has_no_edit
 			$wiki_embed_class .= " wiki-embed-new-page ";
 		break; 
 	
-	
 	}
-	// add the overlay	
-	if($has_overlay):	
-		$wiki_embed_class .= " wiki-embed-overlay ";
-	endif;
 	
 	$wiki_target_url = ' wiki-target-url-not-set';
 	
-	if($wikiembeds[$url]['url'])
+	if(isset($wikiembeds[$wiki_page_id]['url']) && $wikiembeds[$wiki_page_id]['url'])
 		$wiki_target_url = " wiki-target-url-set";
 	
-	$wiki_embed_class .=$wiki_target_url; 
-	
-	$admin_helper = "";
+	$wiki_embed_class .= $wiki_target_url; 
 	
 	return "<div class='wiki-embed ".$wiki_embed_class."' rel='{$url}'>".$wiki_page_body."</div>".$wiki_embed_end;
 	
@@ -629,6 +573,8 @@ function wikiembed_get_wiki_content($url,$has_tabs,$has_no_contents,$has_no_edit
 function wp_remote_request_wikipage($url,$update)
 {
 	global $wikiembeds,$wikiembed_options;
+	
+	$wikiembed_id = wikiembed_get_page_id( $url, false, false, false ); // just the url gets converted to the id 
 	$wiki_page_id_hash = md5($url);
 	
 	if($wikiembed_options['security']['whitelist']):
@@ -649,7 +595,7 @@ function wp_remote_request_wikipage($url,$update)
 	
 	// grab the content from the cache
 	if (false === ( $wiki_page_body = get_transient( $wiki_page_id_hash ) ) ): 
-	
+		
 		// else return the 
 		$wiki_page = wp_remote_request(wikiembed_action_url($url));
 		
@@ -667,13 +613,137 @@ function wp_remote_request_wikipage($url,$update)
 	     endif;
      endif;
 				
-		$wikiembeds[$url]['expires_on'] =  time() + ($update * 60);
-		update_option( 'wikiembeds', $wikiembeds );
+		$wikiembeds[$wikiembed_id]['expires_on'] =  time() + ($update * 60);
+		update_option( 'wikiembeds', $wikiembeds ); // but the new wiki embed hasn't been set yet
 		
      return $wiki_page_body;
      	
 }
+/**
+ * wikiembed_render function.
+ * 
+ * @access public
+ * @param mixed $wiki_page_body
+ * @param mixed $has_no_edit
+ * @param mixed $has_no_contents
+ * @param mixed $has_tabs
+ * @return void
+ */
+function  wikiembed_render( $wiki_page_body, $has_no_edit , $has_no_contents , $has_tabs, $remove ) {
+	global $wikiembed_content_count;
+	// Do we need to modify the content? 
+	if( $has_no_edit || $has_no_contents || $has_tabs || $remove ): 
+		require_once("resources/simple_html_dom.php");
+			
+			
+		$html = str_get_html($wiki_page_body);
+	
+		$remove_elements = explode(",",$remove);
+		
+		// remove edit links 
+		if( $has_no_edit ):
+			$remove_elements[] = '.editsection';
+		endif; // end of removing links
+	
+		// remove table of contents 
+		if( $has_no_contents ):
+			$remove_elements[] = '#toc';
+		endif;
 
+		// bonus you can remove any element by passing in a css selected and seperating them by commas
+		if(!empty($remove_elements)):
+			foreach($remove_elements as $element):
+				
+				if($element):
+					foreach($html->find($element) as $e):
+						$e->outertext ='';
+					endforeach;	
+				$removed_elements[] = $element;
+				endif;
+				
+			endforeach;
+		endif; // end of removing of the elements 
+					
+		
+			
+		$index = 0;
+		$list = '';
+		$headlines = $html->find("h2 span.mw-headline");
+		$count = count($headlines)-1;
+		foreach($headlines as $headline):
+		
+				if( $has_tabs ): // create tabs 
+					if($wikiembed_content_count <= 1):
+						$list .= '<li><a href="#fragment-'.$wikiembed_content_count.'-'.$index.'" ><span>'.$headline->innertext.'</span></a></li>';
+					else:
+						$list .= '<li><a href="#fragment-'.$wikiembed_content_count.'-'.$index.'" >'.$headline->outertext.'</a></li>';
+					endif;
+				endif; // end of creating tabs 
+				
+				if($index !=0):
+					$class = "wikiembed-fragment wikiembed-fragment-counter-".$index;
+					
+					if($count == $index)
+						$class .= " wikiembed-fragment-last";
+					
+					if($wikiembed_content_count <= 1):
+						$headline->parent()->outertext = 
+						'</div><div id="fragment-'.$wikiembed_content_count.'-'.$index.'" class="'.$class.'"><h2>'.$headline->outertext.'</h2>';
+					else:
+						$headline->parent()->outertext = 
+						'</div><div id="fragment-'.$wikiembed_content_count.'-'.$index.'" class="'.$class.'"><h2><span class="mw-headline">'.$headline->innertext.'</span></h2>';
+					endif;
+				endif;
+				$index++;
+		endforeach;
+
+		$wiki_embed_end_tabs = '';
+		if( $has_tabs ):	// create tabs 
+			$tabs = '<div class="wiki-embed-tabs wiki-embed-fragment-count-'.$count.'">'; // shell div
+			if( $list !='' ):
+				$tabs .= '<ul class="wiki-embed-tabs-nav">'.$list.'</ul>';
+			endif;
+		else:
+			$tabs = '<div class="wiki-embed-shell wiki-embed-fragment-count-'.$count.'">'; // shell div 
+		endif;
+		// the first div inside for the first tab
+		$tabs .= '<div id="fragment-'.$wikiembed_content_count.'-0" class="wikiembed-fragment wikiembed-fragment-counter-0">';
+	
+		
+		if(isset($headlines[0])):
+			if($wikiembed_content_count <= 1):
+				$headlines[0]->parent()->outertext = $tabs.'<h2>'.$headlines[0]->outertext.'</h2>';				
+			else:
+				$headlines[0]->parent()->outertext = $tabs.'<h2><span class="mw-headline">'.$headlines[0]->innertext.'</span></h2>';
+			endif;
+		endif;
+		if(isset($headlines[0]))
+			$wiki_embed_end_tabs   .="</div></div>";
+				
+				
+				// endif;							
+		$wiki_page_body = $html->save();
+		$wiki_page_body .= $wiki_embed_end_tabs;
+			
+		
+	endif; // end of content modifications 
+			
+	if(!empty($removed_elements))
+		$remove_att = 	'remove="'.implode(",",$removed_elements).'"';
+     			     	
+
+	return $wiki_page_body;
+}
+
+function wikiembed_esc_url($url){
+	// remove unwanted 
+	$url = wikiembed_remove_action_render($url);
+	$url = str_replace("&#038;","&",$url);	
+	// remove any unwanted anchor tags 
+	$url_array = explode("#",$url);
+	
+	return $url_array[0];
+}
 /**
  * wikiembed_remove_action_render function.
  * removed any add action from the url 
@@ -723,7 +793,7 @@ function wikiemebed_add_ajax()
  * @return void
  */
 function wikiembed_overlay_ajax() {
-	global $wikiembeds,$wikiembed_options;
+	global $wikiembeds, $wikiembed_options;
 	$url = wikiembed_action_url($_GET['url']);
 	$source_url = esc_url(urldecode($_GET['url']));
 	$remove = esc_attr(urldecode($_GET['remove']));
@@ -834,7 +904,7 @@ function wikiembed_settings()
  */
 function wikiembed_action_url($url)
 {
-	return http_build_url(esc_url(urldecode($url)), array("query" => "action=render"), HTTP_URL_JOIN_QUERY);
+	return http_build_url(urldecode($url), array("query" => "action=render"), HTTP_URL_JOIN_QUERY);
 }
 
 /* See http://www.php.net/manual/en/function.http-build-url.php for more details */
@@ -879,7 +949,7 @@ if (!function_exists('http_build_url'))
 			$flags |= HTTP_URL_STRIP_USER;
 			$flags |= HTTP_URL_STRIP_PASS;
 		}
-		
+		// $url = str_replace("&#038;","&",$url);
 		// Parse the original URL
 		if(parse_url($url))
 		$parse_url = parse_url($url);

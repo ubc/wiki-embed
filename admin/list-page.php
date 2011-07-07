@@ -1,30 +1,39 @@
 <?php
-
+/* required for some wiki embed ajax stuff */
 add_action('wp_ajax_wiki_embed_add_link', 'wikiembed_list_page_add_link');
 add_action('wp_ajax_wiki_embed_remove_link', 'wikiembed_list_page_remove_link');
 
 
-
+/**
+ * wikiembed_list_page function.
+ * use to render the wiki-embed page for listing the avalable embeds
+ * @access public
+ * @return void
+ */
 function wikiembed_list_page()
 {
 	global $wikiembeds, $wikiembed_options;
 	
+	
 	if ( !empty($_POST) && wp_verify_nonce($_POST['wikiembed-list'],'wikiembed-list') && isset($_POST['wikiembed']) )
 	{
-  		switch($_POST['action'])
+		foreach( $_POST['wikiembed'] as $post_item):
+  			$post_wikiembed[] = esc_attr($post_item);
+  		endforeach;
+  		unset($post_item, $_POST['wikiembed']);
+  		switch( $_POST['action'] )
   		{
+  			
   			case 'trash':
-  				if($_POST['wikiembed']):
-  					
-  				  					
+  				if(is_array($post_wikiembed)):
+  							
 	  				foreach($wikiembeds  as $wikiembeds_hash => $wikiembeds_item):
 	  					$bits = explode(",",$wikiembeds_hash);
 						
-	  					if(in_array($bits[0],$_POST['wikiembed']) || in_array($wikiembeds_hash,$_POST['wikiembed']))
+	  					if(in_array(esc_attr($bits[0]),$post_wikiembed) || in_array(esc_attr($wikiembeds_hash),$post_wikiembed))
 	  					{
 	  						unset($wikiembeds[$wikiembeds_hash]);
 							delete_transient( md5($wikiembeds_hash) );
-	  						
 	  					}
 	  				endforeach;
 	  				unset($bits);
@@ -36,16 +45,16 @@ function wikiembed_list_page()
   			break;
   			
   			case 'clear-cache':
-  				if($_POST['wikiembed']):
+  				if(is_array($post_wikiembed)):
   				
 	  				foreach($wikiembeds  as $wikiembeds_hash => $wikiembeds_item):
 	  					$bits = explode(",",$wikiembeds_hash);
 			
-	  					if(in_array($bits[0],$_POST['wikiembed']))
+	  					if(in_array(esc_attr($bits[0]),$post_wikiembed))
 	  					{
 	  						unset($wikiembeds[$wikiembeds_hash]['expires_on']);
 							delete_transient( md5($wikiembeds_hash) );
-	  						$undoItems[] = $wikiembeds[$wiki_page_id];
+	  						// $undoItems[] = $wikiembeds[$wiki_page_id];
 	  					}
 	  				endforeach;
 	  				unset($bits);
@@ -60,123 +69,51 @@ function wikiembed_list_page()
 	// sort $wikiembeds by page parent and 
 	if(is_array($wikiembeds)):
 		ksort($wikiembeds);
-	
-	
-	$previous_url = null;
-	$parent_count = 0;
-	$count_non_url_items = 0;
-	$total_parent_count = 0;
-	foreach($wikiembeds as $hash => $item): // group wiki embeds with the same url together. so they can have the same url 
-		$bits = explode(",",$hash);
-		if($previous_url != $bits[0]): // only group the parent url
-			
-			if($_GET['non_url_items'] && !$item['url']):
-				$wikiembeds_parents[$parent_count][$hash] = $item;
-				$count_non_url_items++;
-				$parent_count++;
-			elseif(isset($_GET['url'])):
-				if($_GET['url'] == $bits[0]):
-				$wikiembeds_parents[$parent_count][$hash] = $item;
-				$count_non_url_items++;
-				$parent_count++;
-				endif;
-			else:
-				if(!$_GET['non_url_items']):
+		$wikiembeds_parents = array();
+		$previous_url = null;
+		$parent_count = 0;
+		$count_non_url_items = 0;
+		$total_parent_count = 0;
+		foreach($wikiembeds as $hash => $item): // group wiki embeds with the same url together. so they can have the same url 
+			$bits = explode(",",$hash);
+			if($previous_url != $bits[0]): // only group the parent url
+				
+				if(isset($_GET['non_url_items']) && !isset($item['url'])):
 					$wikiembeds_parents[$parent_count][$hash] = $item;
-					$parent_count++;
-				endif;
-				if(!$item['url'])
 					$count_non_url_items++;
+					$parent_count++;
+				elseif(isset($_GET['url'])):
+					if(esc_attr($_GET['url']) == esc_attr($bits[0])):
+					
+					$wikiembeds_parents[$parent_count][$hash] = $item;
+					$count_non_url_items++;
+					$parent_count++;
+					endif;
+				else:
+					if(!isset($_GET['non_url_items'])):
+						$wikiembeds_parents[$parent_count][$hash] = $item;
+						$parent_count++;
+					endif;
+					if(!isset($item['url']))
+						$count_non_url_items++;
+				endif;
+				$total_parent_count++;
+				$previous_url = $bits[0];
+			else:
+				
 			endif;
-			$total_parent_count++;
-			$previous_url = $bits[0];
-		else:
-			
-		endif;
-	endforeach;
+		endforeach;
 	endif;
 	
-	// lets try to recreate the undo funcnction
-	// maybe in future relieses
-	/* if(is_array($undoItems))
-	 {
-	 
-	 ?><div class="notice"><a href="#Undo" id="undo">undo</a> - You can retrieve the links.</div>
-	 <?php
-	 }	
-	*/
 	?>
-	<style type="text/css">
-	.notice{
-	 border: 1px solid #E6DB55;
-
-	 background: #FFFBCC;
-	 color:#555555;
-	 margin: 10px 5px 0;
-     -moz-border-radius: 3px; /* FF1+ */
-  -webkit-border-radius: 3px; /* Saf3-4 */
-          border-radius: 3px; /* Opera 10.5, IE 9, Saf5, Chrome */
-	padding: 10px;
-	}
-	.help-div{ display: none; padding-bottom: 10px; font-size: 10px; color:#777; width: 400px; }
-	th .help-div{ width: 200px;}
-	tr.child td.desciption-title{
-	padding-left: 20px;
-	}
-	.widefat td,.widefat th {
-	 border:0;
-	}
-	tr.parent  td,
-	tr.parent  th{
-	 border-top:1px solid #DFDFDF;
-	}
-	#show-help{
-	background:#21759B; padding:3px 10px; font-size:9px; text-decoration:none; color:#FFF;
-	-moz-border-radius:4px;
-	}
-	#show-help:hover{
-		background:#D54E21;	}
-	span.spacer{
-		display:block;
-		padding-bottom: 5px;
-	}
-	span.active { 
-		background-color:#FFFBCC;
-		border:1px solid #E6DB55;
-		color:#555555;
-	 	padding: 1px 3px;
-	 	-moz-border-radius: 3px; /* FF1+ */
-	  	-webkit-border-radius: 3px; /* Saf3-4 */
-	          border-radius: 3px; /* Opera 10.5, IE 9, Saf5, Chrome */
-	}
-	
-	span.non-active{
-		background-color:#FFB78C;
-		border:1px solid #FF853C !important;
-		
-		color:#222;
-	 	padding: 1px 3px;
-	 	-moz-border-radius: 3px; /* FF1+ */
-	  	-webkit-border-radius: 3px; /* Saf3-4 */
-	          border-radius: 3px; /* Opera 10.5, IE 9, Saf5, Chrome */
-
-	}
-	td a span{
-	display: none;
-	}
-	td a:hover span{ display: block; color:#555;}
-	#icon-wiki-embed{
-		background: url(<?php echo plugins_url('/wiki-embed/resources/img/icon_large.gif'); ?>) no-repeat; 
-	}
-	</style>
 	<div class="wrap">
 	<div id="icon-wiki-embed" class="icon32"><br></div><h2>Wiki Embed List</h2>
 	<p>Here is a list of all the wiki content that is being embedded</p>
 	
 	<form method="post" acction=""> 
 	<ul class="subsubsub">
-		<li><a href="?page=wiki-embed">All <span class="count">(<?php echo $total_parent_count; ?> )</span></a> |</li>
-		<li><a href="?page=wiki-embed&non_url_items=true">No Target URL  <span class="count">(<?php echo $count_non_url_items;?>)</span></a></li></ul>
+		<li><a href="?page=wiki-embed" <?php if(!isset($_GET['non_url_items'])) { ?>class="current"<?php } ?> >All <span class="count">(<?php echo $total_parent_count; ?>)</span></a> |</li>
+		<li><a href="?page=wiki-embed&non_url_items=true" <?php if(isset($_GET['non_url_items'])) { ?>class="current"<?php } ?>>No Target URL <span class="count">(<?php echo $count_non_url_items;?>)</span></a></li></ul>
 	<div class="tablenav">
 		<div class="alignleft actions">
 		<select name="action">
@@ -194,24 +131,23 @@ function wikiembed_list_page()
 	<table cellspacing="0" class="widefat post fixed">
 	<thead>
 	<tr>
-	<th style="" class="manage-column column-cb check-column" id="cb" scope="col"><input type="checkbox"></th>
-	<th style="" class="manage-column column-title" id="title" scope="col">URL</th>
-	<th style="" class="manage-column column-url" id="url" scope="col">Target URL <?php echo ($wikiembed_options['wiki-links'] == 'new-page'? "<span class='active' >active</span>": "<span class='non-active'>not applicable</span>"); ?> </th>
-	<th style="" class="manage-column column-date" id="date" scope="col">Cache Expires On</th>
+	<th class="manage-column column-cb check-column" id="cb" scope="col"><input type="checkbox"></th>
+	<th class="manage-column column-title" id="title" scope="col">URL</th>
+	<th class="manage-column column-url" id="url" scope="col">Target URL <?php echo ($wikiembed_options['wiki-links'] == 'new-page'? "<span class='active' >active</span>": "<span class='non-active'>not applicable</span>"); ?> </th>
+	<th style="" class="manage-column column-date" id="date" scope="col">Cache Expires In</th>
 	</tr>
 	</thead>
 
 	<tfoot>
 	<tr>
-	<th style="" class="manage-column column-cb check-column" id="cb" scope="col"><input type="checkbox"></th>
-	<th style="" class="manage-column column-title" id="title" scope="col">URL</th>
-	<th style="" class="manage-column column-url" id="url" scope="col">Target URL <?php echo ($wikiembed_options['wiki-links'] == 'new-page'? "<span class='active' >active</span>": "<span class='non-active'>not applicable</span>"); ?></th>
-	<th style="" class="manage-column column-date" id="date" scope="col">Cache Expires In</th>
+	<th class="manage-column column-cb check-column" id="cb" scope="col"><input type="checkbox"></th>
+	<th class="manage-column column-title" id="title" scope="col">URL</th>
+	<th class="manage-column column-url" id="url" scope="col">Target URL <?php echo ($wikiembed_options['wiki-links'] == 'new-page'? "<span class='active' >active</span>": "<span class='non-active'>not applicable</span>"); ?></th>
+	<th class="manage-column column-date" id="date" scope="col">Cache Expires In</th>
 	
 	</tr>
 	</tfoot>
-	
-	
+
 	<tbody>
 	
 	<?php if($wikiembeds_parents):
@@ -240,10 +176,10 @@ function wikiembed_list_page()
 		?>
 	<tr valign="top" class="<?php echo ( ($i % 2) ? 'alternate': ''); ?> parent" >
 		<th class="check-column" scope="row"><input type="checkbox" value="<?php echo $hash; ?>" name="wikiembed[]"></th>
-		<td><a href="<?php echo esc_url( $bits[0] ); ?>"><?php echo $url; ?><br /><span><?php echo esc_url($bits[0]);?></span></a></td>
+		<td><a href="<?php echo esc_url( $bits[0] ); ?>"><?php echo $url; ?><br /><span>source: <?php echo esc_url($bits[0]);?></span></a></td>
 		
 		<td>
-		<?php if( !$item['url'] ): ?>
+		<?php if( ! isset($item['url']) ): ?>
 			<p><span class="spacer">none</span>
 			<a href="#" class="add-target-url" id="<?php echo urlencode($hash); ?>">Add Target URL</a></p>
 			<p style="display:none;">
@@ -262,6 +198,8 @@ function wikiembed_list_page()
 		<?php endif; ?>
 		</td>
 		<td><?php 
+		if(! isset($item['expires_on']))
+			$item['expires_on'] = 0;
 		if($item['expires_on'] > time())
 			echo human_time_diff( date('U',$item['expires_on']) );
 		else
@@ -309,208 +247,18 @@ function wikiembed_list_page()
 		</div></div>
 		<?php
 		endif;
-	/*if(<a href="/elearning/wp-admin/edit.php?post_type=page&amp;paged=2" class="next page-numbers">È</a>)
-	?>
-<a href="/elearning/wp-admin/edit.php?post_type=page&amp;paged=2" class="page-numbers">2</a>
-<a href="/elearning/wp-admin/edit.php?post_type=page&amp;paged=3" class="page-numbers">3</a>
-<span class="page-numbers dots">...</span>
-<a href="/elearning/wp-admin/edit.php?post_type=page&amp;paged=6" class="page-numbers">6</a>
-
-	<?php 
-	if($wikiembeds_parents):
-	for($i=1; $i<=($total_size/$items_per_page); $i ++)
-	{
-		?><a href="admin.php?page=wiki-embed&p=<?php echo $i; ?>"><?php echo $i; ?></a> 
-		
-		<?php
-	} 
-	endif;
-	?>
-	 <?php
-	 */
+	
 	  wp_nonce_field('wikiembed-list','wikiembed-list'); ?>
 
 	</form>
-	
-	<script type="text/javascript" >
-	
-	function isURL(s) {
- 		var regexp = /http:\/\/[A-Za-z0-9\.-]{3,}\.[A-Za-z]{3}/;
- 	alert(regexp.test(s));
-	}
-
-
-	jQuery(function($){
-		$("a.add-target-url").click(function(e){
-		 $(this).parent().hide().next().show();
-		 // make the text box be focus 
-		 
-		var input =  $(this).parent().next().children('input[type=text]');
-			input.focus().select();
-		 	input.keypress(function(e)
-         	{
-            code= (e.keyCode ? e.keyCode : e.which);
-            if (code == 13) {
-           		var data = {
-				action: 'wiki_embed_add_link',
-				url: input.val(),
-				id: input.attr('name')
-				};
-				var el = $(this).siblings('input.button');
-				// since 2.8 ajaxurl is always defined in the admin header and points to admin-ajax.php
-				
-								
-				jQuery.post(ajaxurl, data, function(response) {
-					if(response == "success")
-					{
-						el.parent().hide().prev().show();
-						var patent = el.parent().prev();
-						patent.children('a').html("Edit");
-						patent.children('span.spacer').html("<a href='"+input.val()+"'>"+input.val()+"</a> ");
-						if(el.val() == "Add Target URL")
-						{
-							el.val("Edit Target URL");
-							patent.append(" <span class='divider'>|</span> <span class='trash'><a class='remove-link' rel='"+input.attr('name')+"' href='#remove'>Remove</a></span>");
-						}
-						
-					}
-				});
-			e.preventDefault();
-            }
-            
-          });
-
-		 e.preventDefault();
-		});
-		$('a.cancel-tagert-url').click(function(e){
-			$(this).parent().hide().prev().show();
-			e.preventDefault();
-		});
-		
-		// remove links 
-		$('a.remove-link').live("click",function(){
-			
-			el = $(this);
-			var data = {
-				action: 'wiki_embed_remove_link',
-				id: el.attr('rel')
-			};
-			jQuery.post(ajaxurl, data, function(response) {
-				
-
-				if(response == "success")
-				{
-					// change the edit to 
-					el.parent().parent().children('a').html("Add Target URL");
-					// change the Button 
-					el.parent().parent().next().children('input.button').val("Add Target URL");
-
-					// replace the the link with 
-					el.parent().parent().children(".spacer").html("none");
-					el.parent().parent().children(".divider").remove();
-					// remove the button just clicked
-					el.parent().remove();
-				}
-			
-			});
-			return false;
-		});
-		
-		/// submit the form and save the 
-		$('input.submit-target-url').click(function(){
-			
-			// get the image rolling 
-			var el = $(this);
-			var input = el.prev();
-			
-			
-			var data = {
-			action: 'wiki_embed_add_link',
-			url: input.val(),
-			id: input.attr('name')
-			};
-	
-			// since 2.8 ajaxurl is always defined in the admin header and points to admin-ajax.php
-			jQuery.post(ajaxurl, data, function(response) {
-				if(response == "success")
-				{
-					el.parent().hide().prev().show();
-					var patent = el.parent().prev();
-					patent.children('a').html("Edit");
-					patent.children('span.spacer').html("<a href='"+input.val()+"'>"+input.val()+"</a> ");
-					if(el.val() == "Add Target URL")
-					{
-						el.val("Edit Target URL");
-						patent.append(" <span class='divider'>|</span> <span class='trash'><a class='remove-link' rel='"+input.attr('name')+"' href='#remove'>Remove</a></span>");
-					}
-					
-				}
-			});
-		}); // end of submit click 
-		
-	})
-	
-	</script>
-	<?php /*
-	<p>Current time : <?php echo date("Y/m/d h:i:s A"); ?></p>
-	<h3>Pre Cache Wiki Page <a href="#" id="show-help" >Explain More</a> </h3>
-	<form action="" method="post">
-	<table class="form-table">
-		<tbody>
-		<tr class="form-field form-required">
-			<th scope="row">Wiki url</th>
-			<td>
-			<input type="text" name="url" title="Domain" class="regular-text" name="http://">
-			<div class="help-div">The line of text that appears in your address bar when you browse to the <br /> wiki page. </div>
-
-			</td>
-		</tr>
-		<tr class="form-field form-required">
-			<th scope="row">Target url (optional)</th>
-			<td>
-			<input type="text" name="target" title="Domain" class="regular-text" name="http://">
-			</td>
-		</tr>		
-		<tr>
-			<th valign="top" class="label" scope="row">
-			</th>
-			<td class="field">
-			<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[default][tabs]" id="wiki-embed-tabs" <?php checked($wikiembed_options['default']['tabs'] ); ?> /> <span ><label for="wiki-embed-tabs">Top section converted into tabs</label></span>   <br />
-			<div class="help-div">Wiki pages are usually divided up though heading into section. This settings turns these sections into tabs. <br /> </div>
-			
-			<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[default][no-edit]" id="wiki-embed-edit" <?php checked($wikiembed_options['default']['no-edit'] ); ?> /> <span ><label for="wiki-embed-edit">Remove edit links</label></span>    <br />
-			<div class="help-div">Often wiki pages have edit links displayed next to them, which is not always desired. </div>
-			<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[default][no-contents]" id="wiki-embed-contents" <?php checked($wikiembed_options['default']['no-contents'] ); ?> /> <span ><label for="wiki-embed-contents">Remove contents index</label></span>    <br />
-			<div class="help-div">Often wiki pages have a  contents index (list of content) at the top of each page. </div>
-			</td>
-		</tr>
-		</tbody>
-	</table>
-	<p class="submit">
-			<input type="submit" class="button-primary" value="<?php _e('Pre Cache Wiki Page') ?>" />
-	</p>
-	 <?php wp_nonce_field('wikiembed-precache','wikiembed-precache'); ?>
-	</form>
-	 
-	</div>
-	
-	<script type="text/javascript">
-			jQuery("#show-help").click(function(){
-				if(jQuery(this).text() == "Explain More")
-					jQuery(this).text("Explain Less");
-				else 
-					jQuery(this).text("Explain More");
-			
-				
-				jQuery(".help-div").slideToggle();
-				
-				return false;
-			})
-			
-	</script> <?php 
-	 */
+	<?php 
 }
-
+/**
+ * wikiembed_list_page_add_link function.
+ * used to add a target url to the wiki-embed
+ * @access public
+ * @return void
+ */
 function wikiembed_list_page_add_link(){
 	global $wikiembeds;
 	
@@ -523,7 +271,12 @@ function wikiembed_list_page_add_link(){
 	endif;
 	die(); // removed extra zero :) 
 }
-
+/**
+ * wikiembed_list_page_remove_link function.
+ * used to remove a target url from the wiki-embed
+ * @access public
+ * @return void
+ */
 function wikiembed_list_page_remove_link()
 {
 	global $wikiembeds;

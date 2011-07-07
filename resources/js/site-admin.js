@@ -1,7 +1,7 @@
 /* javascript that is added if you are looking at the site. and need help managing your wiki embeds. */
-
-jQuery(document).ready(function($){
+	jQuery(document).ready(function($){
 	$('.wiki-embed-set-target-url').click(function(e){
+		e.preventDefault();
 		var link = $(this);
 		var data = {
 			action: 'wiki_embed_add_link',
@@ -9,9 +9,7 @@ jQuery(document).ready(function($){
 			id: link.attr('alt')
 		};
 	
-		// since 2.8 wiki_embed_ajaxurl is always defined in the admin header and points to admin-ajax.php
-		
-						
+		// since 2.8 wiki_embed_ajaxurl is always defined in the admin header and points to admin-ajax.php				
 		jQuery.post(wiki_embed_ajaxurl, data, function(response) {
 			if(response == "success")
 			{
@@ -29,7 +27,7 @@ jQuery(document).ready(function($){
 			}
 			
 		});
-		e.preventDefault();
+		
 	});
 
 });

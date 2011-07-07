@@ -13,13 +13,13 @@ add_action('media_buttons_context', 'wikiembed_overlay_buttons');
  */
 function wikiembed_overlay_buttons($context)
 {
-	global $pagenow;
-	if(in_array($pagenow, array( "post.php", "post-new.php" ))):
+	global $post, $pagenow;
+	if( in_array($pagenow, array( "post.php", "post-new.php" ) ) && in_array( $post->post_type , array("post","page")) ):
 	$wiki_embed_overlay_image_button = plugins_url('/wiki-embed/resources/img/icon.png');
     $output_link = '<a href="#TB_inline?height=400&width=670&inlineId=wiki_embed_form" class="thickbox" title="' .__("Wiki Embed", 'wiki-embed') . '" id="wiki-embed-overlay-button"><img src="'.				$wiki_embed_overlay_image_button.'" alt="' . __("Wiki Embed", 'wiki-embed') . '" /></a><style>#wiki_embed_form{ display:none;}</style>';
     return $context.$output_link;
     else:
-    return $context;
+    	return $context;
     endif;
 }
 
@@ -31,8 +31,8 @@ function wikiembed_overlay_buttons($context)
  */
 function wikiembed_overlay_popup_form()
 {
-	global $wikiembed_options,$pagenow;
-	if(in_array($pagenow, array( "post.php", "post-new.php" ))):
+	global $wikiembed_options,$pagenow,$post;
+	if( in_array( $pagenow, array( "post.php", "post-new.php" )) && in_array( $post->post_type , array("post","page") )):
 	
     ?>
     <script type="text/javascript">
@@ -46,9 +46,10 @@ function wikiembed_overlay_popup_form()
 			var wikiEmbedTabs 		= (jQuery("#wiki-embed-tabs").attr('checked') 			? jQuery("#wiki-embed-tabs").attr('value'):"");
 			var wikiEmbedNoEdit 	= (jQuery("#wiki-embed-edit").attr('checked') 			? jQuery("#wiki-embed-edit").attr('value'):"");
 			var wikiEmbedNoContents = (jQuery("#wiki-embed-contents").attr('checked') 		? jQuery("#wiki-embed-contents").attr('value'):"");
-            
-            var win = window.dialogArguments || opener || parent || top;
+           
+            var win = parent;
             win.send_to_editor("[wiki-embed url='"+wikiEmbedUrl+"' "+ wikiEmbedSource + wikiEmbedOverlay + wikiEmbedTabs + wikiEmbedNoEdit + wikiEmbedNoContents +" ]");
+            console.log( win.send_to_editor, "click");
         }
     </script>
 

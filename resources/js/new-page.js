@@ -2,7 +2,13 @@
 jQuery(document).ready(function ($) {
 
 	$(".wiki-embed-new-page a:not(.external,.new,sup.reference a,.wiki-embed-tabs-nav a, #toc a, .image)").each(function() {
-		$(this).attr("href",WikiEmbedSettings.siteurl+"?wikiembed-url="+$.URLEncode(this.href)+"&wikiembed-title="+$.URLEncode(this.innerHTML));
+		var url = this.href.split("#");
+		if(url[1]){
+			$(this).attr("href",WikiEmbedSettings.siteurl+"?wikiembed-url="+$.URLEncode(url[0])+"&wikiembed-title="+$.URLEncode(this.innerHTML)+"#"+url[1]);
+		}else{
+			$(this).attr("href",WikiEmbedSettings.siteurl+"?wikiembed-url="+$.URLEncode(url[0])+"&wikiembed-title="+$.URLEncode(this.innerHTML));
+		}
+		
 	});
 		
 });
