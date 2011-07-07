@@ -49,7 +49,7 @@ function wikiembed_overlay_popup_form()
            
             var win = parent;
             win.send_to_editor("[wiki-embed url='"+wikiEmbedUrl+"' "+ wikiEmbedSource + wikiEmbedOverlay + wikiEmbedTabs + wikiEmbedNoEdit + wikiEmbedNoContents +" ]");
-            console.log( win.send_to_editor, "click");
+            
         }
     </script>
 
