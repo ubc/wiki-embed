@@ -1,6 +1,6 @@
 /* Overlay JS needed */
 jQuery(document).ready(function ($) {
-		$(".wiki-embed-overlay a:not(.external,.new,sup.reference a,.wiki-embed-tabs-nav a, #toc a, .image)").click(function() {
+		$(".wiki-embed-overlay a:not(.external,.new,sup.reference a,.wiki-embed-tabs-nav a, #toc a, .image,a[href$='.pdf'])").click(function() {
 			
 			var url = this.href.split("#");
 			if(url[1]){

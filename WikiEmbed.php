@@ -3,7 +3,7 @@
 Plugin Name: Wiki Embed
 Plugin URI: 
 Description: Enables the inclusion of mediawiki pages into your own blog page or post. Though the use of shortcodes. 
-Version: 1.2.2
+Version: 1.2.3
 Author: Enej Bajgoric - CTLT - UBC
 Author URI: http://blogs.ubc.ca/beta/
 */
@@ -738,7 +738,8 @@ function  wikiembed_render( $wiki_page_body, $has_no_edit , $has_no_contents , $
 function wikiembed_esc_url($url){
 	// remove unwanted 
 	$url = wikiembed_remove_action_render($url);
-	$url = str_replace("&#038;","&",$url);	
+	$url = str_replace("&#038;","&",$url);
+	$url = str_replace("&amp;","&",$url);	
 	// remove any unwanted anchor tags 
 	$url_array = explode("#",$url);
 	

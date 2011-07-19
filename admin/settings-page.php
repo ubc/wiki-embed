@@ -3,6 +3,7 @@
 
 // this function is used in the 
 function wikiembed_settings_page() {
+	
 	global $wikiembed_options, $wikiembed_version;
 	$updated = false;
 	$option = "wikiembed_options";
@@ -39,16 +40,16 @@ function wikiembed_settings_page() {
 			</th>
 			<td class="field">
 	
-			<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[tabs]" id="wiki-embed-edit" <?php checked( isset($wikiembed_options['tabs']) ); ?> /> <span ><label for="wiki-embed-edit">Ability to convert a Wiki page headlines into tabs </label></span>    <br />
+			<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[tabs]" id="wiki-embed-edit" <?php checked( $wikiembed_options['tabs'] ); ?> /> <span ><label for="wiki-embed-edit">Ability to convert a Wiki page headlines into tabs </label></span>    <br />
 			<div class="help-div">Loads the tabs javascript file on each page of the site.</div>
 			<!-- 
-			<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[overlay]" id="wiki-embed-contents" <?php checked( isset($wikiembed_options['overlay']) ); ?> /> <span ><label for="wiki-embed-contents">Ability or internal wiki links to be displayed in an Overlay indtead of linking to the site</label></span>    <br /> 
+			<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[overlay]" id="wiki-embed-contents" <?php checked( $wikiembed_options['overlay'] ); ?> /> <span ><label for="wiki-embed-contents">Ability or internal wiki links to be displayed in an Overlay indtead of linking to the site</label></span>    <br /> 
 			<div class="help-div"> Loads the overlay javascirpt and css files on each page of the site.<br /> </div>
 			-->
-			<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[style]" id="wiki-embed-overlay" <?php checked( isset($wikiembed_options['style']) ); ?> /><span ><label for="wiki-embed-overlay"> Additional styling not commonly found in your theme.</label></span>    <br />
+			<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[style]" id="wiki-embed-overlay" <?php checked( $wikiembed_options['style'] ); ?> /><span ><label for="wiki-embed-overlay"> Additional styling not commonly found in your theme.</label></span>    <br />
 			<div class="help-div">Loads wiki-embed css files on each page of the site. <br /> </div>
 			
-			<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[tabs-style]" id="wiki-embed-tab-style" <?php checked(  isset($wikiembed_options['tabs-style']) ); ?> /> <span ><label for="wiki-embed-tab-style">Additional tabs styling, useful if you theme doesn't support tab styling </label></span>    <br />
+			<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[tabs-style]" id="wiki-embed-tab-style" <?php checked(  $wikiembed_options['tabs-style'] ); ?> /> <span ><label for="wiki-embed-tab-style">Additional tabs styling, useful if you theme doesn't support tab styling </label></span>    <br />
 			
 			<div class="help-div">Loads tabs css files on each page of the site.<br /> </div>
 			</td>
@@ -99,7 +100,7 @@ function wikiembed_settings_page() {
 					
 				</th>
 				<td>
-				<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[default][source]" id="wiki-embed-display-links" <?php checked( isset($wikiembed_options['default']['source'])); ?> /> <span ><label for="wiki-embed-display-links">Display a link to the content source after the embedded content</label></span>  
+				<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[default][source]" id="wiki-embed-display-links" <?php checked( $wikiembed_options['default']['source']); ?> /> <span ><label for="wiki-embed-display-links">Display a link to the content source after the embedded content</label></span>  
 				<br />
 				
 				<div id="display-wiki-source" >
@@ -118,12 +119,12 @@ function wikiembed_settings_page() {
 				<th valign="top" class="label" scope="row">
 				</th>
 				<td class="field">
-				<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[default][tabs]" id="wiki-embed-tabs" <?php checked( isset($wikiembed_options['default']['tabs']) ); ?> /> <span ><label for="wiki-embed-tabs">Top sections converted into tabs</label></span>   <br />
+				<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[default][tabs]" id="wiki-embed-tabs" <?php checked( $wikiembed_options['default']['tabs'] ); ?> /> <span ><label for="wiki-embed-tabs">Top sections converted into tabs</label></span>   <br />
 				<div class="help-div">Wiki pages are usually divided up though headings into sections. This setting turns these sections into tabs. <br /> </div>
 				
-				<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[default][no-edit]" id="wiki-remove-edit" <?php checked( isset($wikiembed_options['default']['no-edit']) ); ?> /> <span ><label for="wiki-remove-edit">Remove edit links</label></span>    <br />
+				<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[default][no-edit]" id="wiki-remove-edit" <?php checked( $wikiembed_options['default']['no-edit'] ); ?> /> <span ><label for="wiki-remove-edit">Remove edit links</label></span>    <br />
 				<div class="help-div">Often wiki pages have edit links displayed next to sections, which is not always desired. </div>
-				<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[default][no-contents]" id="wiki-embed-contents" <?php checked( isset($wikiembed_options['default']['no-contents']) ); ?> /> <span ><label for="wiki-embed-contents">Remove table of contents</label></span>    <br />
+				<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[default][no-contents]" id="wiki-embed-contents" <?php checked( $wikiembed_options['default']['no-contents'] ); ?> /> <span ><label for="wiki-embed-contents">Remove table of contents</label></span>    <br />
 				<div class="help-div">Often wiki pages have a table of contents (a list of content) at the top of each page. </div>
 				</td>
 			</tr>

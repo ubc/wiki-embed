@@ -33,6 +33,10 @@ Maybe, but why would you want to? That is not what the tool was designed to do.
 
 
 == Changelog ==
+= 1.2.3 =
+* Settings page bug fix, wasn't working properly. 
+* Always ignore files that link to pdf documents, 
+* convert &amp; to & 
 
 = 1.2.2 = 
 * removed unnecessary javascript files
