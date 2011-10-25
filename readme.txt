@@ -33,6 +33,10 @@ Maybe, but why would you want to? That is not what the tool was designed to do.
 
 
 == Changelog ==
+= 1.2.4 =
+* Bug fix: Causes errors on 404 pages. Links stop working. Now fixed
+* removed un-necessary files
+
 = 1.2.3 =
 * Settings page bug fix, wasn't working properly. 
 * Always ignore files that link to pdf documents, 
