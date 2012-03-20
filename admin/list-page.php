@@ -33,7 +33,7 @@ function wikiembed_list_page()
 	  					if(in_array(esc_attr($bits[0]),$post_wikiembed) || in_array(esc_attr($wikiembeds_hash),$post_wikiembed))
 	  					{
 	  						unset($wikiembeds[$wikiembeds_hash]);
-							delete_transient( md5($wikiembeds_hash) );
+							delete_option( md5($wikiembeds_hash) );
 	  					}
 	  				endforeach;
 	  				unset($bits);
@@ -53,7 +53,7 @@ function wikiembed_list_page()
 	  					if(in_array(esc_attr($bits[0]),$post_wikiembed))
 	  					{
 	  						unset($wikiembeds[$wikiembeds_hash]['expires_on']);
-							delete_transient( md5($wikiembeds_hash) );
+							delete_option( md5($wikiembeds_hash) );
 	  						// $undoItems[] = $wikiembeds[$wiki_page_id];
 	  					}
 	  				endforeach;
