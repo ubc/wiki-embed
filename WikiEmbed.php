@@ -2,8 +2,8 @@
 /*
 Plugin Name: Wiki Embed
 Plugin URI: 
-Description: Enables the inclusion of mediawiki pages into your own blog page or post. Though the use of shortcodes. 
-Version: 1.3
+Description: Enables the inclusion of mediawiki pages into your own blog page or post through the use of shortcodes. 
+Version: 1.4
 Author: Enej Bajgoric - CTLT - UBC
 Author URI: http://blogs.ubc.ca/beta/
 */
@@ -105,6 +105,14 @@ function wikiembed_init()
 			wp_enqueue_script( 'wiki-embed-tabs', plugins_url( '/wiki-embed/resources/js/tabs.js'),array("jquery","jquery-ui-tabs"), $wikiembed_version );
 			
 		endif;
+		
+		
+		if($wikiembed_options['accordions']):
+    		 wp_enqueue_script('jquery-ui-accordion', 0, array("jquery","jquery-ui-tabs"));
+		
+		endif;
+		
+		
 		if($wikiembed_options['tabs-style']):
 		// embed this if tabs enabled style
 			wp_enqueue_style('wiki-embed-tabs', plugins_url('/wiki-embed/resources/css/tabs.css'),false, $wikiembed_version, 'screen' );
@@ -523,12 +531,6 @@ function wikiembed_get_page_id( $url, $has_accordion, $has_tabs, $has_no_content
 function wikiembed_get_wiki_content( $url, $has_accordion, $has_tabs, $has_no_contents, $has_no_edit, $has_no_infobox, $update, $has_source, $remove=null ) {
 	global $wikiembeds,$wikiembed_options,$wikiembed_content_count;
 	
-		
-	if($has_accordion):
-			 wp_enqueue_script('jquery');
-    		 wp_enqueue_script('jquery-ui-core');
-    		 wp_enqueue_script('jquery-ui-accordion');
-		endif;
 	
 	$wiki_page_id = wikiembed_get_page_id( $url, $has_accordion, $has_tabs, $has_no_contents, $has_no_edit, $has_no_infobox,  $remove );
 	$wiki_page_id_hash  = md5($wiki_page_id); // if we don't md5 the hash we can't really 
@@ -1058,6 +1060,7 @@ function wikiembed_overlay_ajax() {
 function wikiembed_settings()
 {
 	$wikiembed_options['tabs'] = 1;
+	$wikiembed_options['accordions'] = 1;
 	$wikiembed_options['style'] = 1;
 	$wikiembed_options['tabs-style'] = 0;
 	$wikiembed_options['wiki-update'] = "30";
