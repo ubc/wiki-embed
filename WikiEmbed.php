@@ -749,6 +749,7 @@ function wp_remote_request_wikipage($url,$update)
 function  wikiembed_render( $wiki_page_body, $has_no_edit , $has_no_contents , $has_no_infobox , $has_accordion, $has_tabs, $remove ) {
 	global $wikiembed_content_count;
 	// Do we need to modify the content? 
+	
 	if($has_no_edit || $has_no_contents || $has_no_infobox || $has_accordion || $has_tabs || $remove ):
 		require_once("resources/simple_html_dom.php");
 				
