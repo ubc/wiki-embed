@@ -735,6 +735,7 @@ function wp_remote_request_wikipage($url,$update)
      return $wiki_page_body;
      	
 }
+
 /**
  * wikiembed_render function.
  * 
@@ -746,6 +747,146 @@ function wp_remote_request_wikipage($url,$update)
  * @param mixed $has_tabs
  * @return void
  */
+ function  wikiembed_render( $wiki_page_body, $has_no_edit , $has_no_contents , $has_no_infobox , $has_accordion, $has_tabs, $remove ) {
+	global $wikiembed_content_count;
+	// Do we need to modify the content? 
+	
+	if($has_no_edit || $has_no_contents || $has_no_infobox || $has_accordion || $has_tabs || $remove ):
+		//require_once("resources/simple_html_dom.php");
+				
+		$html = DOMDocument::loadHTML($wiki_page_body);
+		
+		$remove_elements = explode(",",$remove);
+		
+		// remove edit links 
+		if( $has_no_edit ):
+			$remove_elements[] = '.editsection';
+		endif; // end of removing links
+	
+		// remove table of contents 
+		if( $has_no_contents ):
+			$remove_elements[] = '#toc';
+		endif;
+		
+		// remove infobox 
+		if( $has_no_infobox ):
+			$remove_elements[] = '.infobox';
+		endif;
+		
+		$finder = new DomXPath($html);
+		
+		// bonus you can remove any element by passing in a css selector and seperating them by commas
+		if(!empty($remove_elements)):
+			foreach($remove_elements as $element):
+				
+				if($element):
+					foreach($finder->query("//*[contains(@class, '$element')]") as $e):
+						$html->removeChild($e);
+					endforeach;	
+				$removed_elements[] = $element;
+				endif;
+				
+			endforeach;
+		endif; // end of removing of the elements 
+			
+		$index = 0;
+		$list = '';
+		
+		//below selector = h2 span.mw-headline	(converted via http://css2xpath.appspot.com/)
+		$headlines = $finder->query("descendant-or-self::h2/descendant::span[contains(concat(' ', normalize-space(@class), ' '), ' mw-headline ')]");
+		$count = count($headlines)-1;
+		
+		foreach($headlines as $headline):
+		
+				if( $has_tabs ): // create tabs 
+					if($wikiembed_content_count <= 1):
+						$list .= '<li><a href="#fragment-'.$wikiembed_content_count.'-'.$index.'" ><span>'.$headline->nodeValue.'</span></a></li>';
+					else:
+						$list .= '<li><a href="#fragment-'.$wikiembed_content_count.'-'.$index.'" >'.$headline->outertext.'</a></li>';
+					endif;
+				endif;
+				
+				if($index !=0):
+					$class = "wikiembed-fragment wikiembed-fragment-counter-".$index;
+					
+					if($count == $index)
+						$class .= " wikiembed-fragment-last";
+					
+					if($has_accordion):
+							$headline->parentNode->outertext = 
+							'</div><h2><a href="#">'.$headline->nodeValue.'</a></h2><div id="fragment-'.$wikiembed_content_count.'-'.$index.'" class="'.$class.'">';
+					else:
+						if($wikiembed_content_count <= 1):
+							$headline->parentNode->outertext = 
+							'</div><div id="fragment-'.$wikiembed_content_count.'-'.$index.'" class="'.$class.'"><h2>'.$headline->outertext.'</h2>';
+						else:
+							$headline->parentNode->outertext = 
+							'</div><div id="fragment-'.$wikiembed_content_count.'-'.$index.'" class="'.$class.'"><h2><span class="mw-headline">'.$headline->nodeValue.'</span></h2>';
+						endif;
+					endif;
+				endif;
+				$index++;
+		endforeach;
+
+		$wiki_embed_end_tabs = '';
+		if( $has_tabs ):	// create tabs 
+			$tabs = '<div class="wiki-embed-tabs wiki-embed-fragment-count-'.$count.'">'; // shell div
+			if( $list !='' ):
+				$tabs .= '<ul class="wiki-embed-tabs-nav">'.$list.'</ul>';
+			endif;
+		else:
+			$tabs = '<div class="wiki-embed-shell wiki-embed-fragment-count-'.$count.'">'; // shell div
+		endif;
+		
+		// the first div inside for the first tab
+		if($has_accordion):
+			$tabs = '<div id="accordion-wiki-'.$wikiembed_content_count.'" class="accordions-shortcode">'; // shell div
+		else:
+			$tabs .= '<div id="fragment-'.$wikiembed_content_count.'-0" class="wikiembed-fragment wikiembed-fragment-counter-0'.$accordion_class.'">';
+		endif;
+		
+		//print_r("!!".$headlines->item(0)->nodeValue);
+		//isset can't directly take $headlines->item[0] as a parameter, do it on a seperate line i guess
+		$firstHeadline = $headlines->item(0);
+		if($has_accordion):
+			if(isset($firstHeadline)):
+				$headlines->item(0)->parentNode->outertext = $tabs.'<h2><a href="#">'.$headlines->item(0)->nodeValue.'</a></h2><div>';				
+			endif;
+		else:
+			if(isset($firstHeadline)):
+				if($wikiembed_content_count <= 1):
+					$headlines->item(0)->parentNode->outertext = $tabs.'<h2>'.$headlines->item(0)->outertext.'</h2>';				
+				else:
+					$headlines->item(0)->parentNode->outertext = $tabs.'<h2><span class="mw-headline">'.$headlines[0]->nodeValue.'</span></h2>';
+				endif;
+			endif;
+		endif;
+			
+		if(isset($firstHeadline)):
+			$wiki_embed_end_tabs   .="</div></div>";
+		endif;		
+		// endif;	
+		
+		$wiki_page_body = $html->saveHTML();
+		if($has_accordion):
+
+			$wiki_page_body .= '<script type="text/javascript"> /* <![CDATA[ */ 
+				jQuery(document).ready( function($){ $("#accordion-wiki-'.$wikiembed_content_count.'").accordion({"autoHeight":false,"disabled":false,"active":0,"animated":"slide","clearStyle":false,"collapsible":false,"event":"click","fillSpace":false, "header":"h2"} ); }); 
+			/* ]]&gt; */ </script>';
+		endif;	
+
+		
+		$wiki_page_body .= $wiki_embed_end_tabs;
+
+	endif; // end of content modifications 
+			
+	if(!empty($removed_elements))
+		$remove_att = 	'remove="'.implode(",",$removed_elements).'"';
+
+	return $wiki_page_body;
+}
+
+ /*
 function  wikiembed_render( $wiki_page_body, $has_no_edit , $has_no_contents , $has_no_infobox , $has_accordion, $has_tabs, $remove ) {
 	global $wikiembed_content_count;
 	// Do we need to modify the content? 
@@ -864,11 +1005,11 @@ function  wikiembed_render( $wiki_page_body, $has_no_edit , $has_no_contents , $
 		$wiki_page_body = $html->save();
 		if($has_accordion):
 
-			$wiki_page_body .= '<script type="text/javascript"> /* <![CDATA[ */ 
-				jQuery(document).ready( function($){ $("#accordion-wiki-'.$wikiembed_content_count.'").accordion({"autoHeight":false,"disabled":false,"active":0,"animated":"slide","clearStyle":false,"collapsible":false,"event":"click","fillSpace":false, "header":"h2"} ); }); 
-			/* ]]&gt; */ </script>';
-		endif;	
-
+//			$wiki_page_body .= '<script type="text/javascript"> /* <![CDATA[ */ 
+//				jQuery(document).ready( function($){ $("#accordion-wiki-'.$wikiembed_content_count.'").accordion({"autoHeight":false,"disabled":false,"active":0,"animated":"slide","clearStyle":false,"collapsible":false,"event":"click","fillSpace":false, "header":"h2"} ); }); 
+//			/* ]]&gt; */ </script>';
+//		endif;	
+/*
 		
 		$wiki_page_body .= $wiki_embed_end_tabs;
 
@@ -880,6 +1021,9 @@ function  wikiembed_render( $wiki_page_body, $has_no_edit , $has_no_contents , $
 
 	return $wiki_page_body;
 }
+
+
+*/
 
 function wikiembed_esc_url($url){
 	// remove unwanted 
