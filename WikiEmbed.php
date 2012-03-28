@@ -753,9 +753,9 @@ function wp_remote_request_wikipage($url,$update)
 	
 	if($has_no_edit || $has_no_contents || $has_no_infobox || $has_accordion || $has_tabs || $remove ):
 		//require_once("resources/simple_html_dom.php");
-				
+
 		$html = DOMDocument::loadHTML($wiki_page_body);
-		
+		//$out_html = new DOMDocument();
 		$remove_elements = explode(",",$remove);
 		
 		// remove edit links 
@@ -776,6 +776,7 @@ function wp_remote_request_wikipage($url,$update)
 		$finder = new DomXPath($html);
 		
 		// bonus you can remove any element by passing in a css selector and seperating them by commas
+		/*
 		if(!empty($remove_elements)):
 			foreach($remove_elements as $element):
 				
@@ -788,7 +789,7 @@ function wp_remote_request_wikipage($url,$update)
 				
 			endforeach;
 		endif; // end of removing of the elements 
-			
+		*/
 		$index = 0;
 		$list = '';
 		
@@ -797,40 +798,70 @@ function wp_remote_request_wikipage($url,$update)
 		$count = count($headlines)-1;
 		
 		foreach($headlines as $headline):
-		
-				if( $has_tabs ): // create tabs 
-					if($wikiembed_content_count <= 1):
-						$list .= '<li><a href="#fragment-'.$wikiembed_content_count.'-'.$index.'" ><span>'.$headline->nodeValue.'</span></a></li>';
-					else:
-						$list .= '<li><a href="#fragment-'.$wikiembed_content_count.'-'.$index.'" >'.$headline->outertext.'</a></li>';
-					endif;
-				endif;
+			
+			if( $has_tabs ): // create tabs 
+				//if($wikiembed_content_count <= 1):
+					$list .= '<li><a href="#fragment-'.$wikiembed_content_count.'-'.$index.'" ><span>'.$headline->nodeValue.'</span></a></li>';
+				//else:
+				//	$list .= '<li><a href="#fragment-'.$wikiembed_content_count.'-'.$index.'" >'.$html->saveXML($headline).'</a></li>';
+				//endif;
+			endif;
+			
+			$class = "wikiembed-fragment wikiembed-fragment-counter-".$index;
+			if($count == $index)
+				$class .= " wikiembed-fragment-last";
+			
+			if( $has_tabs ):
+				$container = $html->createElement('div');
+			endif;
+			
+			if( $ has_tabs ):
+			
+			endif;
+			
+			
+			
+			$index++;
+		endforeach;		
+			
+			/*
+				if(tabs)<div>
+					<h2>header</h2>
+					<div>
+						content
+					</div>
+					<h2>header</h2>
+					<div>
+						content
+					</div>
+				if(tabs)</div>
+			*/
+			
+			
+			
 				
-				if($index !=0):
-					$class = "wikiembed-fragment wikiembed-fragment-counter-".$index;
-					
-					if($count == $index)
-						$class .= " wikiembed-fragment-last";
-					
-					if($has_accordion):
-							$headline->parentNode->outertext = 
+				if($has_accordion):
+						$headline->parentNode->outertext = 
 							'</div><h2><a href="#">'.$headline->nodeValue.'</a></h2><div id="fragment-'.$wikiembed_content_count.'-'.$index.'" class="'.$class.'">';
-					else:
-						if($wikiembed_content_count <= 1):
-							$headline->parentNode->outertext = 
+				else:
+					if($wikiembed_content_count <= 1):
+						$headline->parentNode->outertext = 
 							'</div><div id="fragment-'.$wikiembed_content_count.'-'.$index.'" class="'.$class.'"><h2>'.$headline->outertext.'</h2>';
-						else:
-							$headline->parentNode->outertext = 
+					else:
+						$headline->parentNode->outertext = 
 							'</div><div id="fragment-'.$wikiembed_content_count.'-'.$index.'" class="'.$class.'"><h2><span class="mw-headline">'.$headline->nodeValue.'</span></h2>';
-						endif;
 					endif;
 				endif;
-				$index++;
+			
+			//echo $headline->nodeValue;
+			$index++;
 		endforeach;
-
+		
+		//$shell_div = $html->createElement('<div>');
+		
 		$wiki_embed_end_tabs = '';
 		if( $has_tabs ):	// create tabs 
-			$tabs = '<div class="wiki-embed-tabs wiki-embed-fragment-count-'.$count.'">'; // shell div
+			$tabs = '<div class="wiki-embed-tabs wiki-embed-fragment-count-'.$count.'">';	 // shell div
 			if( $list !='' ):
 				$tabs .= '<ul class="wiki-embed-tabs-nav">'.$list.'</ul>';
 			endif;
@@ -850,7 +881,7 @@ function wp_remote_request_wikipage($url,$update)
 		$firstHeadline = $headlines->item(0);
 		if($has_accordion):
 			if(isset($firstHeadline)):
-				$headlines->item(0)->parentNode->outertext = $tabs.'<h2><a href="#">'.$headlines->item(0)->nodeValue.'</a></h2><div>';				
+				replaceNodeXML($html, $firstHeadline, $tabs.'<h2><a href="#">'.$firstHeadline->nodeValue.'</a></h2><div>'); 
 			endif;
 		else:
 			if(isset($firstHeadline)):
@@ -867,7 +898,7 @@ function wp_remote_request_wikipage($url,$update)
 		endif;		
 		// endif;	
 		
-		$wiki_page_body = $html->saveHTML();
+		$wiki_page_body = remove_unwanted_nodes($html->saveHTML());
 		if($has_accordion):
 
 			$wiki_page_body .= '<script type="text/javascript"> /* <![CDATA[ */ 
@@ -1196,6 +1227,79 @@ function wikiembed_overlay_ajax() {
  *
  *
  ********************************************************************/
+ 
+ //http://de3.php.net/manual/en/domdocumentfragment.appendxml.php
+function replaceNodeXML($dom, &$node,$xml) { 
+ $f = $dom->createDocumentFragment(); 
+ //$f->appendXML($xml); 
+	$text=$dom->createTextNode($xml);
+ 	$f->appendChild($text);
+ $node->parentNode->replaceChild($f,$node); 
+}
+
+/**
+ * remove_unwanted_nodes function
+ * Takes care of the mess  added by the PHP DOM library
+ */
+function remove_unwanted_nodes($content) {
+    $new_content = preg_replace(array("/^\<\!DOCTYPE.*?<html><body>/si",
+                                  "!</body></html>$!si"),
+                            "",
+                            $content);
+
+		return $new_content;
+	}
+
+/**
+ * Convert a CSS-selector into an xPath-query
+ *
+ * @return    string
+ * @param    string $selector    The CSS-selector
+ */
+function buildXPathQuery($selector)
+{
+    // redefine
+    $selector = (string) $selector;
+
+    // the CSS selector
+    $cssSelector = array(    // E F: Matches any F element that is a descendant of an E element
+                            '/(\w)\s+(\w)/',
+                            // E > F: Matches any F element that is a child of an element E
+                            '/(\w)\s*>\s*(\w)/',
+                            // E:first-child: Matches element E when E is the first child of its parent
+                            '/(\w):first-child/',
+                            // E + F: Matches any F element immediately preceded by an element
+                            '/(\w)\s*\+\s*(\w)/',
+                            // E[foo]: Matches any E element with the "foo" attribute set (whatever the value)
+                            '/(\w)\[([\w\-]+)]/',
+                            // E[foo="warning"]: Matches any E element whose "foo" attribute value is exactly equal to "warning"
+                            '/(\w)\[([\w\-]+)\=\"(.*)\"]/',
+                            // div.warning: HTML only. The same as DIV[class~="warning"]
+                            '/(\w+|\*)?\.([\w\-]+)+/',
+                            // E#myid: Matches any E element with id-attribute equal to "myid"
+                            '/(\w+)+\#([\w\-]+)/',
+                            // #myid: Matches any E element with id-attribute equal to "myid"
+                            '/\#([\w\-]+)/'
+                        );
+
+    // the xPath-equivalent
+    $xPathQuery = array(    '\1//\2',
+                            '\1/\2',
+                            '*[1]/self::\1',
+                            '\1/following-sibling::*[1]/self::\2',
+                            '\1 [ @\2 ]',
+                            '\1[ contains( concat( " ", @\2, " " ), concat( " ", "\3", " " ) ) ]',
+                            '\1[ contains( concat( " ", @class, " " ), concat( " ", "\2", " " ) ) ]',
+                            '\1[ @id = "\2" ]',
+                            '*[ @id = "\1" ]'
+                        );
+
+    // return
+    return (string) '//'. preg_replace($cssSelector, $xPathQuery, $selector);
+}
+
+
+ 
 /**
  * wikiembed_settings function.
  * 
