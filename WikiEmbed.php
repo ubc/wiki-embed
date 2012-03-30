@@ -753,12 +753,14 @@ function wp_remote_request_wikipage($url,$update)
 	// Do we need to modify the content? 
 	
 	if($has_no_edit || $has_no_contents || $has_no_infobox || $has_accordion || $has_tabs || $remove ):
-		require_once("resources/xpath_selector.php");	//for using CSS selectors to query the DOM (instead of xpath)
-				
-		$html = DOMDocument::loadHTML($wiki_page_body);
+		require_once("resources/css_selector.php");	//for using CSS selectors to query the DOM (instead of xpath)
+		
+		
+		//this isn't supposed to be necessary but without it DOMDocument is breaking all of the fancy characters
+		$html = DOMDocument::loadHTML('<?xml version="1.0" encoding="UTF-8"?>'.$wiki_page_body);	
 		
 		$remove_elements = explode(",",$remove);
-		
+
 		// remove edit links 
 		if( $has_no_edit ):
 			$remove_elements[] = '.editsection';
@@ -789,11 +791,9 @@ function wp_remote_request_wikipage($url,$update)
 				
 			endforeach;
 		endif; // end of removing of the elements 
-			
-		//Strip out undesired tags that DOMDocument automaticaly adds
-		$wiki_page_body = preg_replace('/^<!DOCTYPE.+?>/', '', str_replace( array('<html>', '</html>', '<body>', '</body>'), array('', '', '', ''), $html->saveHTML()));
 		
-		//mb_internal_encoding("UTF-8");
+		//Strip out undesired tags that DOMDocument automaticaly adds
+		$wiki_page_body = preg_replace(array('/^<!DOCTYPE.+?>/u','/<\?.+?\?>/'), array('',''), str_replace( array('<html>', '</html>', '<body>', '</body>'), array('', '', '', ''), $html->saveHTML()));
 		
 		//Seperate article content into an array of headers and an array of content (for tabs/accordions/styling)
 			$start_offset=0;
