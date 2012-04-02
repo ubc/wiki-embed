@@ -7,7 +7,6 @@ function wikiembed_settings_page() {
 	global $wikiembed_options, $wikiembed_version;
 	$updated = false;
 	$option = "wikiembed_options";
-
 	if ( isset($_POST[$option]) ):
 			$value = $_POST[$option];
 		if ( !is_array($value) )
@@ -15,7 +14,6 @@ function wikiembed_settings_page() {
 		$value = stripslashes_deep($value);
 		
 		$updated = update_option($option, $value);
-		
 		$wikiembed_options = $value;
 		
 	endif; 	
@@ -44,9 +42,6 @@ function wikiembed_settings_page() {
 	
 			<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[tabs]" id="wiki-embed-edit" <?php checked( $wikiembed_options['tabs'] ); ?> /> <span ><label for="wiki-embed-edit">Ability to convert a Wiki page headlines into tabs </label></span>    <br />
 			<div class="help-div">Loads the tabs javascript file on each page of the site.</div>
-			
-			<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[accordions]" id="wiki-embed-edit" <?php checked( $wikiembed_options['accordions'] ); ?> /> <span ><label for="wiki-embed-edit">Ability to convert a Wiki page headlines into accordion </label></span>    <br />
-			<div class="help-div">Loads the accordions javascript file on each page of the site.</div>
 			<!-- 
 			<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[overlay]" id="wiki-embed-contents" <?php checked( $wikiembed_options['overlay'] ); ?> /> <span ><label for="wiki-embed-contents">Ability or internal wiki links to be displayed in an Overlay indtead of linking to the site</label></span>    <br /> 
 			<div class="help-div"> Loads the overlay javascirpt and css files on each page of the site.<br /> </div>
@@ -124,17 +119,8 @@ function wikiembed_settings_page() {
 				<th valign="top" class="label" scope="row">
 				</th>
 				<td class="field">
-				<!--
 				<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[default][tabs]" id="wiki-embed-tabs" <?php checked( $wikiembed_options['default']['tabs'] ); ?> /> <span ><label for="wiki-embed-tabs">Top sections converted into tabs</label></span>   <br />
 				<div class="help-div">Wiki pages are usually divided up though headings into sections. This setting turns these sections into tabs. <br /> </div>
-				-->
-
-				<input type="radio" name="wikiembed_options[default][tabs]" value="1" id="wiki-embed-tabs" <?php checked( $wikiembed_options['default']['tabs'],1 ); ?> />
-				<span><label for="wiki-embed-tabs">Convert section headings to tabs</label></span><br />
-				<input type="radio" name="wikiembed_options[default][tabs]" value="2" id="wiki-embed-accordion" <?php checked( $wikiembed_options['default']['tabs'],2 ); ?> />
-				<span><label for="wiki-embed-accordion">Convert section headings to accordion</label></span><br />
-				<input type="radio" name="wikiembed_options[default][tabs]" value="0" id="wiki-embed-normal-headers" <?php checked( $wikiembed_options['default']['tabs'],0 ); ?> />
-				<span><label for="wiki-embed-normal-headers">Don't convert section headings</label></span><br />
 				
 				<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[default][no-edit]" id="wiki-remove-edit" <?php checked( $wikiembed_options['default']['no-edit'] ); ?> /> <span ><label for="wiki-remove-edit">Remove edit links</label></span>    <br />
 				<div class="help-div">Often wiki pages have edit links displayed next to sections, which is not always desired. </div>
@@ -202,7 +188,6 @@ function wiki_embed_add_help_text($contextual_help, $screen_id, $screen) {
 function wikiembed_options_validate($wikiembed_options) {
 	
 	$wikiembed_options['tabs'] =  ( isset($wikiembed_options['tabs']) && $wikiembed_options['tabs'] == 1 ? 1 : 0 );
-	$wikiembed_options['accordions'] =  ( isset($wikiembed_options['accordions']) && $wikiembed_options['accordions'] == 1 ? 1 : 0 );
 	$wikiembed_options['style'] =  ( isset($wikiembed_options['style']) && $wikiembed_options['style'] == 1 ? 1 : 0 );
 	$wikiembed_options['tabs-style'] =  ( isset($wikiembed_options['tabs-style']) && $wikiembed_options['tabs-style'] == 1 ? 1 : 0 );
 	$wikiembed_options['wiki-update'] =  ( is_numeric($wikiembed_options['wiki-update']) ? $wikiembed_options['wiki-update'] : "30" );
@@ -216,7 +201,7 @@ function wikiembed_options_validate($wikiembed_options) {
 	$wikiembed_options['default']['no-contents'] =  ( isset($wikiembed_options['default']['no-contents']) && $wikiembed_options['default']['no-contents'] == 1 ? 1 : 0 );
 	$wikiembed_options['default']['no-infobox'] =  ( isset($wikiembed_options['default']['no-infobox']) && $wikiembed_options['default']['no-infobox'] == 1 ? 1 : 0 );
 	$wikiembed_options['default']['no-edit'] =  ( isset($wikiembed_options['default']['no-edit']) && $wikiembed_options['default']['no-edit'] == 1 ? 1 : 0 );
-	$wikiembed_options['default']['tabs'] =  ( is_numeric($wikiembed_options['default']['tabs']) ? $wikiembed_options['default']['tabs'] : "0" );
+	$wikiembed_options['default']['tabs'] =  ( isset($wikiembed_options['default']['tabs']) && $wikiembed_options['default']['tabs'] == 1 ? 1 : 0 );
 	
 	$wikiembed_options['security']['whitelist'] = ( isset($wikiembed_options['security']['whitelist'] ) ? $wikiembed_options['security']['whitelist'] : null);
 	
