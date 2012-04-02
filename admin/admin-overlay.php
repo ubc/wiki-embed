@@ -43,7 +43,7 @@ function wikiembed_overlay_popup_form()
 			// update='"+wikiEmbedUpdate+"'
 			var wikiEmbedSource 	= (jQuery("#wiki-embed-display-links").attr('checked') 	? jQuery("#wiki-embed-display-links").attr('value'):"");
 			var wikiEmbedOverlay 	= (jQuery("#wiki-embed-overlay").attr('checked') 		? jQuery("#wiki-embed-overlay").attr('value'):"");
-			var wikiEmbedTabs 		= (jQuery("#wiki-embed-tabs").attr('checked') 			? jQuery("#wiki-embed-tabs").attr('value'):"");
+			var wikiEmbedTabs 		= (jQuery("input:radio[name=wiki-embed-tabs]:checked")	? jQuery("input:radio[name=wiki-embed-tabs]:checked").attr('value'):"");
 			var wikiEmbedNoEdit 	= (jQuery("#wiki-embed-edit").attr('checked') 			? jQuery("#wiki-embed-edit").attr('value'):"");
 			var wikiEmbedNoContents = (jQuery("#wiki-embed-contents").attr('checked') 		? jQuery("#wiki-embed-contents").attr('value'):"");
             var wikiEmbedNoInfobox  = (jQuery("#wiki-embed-infobox").attr('checked') 		? jQuery("#wiki-embed-infobox").attr('value'):"");
@@ -68,11 +68,41 @@ function wikiembed_overlay_popup_form()
 		</tr>
 		
 		<?php if($wikiembed_options['tabs']): ?>
+		
+	
 		<tr>
 			<th valign="top" class="label" scope="row">
 			</th>
-			<td class="field"><input type="checkbox" aria-required="true" value=" tabs" name="wiki-embed-tabs" id="wiki-embed-tabs" <?php checked($wikiembed_options['default']['tabs'] ); ?> /><span ><label for="wiki-embed-tabs"> Top section converted into tabs</label></span></td>
+			<td class="field"><input type="radio" name="wiki-embed-tabs" value=" tabs" class="wiki-embed-tabs" id="wiki-embed-tabs" <?php checked( $wikiembed_options['default']['tabs'],1 ); ?> />
+			<span><label for="wiki-embed-tabs">Convert section headings to tabs</label></span>
+			</td>
 		</tr>
+		
+		<tr>
+			<th valign="top" class="label" scope="row">
+			</th>
+			<td class="field"><input type="radio" name="wiki-embed-tabs" value=" accordion" class="wiki-embed-accordion" id="wiki-embed-accordion" <?php checked( $wikiembed_options['default']['tabs'],2 ); ?> />
+			<span><label for="wiki-embed-accordion">Convert section headings to accordion</label></span>
+			</td>
+		</tr>
+		
+		<tr>
+			<th valign="top" class="label" scope="row">
+			</th>
+			<td class="field"><input type="radio" name="wiki-embed-tabs" value=" " id="wiki-embed-normal-headers" id="wiki-embed-normal-headers" <?php checked( $wikiembed_options['default']['tabs'],0 ); ?> />
+			<span><label for="wiki-embed-normal-headers">Don't convert section headings</label></span>
+			</td>
+		</tr>
+	<!--
+			<input type="radio" name="wiki-embed-tabs" value=" tabs" class="wiki-embed-tabs" id="wiki-embed-tabs" <?php checked( $wikiembed_options['default']['tabs'],1 ); ?> />
+			<span><label for="wiki-embed-tabs">Convert section headings to tabs</label></span><br />
+			<input type="radio" name="wiki-embed-tabs" value=" accordion" class="wiki-embed-accordion" id="wiki-embed-accordion" <?php checked( $wikiembed_options['default']['tabs'],2 ); ?> />
+			<span><label for="wiki-embed-accordion">Convert section headings to accordion</label></span><br />
+			<input type="radio" name="wiki-embed-tabs" value=" " id="wiki-embed-normal-headers" id="wiki-embed-normal-headers" <?php checked( $wikiembed_options['default']['tabs'],0 ); ?> />
+			<span><label for="wiki-embed-normal-headers">Don't convert section headings</label></span><br />
+		-->
+		
+		
 		<?php else: ?>
 		<tr>
 			<th valign="top" class="label" scope="row">
