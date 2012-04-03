@@ -6,7 +6,7 @@
 # main config
 PLUGINSLUG="wiki-embed"
 CURRENTDIR=`pwd`
-MAINFILE="wiki-embed.php" # this should be the name of your main php file in the wordpress plugin
+MAINFILE="WikiEmbed.php" # this should be the name of your main php file in the wordpress plugin
 
 # git config
 GITPATH="$CURRENTDIR/" # this file should be in the base of your git repository

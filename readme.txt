@@ -1,7 +1,9 @@
 === Wiki Embed ===
 Contributors: enej, ejackisch, ctlt-dev, ubcdev
 Tags: mediawiki, wiki, wiki-embed, embed, content framework, wiki inc, 
-Requires at least: 3.3
+Requires at least: 3.0
+Tested up to: 3.3
+Stable tag: 1.4
 
 Wiki Embed lets you embed mediawiki pages in to your site, sites like Wikipedia
 
@@ -13,7 +15,7 @@ It tries its damn hardest to pull in the content from a MediaWiki page into the 
 
 
 To contribute to this plugin 
-start here:
+Start here:
 https://github.com/ubc/wiki-embed
 
 
