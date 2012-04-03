@@ -379,6 +379,9 @@ function wikiembed_shortcode($atts)
 	$wikiembed_content_count++; 
 	
 	/* url is the unique identifier */
+	
+	$atts = apply_filters( 'wikiembed_override_atts', $atts );
+	
 	extract(shortcode_atts(array(
 		'url' => NULL,
 		'update' => NULL, /* 30 minutes */
@@ -400,6 +403,8 @@ function wikiembed_shortcode($atts)
 	$has_no_infobox  = ( in_array("no-infobox", $atts)? true: false );
 	$has_tabs 		 = ( in_array("tabs", 		$atts)? true: false );
 	$has_accordion 	 = ( in_array("accordion", 	$atts)? true: false );
+	
+	
 	
 	if(!isset($has_source)) // this can be overwritten on per page basis
 		$has_source = $wikiembed_options['default']['source'];
@@ -756,9 +761,11 @@ function wp_remote_request_wikipage($url,$update)
 		require_once("resources/css_selector.php");	//for using CSS selectors to query the DOM (instead of xpath)
 		
 		
-		//this isn't supposed to be necessary but without it DOMDocument is breaking all of the fancy characters
+		//For some reason any other method of specifying the encoding doesn't seem to work and special characters get broken
 		$html = DOMDocument::loadHTML('<?xml version="1.0" encoding="UTF-8"?>'.$wiki_page_body);	
 		
+		
+		//Remove specified elements
 		$remove_elements = explode(",",$remove);
 
 		// remove edit links 
@@ -870,7 +877,7 @@ function wp_remote_request_wikipage($url,$update)
 		endforeach; 
 		
 		
-		//Create tabs list/accordion/container div
+		//Create tabs list/accordion/container div to wrap content
 		if( $has_tabs ):	
 			$tabs = '<div class="wiki-embed-tabs wiki-embed-fragment-count-'.$count.'">'; // shell div
 			if( $tab_list !='' ):
@@ -885,7 +892,7 @@ function wp_remote_request_wikipage($url,$update)
 		endif;
 		$article_content = $tabs . $article_content . '</div>';
 		
-		//append some supporting javascript to initialize the accordion
+		//append some supporting javascript to initialize the accordion if we're using accordions
 		if($has_accordion):
 			$article_content .= '<script type="text/javascript"> /* <![CDATA[ */ 
 				jQuery(document).ready( function($){ $("#accordion-wiki-'.$wikiembed_content_count.'").accordion({"autoHeight":false,"disabled":false,"active":0,"animated":"slide","clearStyle":false,"collapsible":false,"event":"click","fillSpace":false, "header":"h2"} ); }); 

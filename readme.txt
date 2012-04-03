@@ -1,5 +1,5 @@
 === Wiki Embed ===
-Contributors: enej, ctltdev, oltdev
+Contributors: enej, ejackisch, ctltdev, oltdev
 Tags: mediawiki, wiki, wiki-embed, embed, content framework, wiki inc, 
 Requires at least: 3.0
 
@@ -33,6 +33,13 @@ Maybe, but why would you want to? That is not what the tool was designed to do.
 
 
 == Changelog ==
+= 1.4 =
+* Enables ability to split article into accordion (via jQuery UI)
+* Rewrote function that parses/renders html to no longer use Simple HTML DOM parser as it uses a lot of resources
+* Updated caching: Now if the remote page can't be accessed, cached content will be served if it exists, even if it is past its expiry date.
+* More caching: Now if the cache expires the page will show the cached content one last time and refresh it immediately after. This means the user should never really face delays for the wiki content is to be retrieved and parsed.
+* Fixed overlay view
+
 = 1.2.4 =
 * Bug fix: Causes errors on 404 pages. Links stop working. Now fixed
 * removed un-necessary files
