@@ -379,6 +379,9 @@ function wikiembed_shortcode($atts)
 	$wikiembed_content_count++; 
 	
 	/* url is the unique identifier */
+	
+	$atts = apply_filters( 'wikiembed_override_atts', $atts );
+	
 	extract(shortcode_atts(array(
 		'url' => NULL,
 		'update' => NULL, /* 30 minutes */
@@ -400,6 +403,8 @@ function wikiembed_shortcode($atts)
 	$has_no_infobox  = ( in_array("no-infobox", $atts)? true: false );
 	$has_tabs 		 = ( in_array("tabs", 		$atts)? true: false );
 	$has_accordion 	 = ( in_array("accordion", 	$atts)? true: false );
+	
+	
 	
 	if(!isset($has_source)) // this can be overwritten on per page basis
 		$has_source = $wikiembed_options['default']['source'];
@@ -744,6 +749,7 @@ function wp_remote_request_wikipage($url,$update)
  * @param mixed $has_no_edit
  * @param mixed $has_no_contents
  * @param mixed $has_no_infobox
+ * @param mixed $has_accordion
  * @param mixed $has_tabs
  * @return void
  */
@@ -752,12 +758,15 @@ function wp_remote_request_wikipage($url,$update)
 	// Do we need to modify the content? 
 
 	if($has_no_edit || $has_no_contents || $has_no_infobox || $has_accordion || $has_tabs || $remove ):
-		require_once("resources/ganon.php");
-				
-		$html = str_get_dom($wiki_page_body);
+		require_once("resources/css_selector.php");	//for using CSS selectors to query the DOM (instead of xpath)
 		
+		//For some reason any other method of specifying the encoding doesn't seem to work and special characters get broken
+		$html = DOMDocument::loadHTML('<?xml version="1.0" encoding="UTF-8"?>'.$wiki_page_body);	
+		
+		
+		//Remove specified elements
 		$remove_elements = explode(",",$remove);
-		
+
 		// remove edit links 
 		if( $has_no_edit ):
 			$remove_elements[] = '.editsection';
@@ -772,113 +781,124 @@ function wp_remote_request_wikipage($url,$update)
 		if( $has_no_infobox ):
 			$remove_elements[] = '.infobox';
 		endif;
-
-		// bonus you can remove any element by passing in a css selected and seperating them by commas
+		
+		$finder = new DomCSS($html);
+		
+		// bonus you can remove any element by passing in a css selector and seperating them by commas
 		if(!empty($remove_elements)):
 			foreach($remove_elements as $element):
 				
 				if($element):
-					$matched_elements = $html($element);
-					foreach($matched_elements as $e):
-						$e->setOuterText('');
+					foreach($finder->query($element) as $e):
+						$e->parentNode->removeChild($e);
 					endforeach;	
 				$removed_elements[] = $element;
 				endif;
 				
 			endforeach;
 		endif; // end of removing of the elements 
+
+		//Strip out undesired tags that DOMDocument automaticaly adds
+		$wiki_page_body = preg_replace(array('/^<!DOCTYPE.+?>/u','/<\?.+?\?>/'), array('',''), str_replace( array('<html>', '</html>', '<body>', '</body>'), array('', '', '', ''), $html->saveHTML()));
+		
+		//Seperate article content into an array of headers and an array of content (for tabs/accordions/styling)
+			$start_offset=0;
+			$headlines=array();
+			$content=array();
+			$first_header_position = strpos($wiki_page_body, '<h2>');
 			
-		$index = 0;
-		$list = '';
-		$headlines = $html("h2 span.mw-headline");
-		$count = count($headlines)-1;
-		
-		foreach($headlines as $headline):
-		
-				if( $has_tabs ): // create tabs 
-					if($wikiembed_content_count <= 1):
-						$list .= '<li><a href="#fragment-'.$wikiembed_content_count.'-'.$index.'" ><span>'.$headline->getInnerText().'</span></a></li>';
-					else:
-						$list .= '<li><a href="#fragment-'.$wikiembed_content_count.'-'.$index.'" >'.$headline->getOuterText().'</a></li>';
-					endif;
+			//Check if the first header is from a table of contents. if so, need to move up and find the next header.
+			if(!wikiembed_extract_headline_text(substr($wiki_page_body, $first_header_position, strpos($wiki_page_body, '</h2>')+5-$first_header_position))):
+				$first_header_position = strpos($wiki_page_body, '<h2>', $first_header_position+1);
+			endif;
+			
+			$article_intro = substr($wiki_page_body,0, $first_header_position);	//contains everything up to (but excluding) the first subsection of the article
+			$article_content = substr($wiki_page_body, $first_header_position);	//contains the rest of the article 
+			
+			//Go through the wiki body, find all the h2s and content between h2s and put them into arrays.
+			while(true):
+				$start_header=strpos($article_content, '<h2>', $start_offset);
+				if($start_header===false):	//The article doesn't have any headers
+					$article_intro = $article_content;
+					break;
 				endif;
 				
-				if($index !=0):
-					$class = "wikiembed-fragment wikiembed-fragment-counter-".$index;
-					
-					if($count == $index)
-						$class .= " wikiembed-fragment-last";
-					
-					if($has_accordion):
-							$headline->parent->setOuterText( 
-							'</div><h2><a href="#">'.$headline->getInnerText().'</a></h2><div id="fragment-'.$wikiembed_content_count.'-'.$index.'" class="'.$class.'">'
-							);
-					else:
-						if($wikiembed_content_count <= 1):
-							$headline->parent->setOuterText( 
-							'</div><div id="fragment-'.$wikiembed_content_count.'-'.$index.'" class="'.$class.'"><h2>'.$headline->getInnerText().'</h2>'
-							);
-						else:
-							$headline->parent->setOuterText(
-							'</div><div id="fragment-'.$wikiembed_content_count.'-'.$index.'" class="'.$class.'"><h2><span class="mw-headline">'.$headline->getInnerText().'</span></h2>'
-							);
-							
-						endif;
-					endif;
+				//find out where the end of this header and the end of the corresponding section are
+				$end_header=strpos($article_content, '</h2>', $start_offset);
+				$end_section=strpos($article_content, '<h2>', $end_header);
+				$headlines[] = substr($article_content, $start_header+4, $end_header-$start_header-4);
+				
+				if($end_section!==false):	//success, we've hit another header
+					$content[] = substr($article_content, $end_header+5, $end_section-$end_header-5);
+					$start_offset = $end_section;
+				else:						//we've hit the end of the article without finding anything else
+					$content[] = substr($article_content, $end_header+5);
+					break;
 				endif;
-				$index++;
-		endforeach;
+				
+			endwhile;
+		//Now $content[] and $headers[] each are populated for the purposes of tabs/accordions etc
 		
-		$wiki_embed_end_tabs = '';
-		if( $has_tabs ):	// create tabs 
-			$tabs = '<div class="wiki-embed-tabs wiki-embed-fragment-count-'.$count.'">'; // shell div
-			if( $list !='' ):
-				$tabs .= '<ul class="wiki-embed-tabs-nav">'.$list.'</ul>';
+		
+		//Build the main page content, with tabs & accordion if necessary
+		$article_content = "";
+		$tab_list = "";
+		$index = 0;
+		$count = count($headlines)-1;
+		foreach($headlines as $headline):
+		
+			//add headline to the tabs list if we're using tabs
+			if($has_tabs):
+				$tab_list .= '<li><a href="#fragment-'.$wikiembed_content_count.'-'.$index.'" >'.wikiembed_extract_headline_text($headline).'</a></li>';
 			endif;
+			
+			
+			$class = "wikiembed-fragment wikiembed-fragment-counter-".$index;
+			if($count == $index);
+				$class .= " wikiembed-fragment-last";
+			
+			if($has_accordion):	//jquery UI's accordions use <h2> and <div> pairs to organize accordion content
+				$article_content .= '
+					<h2><a href="#">' . wikiembed_extract_headline_text($headline) . '</a></h2>
+					<div class="' . $class . '">
+						' . $content[$index] . '
+					</div>
+				';
+			else:				//And this alternative structure for tabs. (or if there's neither tabs nor accordion)
+				$article_content .= '
+					<div id="fragment-'.$wikiembed_content_count.'-'.$index.'" class="'.$class.'">
+						<h2>'.$headline.'</h2>
+						' . $content[$index] . '
+					</div>
+				';
+			endif;
+			$index++;
+		endforeach; 
+		
+		
+		//Create tabs list/accordion/container div to wrap content
+		if( $has_tabs ):	
+			$tabs = '<div class="wiki-embed-tabs wiki-embed-fragment-count-'.$count.'">'; // shell div
+			if( $tab_list !='' ):
+				$tabs .= '<ul class="wiki-embed-tabs-nav">'.$tab_list.'</ul>';
+			endif;
+			
+		elseif ( $has_accordion ):
+			$tabs = '<div id="accordion-wiki-'.$wikiembed_content_count.'" class="wiki-embed-shell wiki-embed-fragment-count-'.$count.'">'; // shell div
+		
 		else:
 			$tabs = '<div class="wiki-embed-shell wiki-embed-fragment-count-'.$count.'">'; // shell div
 		endif;
+		$article_content = $tabs . $article_content . '</div>';
 		
-		// the first div inside for the first tab
+		//append some supporting javascript to initialize the accordion if we're using accordions
 		if($has_accordion):
-			$tabs = '<div id="accordion-wiki-'.$wikiembed_content_count.'" class="accordions-shortcode">'; // shell div
-		else:
-			$tabs .= '<div id="fragment-'.$wikiembed_content_count.'-0" class="wikiembed-fragment wikiembed-fragment-counter-0'.$accordion_class.'">';
-		endif;
-		
-		if($has_accordion):
-			if(isset($headlines[0])):
-				$headlines[0]->parent->setOuterText( $tabs.'<h2><a href="#">'.$headlines[0]->getInnerText().'</a></h2><div>');				
-			endif;
-		else:
-			if(isset($headlines[0])):
-				if($wikiembed_content_count <= 1):
-					$headlines[0]->parent->setOuterText( $tabs.'<h2>'.$headlines[0]->getOuterText().'</h2>');				
-				else:
-					$headlines[0]->parent->setOuterText( $tabs.'<h2><span class="mw-headline">'.$headlines[0]->getInnerText().'</span></h2>');
-				endif;
-			endif;
-		endif;
-			
-		if(isset($headlines[0])):
-			$wiki_embed_end_tabs   .="</div></div>";
-		endif;
-				
-				// endif;	
-				
-		
-		$wiki_page_body = $html;
-		if($has_accordion):
-
-			$wiki_page_body .= '<script type="text/javascript"> /* <![CDATA[ */ 
+			$article_content .= '<script type="text/javascript"> /* <![CDATA[ */ 
 				jQuery(document).ready( function($){ $("#accordion-wiki-'.$wikiembed_content_count.'").accordion({"autoHeight":false,"disabled":false,"active":0,"animated":"slide","clearStyle":false,"collapsible":false,"event":"click","fillSpace":false, "header":"h2"} ); }); 
 			/* ]]&gt; */ </script>';
 		endif;	
-
 		
-		$wiki_page_body .= $wiki_embed_end_tabs;
-
-		//$html->clear(); 
+		$wiki_page_body = $article_intro . $article_content;
 	endif; // end of content modifications 
 			
 	if(!empty($removed_elements))
@@ -887,144 +907,21 @@ function wp_remote_request_wikipage($url,$update)
 	return $wiki_page_body;
 }
 
- /*
-function  wikiembed_render( $wiki_page_body, $has_no_edit , $has_no_contents , $has_no_infobox , $has_accordion, $has_tabs, $remove ) {
-	global $wikiembed_content_count;
-	// Do we need to modify the content? 
-	
-	if($has_no_edit || $has_no_contents || $has_no_infobox || $has_accordion || $has_tabs || $remove ):
-		require_once("resources/simple_html_dom.php");
-				
-		$html = str_get_html($wiki_page_body);
-		
-		$remove_elements = explode(",",$remove);
-		
-		// remove edit links 
-		if( $has_no_edit ):
-			$remove_elements[] = '.editsection';
-		endif; // end of removing links
-	
-		// remove table of contents 
-		if( $has_no_contents ):
-			$remove_elements[] = '#toc';
-		endif;
-		
-		// remove infobox 
-		if( $has_no_infobox ):
-			$remove_elements[] = '.infobox';
-		endif;
-
-		// bonus you can remove any element by passing in a css selected and seperating them by commas
-		if(!empty($remove_elements)):
-			foreach($remove_elements as $element):
-				
-				if($element):
-					foreach($html->find($element) as $e):
-						$e->outertext ='';
-					endforeach;	
-				$removed_elements[] = $element;
-				endif;
-				
-			endforeach;
-		endif; // end of removing of the elements 
-			
-		$index = 0;
-		$list = '';
-		$headlines = $html->find("h2 span.mw-headline");
-		$count = count($headlines)-1;
-		
-		foreach($headlines as $headline):
-		
-				if( $has_tabs ): // create tabs 
-					if($wikiembed_content_count <= 1):
-						$list .= '<li><a href="#fragment-'.$wikiembed_content_count.'-'.$index.'" ><span>'.$headline->innertext.'</span></a></li>';
-					else:
-						$list .= '<li><a href="#fragment-'.$wikiembed_content_count.'-'.$index.'" >'.$headline->outertext.'</a></li>';
-					endif;
-				endif;
-				
-				if($index !=0):
-					$class = "wikiembed-fragment wikiembed-fragment-counter-".$index;
-					
-					if($count == $index)
-						$class .= " wikiembed-fragment-last";
-					
-					if($has_accordion):
-							$headline->parent()->outertext = 
-							'</div><h2><a href="#">'.$headline->innertext.'</a></h2><div id="fragment-'.$wikiembed_content_count.'-'.$index.'" class="'.$class.'">';
-					else:
-						if($wikiembed_content_count <= 1):
-							$headline->parent()->outertext = 
-							'</div><div id="fragment-'.$wikiembed_content_count.'-'.$index.'" class="'.$class.'"><h2>'.$headline->outertext.'</h2>';
-						else:
-							$headline->parent()->outertext = 
-							'</div><div id="fragment-'.$wikiembed_content_count.'-'.$index.'" class="'.$class.'"><h2><span class="mw-headline">'.$headline->innertext.'</span></h2>';
-						endif;
-					endif;
-				endif;
-				$index++;
-		endforeach;
-
-		$wiki_embed_end_tabs = '';
-		if( $has_tabs ):	// create tabs 
-			$tabs = '<div class="wiki-embed-tabs wiki-embed-fragment-count-'.$count.'">'; // shell div
-			if( $list !='' ):
-				$tabs .= '<ul class="wiki-embed-tabs-nav">'.$list.'</ul>';
-			endif;
-		else:
-			$tabs = '<div class="wiki-embed-shell wiki-embed-fragment-count-'.$count.'">'; // shell div
-		endif;
-		
-		// the first div inside for the first tab
-		if($has_accordion):
-			$tabs = '<div id="accordion-wiki-'.$wikiembed_content_count.'" class="accordions-shortcode">'; // shell div
-		else:
-			$tabs .= '<div id="fragment-'.$wikiembed_content_count.'-0" class="wikiembed-fragment wikiembed-fragment-counter-0'.$accordion_class.'">';
-		endif;
-		
-		if($has_accordion):
-			if(isset($headlines[0])):
-				$headlines[0]->parent()->outertext = $tabs.'<h2><a href="#">'.$headlines[0]->innertext.'</a></h2><div>';				
-			endif;
-		else:
-			if(isset($headlines[0])):
-				if($wikiembed_content_count <= 1):
-					$headlines[0]->parent()->outertext = $tabs.'<h2>'.$headlines[0]->outertext.'</h2>';				
-				else:
-					$headlines[0]->parent()->outertext = $tabs.'<h2><span class="mw-headline">'.$headlines[0]->innertext.'</span></h2>';
-				endif;
-			endif;
-		endif;
-			
-		if(isset($headlines[0])):
-			$wiki_embed_end_tabs   .="</div></div>";
-		endif;
-				
-				// endif;	
-				
-		
-		$wiki_page_body = $html->save();
-		if($has_accordion):
-
-//			$wiki_page_body .= '<script type="text/javascript"> /* <![CDATA[ */ 
-//				jQuery(document).ready( function($){ $("#accordion-wiki-'.$wikiembed_content_count.'").accordion({"autoHeight":false,"disabled":false,"active":0,"animated":"slide","clearStyle":false,"collapsible":false,"event":"click","fillSpace":false, "header":"h2"} ); }); 
-//			/* ]]&gt; */ </script>';
-//		endif;	
-/*
-		
-		$wiki_page_body .= $wiki_embed_end_tabs;
-
-		$html->clear(); 
-	endif; // end of content modifications 
-			
-	if(!empty($removed_elements))
-		$remove_att = 	'remove="'.implode(",",$removed_elements).'"';
-
-	return $wiki_page_body;
+/**
+ * wikiembed_extract_headline_text function.
+ * given an <h2> tag, returns the content of the inner mw-headline span, or return false on failure.
+ * @access public
+ * @param mixed $element
+ * @return string
+ */
+function wikiembed_extract_headline_text($element){
+	$match = preg_match('/id=".+?">(.+?)<\/span>/', $element,  $headline);
+	if($match):
+		return $headline[1];
+	else:
+		return false;
+	endif;
 }
-
-
-*/
 
 function wikiembed_esc_url($url){
 	// remove unwanted 
