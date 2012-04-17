@@ -35,12 +35,6 @@
 	<wp:base_site_url>http://localhost/cms</wp:base_site_url>
 	<wp:base_blog_url>http://localhost/cms</wp:base_blog_url>
 
-	<wp:author><wp:author_id>1</wp:author_id><wp:author_login>admin</wp:author_login><wp:author_email>eric@ejack.ca</wp:author_email><wp:author_display_name><![CDATA[admin]]></wp:author_display_name><wp:author_first_name><![CDATA[]]></wp:author_first_name><wp:author_last_name><![CDATA[]]></wp:author_last_name></wp:author>
-	<wp:author><wp:author_id>2</wp:author_id><wp:author_login>editor</wp:author_login><wp:author_email>1@ejack.ca</wp:author_email><wp:author_display_name><![CDATA[editor]]></wp:author_display_name><wp:author_first_name><![CDATA[]]></wp:author_first_name><wp:author_last_name><![CDATA[]]></wp:author_last_name></wp:author>
-	<wp:author><wp:author_id>3</wp:author_id><wp:author_login>contributor</wp:author_login><wp:author_email>6@ejack.ca</wp:author_email><wp:author_display_name><![CDATA[contributor]]></wp:author_display_name><wp:author_first_name><![CDATA[]]></wp:author_first_name><wp:author_last_name><![CDATA[]]></wp:author_last_name></wp:author>
-	<wp:author><wp:author_id>4</wp:author_id><wp:author_login>author</wp:author_login><wp:author_email>4@ejack.ca</wp:author_email><wp:author_display_name><![CDATA[author]]></wp:author_display_name><wp:author_first_name><![CDATA[]]></wp:author_first_name><wp:author_last_name><![CDATA[]]></wp:author_last_name></wp:author>
-
-
 	<generator>http://wordpress.org/?v=3.3.1</generator>
 
 	<item>
@@ -50,7 +44,7 @@
 		<dc:creator>admin</dc:creator>
 		<guid isPermaLink="false">http://localhost/cms/?page_id=554</guid>
 		<description></description>
-		<content:encoded><![CDATA[I'm the parent!]]></content:encoded>
+		<content:encoded><![CDATA[See child pages]]></content:encoded>
 		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
 		<wp:post_id>554</wp:post_id>
 		<wp:post_date>2012-03-13 19:04:58</wp:post_date>
