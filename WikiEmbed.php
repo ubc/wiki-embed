@@ -906,7 +906,10 @@ function wp_remote_request_wikipage($url,$update)
 			
 	if(!empty($removed_elements))
 		$remove_att = 	'remove="'.implode(",",$removed_elements).'"';
-
+	
+	//clear the error buffer since we're not interested in handling minor HTML errors here
+	libxml_clear_errors();
+	
 	return $wiki_page_body;
 }
 
