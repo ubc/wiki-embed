@@ -760,6 +760,9 @@ function wp_remote_request_wikipage($url,$update)
 	if($has_no_edit || $has_no_contents || $has_no_infobox || $has_accordion || $has_tabs || $remove ):
 		require_once("resources/css_selector.php");	//for using CSS selectors to query the DOM (instead of xpath)
 		
+		//Prevent the parser from throwing PHP warnings if it receives malformed HTML
+		libxml_use_internal_errors(true);
+		
 		//For some reason any other method of specifying the encoding doesn't seem to work and special characters get broken
 		$html = DOMDocument::loadHTML('<?xml version="1.0" encoding="UTF-8"?>'.$wiki_page_body);	
 		
