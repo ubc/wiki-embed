@@ -1,9 +1,9 @@
 === Wiki Embed ===
-Contributors: enej, ejackisch, ctltdev, oltdev
+Contributors: enej, ejackisch, ctlt-dev, ubcdev
 Tags: mediawiki, wiki, wiki-embed, embed, content framework, wiki inc, 
 Requires at least: 3.0
-
-
+Tested up to: 3.3
+Stable tag: 1.4
 
 Wiki Embed lets you embed mediawiki pages in to your site, sites like Wikipedia
 
@@ -11,7 +11,13 @@ Wiki Embed lets you embed mediawiki pages in to your site, sites like Wikipedia
 
 The Wiki Embed's intent is to help create a (http://wiki.ubc.ca/Resource_Management_Framework "Resourse Management Framework").
 
-It tries its damn hardest to pull in the content from a mediawiki page into the wordpress environment. After html scraping the content from the mediawiki page using a special url. ( note: try adding '?action=render' to the end of to any mediawiki url) it strips out unwanted content and adds some tabs if you so desire. 
+It tries its damn hardest to pull in the content from a MediaWiki page into the WordPress environment. After html scraping the content from the MediaWiki page using a special url. ( note: try adding '?action=render' to the end of to any MediaWiki url) it strips out unwanted content and adds some tabs if you so desire. 
+
+
+To contribute to this plugin 
+Start here:
+https://github.com/ubc/wiki-embed
+
 
 == Frequently Asked Questions ==
 
@@ -35,10 +41,12 @@ Maybe, but why would you want to? That is not what the tool was designed to do.
 == Changelog ==
 = 1.4 =
 * Enables ability to split article into accordion (via jQuery UI)
-* Rewrote function that parses/renders html to no longer use Simple HTML DOM parser as it uses a lot of resources
+* Rewrote function that parses/renders html to no longer use Simple HTML DOM parser as it uses a lot of resources 
 * Updated caching: Now if the remote page can't be accessed, cached content will be served if it exists, even if it is past its expiry date.
 * More caching: Now if the cache expires the page will show the cached content one last time and refresh it immediately after. This means the user should never really face delays for the wiki content is to be retrieved and parsed.
 * Fixed overlay view
+* The refresh of the page happens after the page has been set to the browser. 
+* Skipping version 1.3 since there are a lot of change in version 1.4
 
 = 1.2.4 =
 * Bug fix: Causes errors on 404 pages. Links stop working. Now fixed
