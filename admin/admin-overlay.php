@@ -11,13 +11,14 @@ add_action('media_buttons_context', 'wikiembed_overlay_buttons');
  * @param mixed $context
  * @return void
  */
-function wikiembed_overlay_buttons($context)
-{
+function wikiembed_overlay_buttons( $context ) {
+	
 	global $post, $pagenow;
+	
 	if( in_array($pagenow, array( "post.php", "post-new.php" ) ) && in_array( $post->post_type , array("post","page")) ):
-	$wiki_embed_overlay_image_button = plugins_url('/wiki-embed/resources/img/icon.png');
-    $output_link = '<a href="#TB_inline?height=400&width=670&inlineId=wiki_embed_form" class="thickbox" title="' .__("Wiki Embed", 'wiki-embed') . '" id="wiki-embed-overlay-button"><img src="'.				$wiki_embed_overlay_image_button.'" alt="' . __("Wiki Embed", 'wiki-embed') . '" /></a><style>#wiki_embed_form{ display:none;}</style>';
-    return $context.$output_link;
+		$wiki_embed_overlay_image_button = plugins_url('/wiki-embed/resources/img/icon.png');
+	    $output_link = '<a href="#TB_inline?height=400&width=670&inlineId=wiki_embed_form" class="thickbox" title="' .__("Wiki Embed", 'wiki-embed') . '" id="wiki-embed-overlay-button"><img src="'. $wiki_embed_overlay_image_button.'" alt="' . __("Wiki Embed", 'wiki-embed') . '" /></a><style>#wiki_embed_form{ display:none;}</style>';
+	    return $context.$output_link;
     else:
     	return $context;
     endif;
@@ -29,9 +30,10 @@ function wikiembed_overlay_buttons($context)
  * @access public
  * @return void
  */
-function wikiembed_overlay_popup_form()
-{
+function wikiembed_overlay_popup_form() {
+	
 	global $wikiembed_options,$pagenow,$post;
+	
 	if( in_array( $pagenow, array( "post.php", "post-new.php" )) && in_array( $post->post_type , array("post","page") )):
 	
     ?>
@@ -57,18 +59,17 @@ function wikiembed_overlay_popup_form()
         <div class="wiki_embed_form_wrap">
        	<div class="media-item media-blank">
 
-	<h4 class="media-sub-title">Embed a MediaWiki Page</h4>
+	<h4 class="media-sub-title"><?php __('Embed a MediaWiki Page', 'wiki-embed'); ?></h4>
 	<table class="describe"><tbody>
 		<tr>
 			<th valign="top" style="width: 130px;" class="label" scope="row">
-				<span class="alignleft"><label for="src">Wiki URL</label></span>
+				<span class="alignleft"><label for="src"><?php __('Wiki URL', 'wiki-embed'); ?></label></span>
 				<span class="alignright"><abbr class="required" title="required" id="status_img">*</abbr></span>
 			</th>
 			<td class="field"><input type="text" aria-required="true" value="http://" name="wiki-embed-src" id="wiki-embed-src" size="60"><br /><br /></td>
 		</tr>
 		
 		<?php if($wikiembed_options['tabs']): ?>
-		
 	
 		<tr>
 			<th valign="top" class="label" scope="row">
@@ -93,16 +94,6 @@ function wikiembed_overlay_popup_form()
 			<span><label for="wiki-embed-normal-headers">Don't convert section headings</label></span>
 			</td>
 		</tr>
-	<!--
-			<input type="radio" name="wiki-embed-tabs" value=" tabs" class="wiki-embed-tabs" id="wiki-embed-tabs" <?php checked( $wikiembed_options['default']['tabs'],1 ); ?> />
-			<span><label for="wiki-embed-tabs">Convert section headings to tabs</label></span><br />
-			<input type="radio" name="wiki-embed-tabs" value=" accordion" class="wiki-embed-accordion" id="wiki-embed-accordion" <?php checked( $wikiembed_options['default']['tabs'],2 ); ?> />
-			<span><label for="wiki-embed-accordion">Convert section headings to accordion</label></span><br />
-			<input type="radio" name="wiki-embed-tabs" value=" " id="wiki-embed-normal-headers" id="wiki-embed-normal-headers" <?php checked( $wikiembed_options['default']['tabs'],0 ); ?> />
-			<span><label for="wiki-embed-normal-headers">Don't convert section headings</label></span><br />
-		-->
-		
-		
 		<?php else: ?>
 		<tr>
 			<th valign="top" class="label" scope="row">

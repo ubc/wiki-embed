@@ -59,9 +59,12 @@ add_action('template_redirect','wikiembed_load_page');
 
 
 
-
-require_once("admin/admin-overlay.php");
-require_once("admin/admin.php");
+// admin side 
+require( 'admin/admin-overlay.php' );
+require( 'admin/admin.php' );
+// update
+require( 'wiki-embed-update.php' );
+require( 'wiki-embed-cache.php' );
 
 /********************************************************************
  * Settings Page Magic  
@@ -80,6 +83,7 @@ $wikiembeds 		= get_option('wikiembeds');
 $wikiembed_content_count; // wiki content count needed by the shortcode 
 $wikiembed_version = 0.8;
 
+
 /**
  * wikiembed_init function.
  * 
@@ -93,32 +97,32 @@ function wikiembed_init()
 	
 
 	if(!is_admin()): // never display this stuff in the admin 
-		add_filter('page_link','wikiembed_page_link');
+		add_filter( 'page_link' , 'wikiembed_page_link' );
 		
 		// wiki embed shortcode
-		if(!isset($_GET['wikiembed-url'])):
+		if( !isset( $_GET['wikiembed-url'] ) ):
 			add_shortcode('wiki-embed', 'wikiembed_shortcode');
 		endif;
 		
-		if($wikiembed_options['tabs']):
+		if( $wikiembed_options['tabs'] ):
 		// embed this if tabs enabled 
-			wp_enqueue_script( 'wiki-embed-tabs', plugins_url( '/wiki-embed/resources/js/tabs.js'),array("jquery","jquery-ui-tabs"), $wikiembed_version );
+			wp_enqueue_script( 'wiki-embed-tabs', plugins_url( '/wiki-embed/resources/js/tabs.js' ),array( "jquery", "jquery-ui-tabs" ), $wikiembed_version );
 			
 		endif;
 		
 		
-		if($wikiembed_options['accordions']):
-    		 wp_enqueue_script('jquery-ui-accordion', 0, array("jquery","jquery-ui-tabs"));
+		if( $wikiembed_options['accordions'] ):
+    		 wp_enqueue_script( 'jquery-ui-accordion', 0, array( "jquery", "jquery-ui-tabs" ) );
 		
 		endif;
 		
 		
 		if($wikiembed_options['tabs-style']):
 		// embed this if tabs enabled style
-			wp_enqueue_style('wiki-embed-tabs', plugins_url('/wiki-embed/resources/css/tabs.css'),false, $wikiembed_version, 'screen' );
+			wp_enqueue_style( 'wiki-embed-tabs', plugins_url( '/wiki-embed/resources/css/tabs.css' ) ,false, $wikiembed_version, 'screen' );
 			
 		endif;
-		switch ($wikiembed_options['wiki-links']){
+		switch ( $wikiembed_options['wiki-links'] ) {
 			case "overlay":
 				// embed this if tabs enabled
 				wp_enqueue_script( 'colorbox', plugins_url( '/wiki-embed/resources/js/jquery.colorbox-min.js'),array("jquery"), "1.3.6" );
@@ -129,17 +133,17 @@ function wikiembed_init()
 				));
 			break;
 			case "new-page":
-				wp_enqueue_script( 'wiki-embed-new-page', plugins_url( '/wiki-embed/resources/js/new-page.js'),array("jquery"), $wikiembed_version );
-				if(current_user_can('pulish_pages') || current_user_can('unfiltered_html')):
-					wp_enqueue_script( 'wiki-embed-admin-js', plugins_url( '/wiki-embed/resources/js/site-admin.js'),array("jquery"), $wikiembed_version );
+				wp_enqueue_script( 'wiki-embed-new-page', plugins_url( '/wiki-embed/resources/js/new-page.js' ),array( "jquery" ), $wikiembed_version );
+				if(current_user_can( 'pulish_pages' ) || current_user_can('unfiltered_html')):
+					wp_enqueue_script( 'wiki-embed-admin-js', plugins_url( '/wiki-embed/resources/js/site-admin.js'),array( "jquery" ), $wikiembed_version );
 					
-					add_action("wp_head",'wikiembed_add_adminajax');
+					add_action( 'wp_head','wikiembed_add_adminajax');
 					// add link 
-					add_action('wp_ajax_wiki_embed_add_link', 'wikiembed_list_page_add_link');
-					add_action('wp_ajax__nopriv_wiki_embed_add_link', 'wikiembed_list_page_add_link');
+					add_action( 'wp_ajax_wiki_embed_add_link', 'wikiembed_list_page_add_link');
+					add_action( 'wp_ajax__nopriv_wiki_embed_add_link', 'wikiembed_list_page_add_link');
 					// edit link
-					add_action('wp_ajax_wiki_embed_remove_link', 'wikiembed_list_page_remove_link');
-					add_action('wp_ajax__nopriv_wiki_embed_remove_link', 'wikiembed_list_page_remove_link');
+					add_action( 'wp_ajax_wiki_embed_remove_link', 'wikiembed_list_page_remove_link');
+					add_action( 'wp_ajax__nopriv_wiki_embed_remove_link', 'wikiembed_list_page_remove_link');
 					
 				endif;
 				wp_localize_script( 'wiki-embed-new-page', 'WikiEmbedSettings', array(
@@ -151,7 +155,7 @@ function wikiembed_init()
 		}
 		// if($wikiembed_options['overlay'] ): endif;
 		
-		if($wikiembed_options['style']):
+		if( $wikiembed_options['style'] ):
 		// add some great wiki styling 
 			wp_enqueue_style( 'wiki-embed-style',plugins_url( '/wiki-embed/resources/css/wiki-embed.css'),false, $wikiembed_version, 'screen');
 			
@@ -184,7 +188,7 @@ function wikiembed_add_adminajax(){
  */
 function wikiembed_load_page()
 {
-	if(!isset($_GET['wikiembed-url']) && !isset($_GET['wikiembed-title'])) 
+	if( !isset($_GET['wikiembed-url'] ) && !isset( $_GET['wikiembed-title'] ) ) 
 		return true; // do nothing 
 	
 	// call global variables 
@@ -226,7 +230,7 @@ function wikiembed_load_page()
 		
 	endif;
 
-// no we have no where to redirect the page to just stay here
+    // no we have no where to redirect the page to just stay here
 	if(!isset($has_source))
 		$has_source = $wikiembed_options['default']['source'];
 		
@@ -404,8 +408,6 @@ function wikiembed_shortcode($atts)
 	$has_tabs 		 = ( in_array("tabs", 		$atts)? true: false );
 	$has_accordion 	 = ( in_array("accordion", 	$atts)? true: false );
 	
-	
-	
 	if(!isset($has_source)) // this can be overwritten on per page basis
 		$has_source = $wikiembed_options['default']['source'];
 
@@ -436,41 +438,35 @@ function wikiembed_shortcode($atts)
 	$wiki_page_id = wikiembed_get_page_id( $url, $has_accordion, $has_tabs, $has_no_contents, $has_no_edit, $has_no_infobox,  $remove );
 	
 	// check to see if we need a refresh was forced 
-	if(current_user_can( 'publish_pages' ) && isset($_GET['refresh']) && wp_verify_nonce($_GET['refresh'], $wiki_page_id)):		
+	if(current_user_can( 'publish_pages' ) && isset( $_GET['refresh'] ) && wp_verify_nonce( $_GET['refresh'], $wiki_page_id ) ):		
 			
 			// we store stuff 
 			foreach($wikiembeds  as $wikiembeds_id => $wikiembeds_item):
 				$bits = explode(",",$wikiembeds_id);
-				if(esc_attr($bits[0]) == esc_attr($url)): // delete 
-					//unset($wikiembeds[$wikiembeds_id]['expires_on']);
+				if(esc_attr($bits[0]) == esc_attr($url)): 
 					
-					//Rather than deleting the data, set it to expire a long time ago so if the refresh fails it can be ignored.
-					$wikiembeds[$wikiembeds_id]['expires_on']=1;
-					update_option('wikiembeds', $wikiembeds);
-					//delete_option( md5($wikiembeds_id) );
+					
+					// Rather than deleting the data, set it to expire a long time ago so if the refresh fails it can be ignored.
+					$wikiembeds[$wikiembeds_id]['expires_on'] = 1;
+					update_option( 'wikiembeds', $wikiembeds );
 					
 				endif;
 	  		endforeach;
 			unset($wikiembeds_id); 
 	endif;
-
-	
 	
 	// this function retuns the wiki content the way it is suppoed to come 
 	$content = wikiembed_get_wiki_content( $url, $has_accordion, $has_tabs, $has_no_contents, $has_no_edit, $has_no_infobox,  $update, $has_source, $remove );
 	
 	// if the user is admin 
-	
-	if(current_user_can( 'publish_pages' )):
-		if(time()>$wikiembeds[$wiki_page_id]["expires_on"]):
+	if( current_user_can( 'publish_pages' ) ):
+		if( time() > $wikiembeds[$wiki_page_id]["expires_on"] ):
 			$admin = "<div class='wiki-admin' style='position:relative; border:1px solid #CCC; margin-top:20px;padding:10px;'> <span style='background:#EEE; padding:0 5px; position:absolute; top:-1em; left:10px;'>Only visible to admins</span> Wiki content is expired and will be refreshed as soon as the source page can be reached. <a href='?refresh=".wp_create_nonce($wiki_page_id)."'>Retry now</a> | <a href='".admin_url('admin.php')."?page=wiki-embed&url=".urlencode($url)."'>in Wiki Embed List</a>";
 		else:
 			$admin = "<div class='wiki-admin' style='position:relative; border:1px solid #CCC; margin-top:20px;padding:10px;'> <span style='background:#EEE; padding:0 5px; position:absolute; top:-1em; left:10px;'>Only visible to admins</span> Wiki content expires in: ".human_time_diff( date('U', $wikiembeds[$wiki_page_id]["expires_on"] ) ). " <a href='?refresh=".wp_create_nonce($wiki_page_id)."'>Refresh Wiki Content</a> | <a href='".admin_url('admin.php')."?page=wiki-embed&url=".urlencode($url)."'>in Wiki Embed List</a>";
 		endif;
 		
-		
-	
- 	
+
 		if($wikiembed_options['wiki-links'] == "new-page"):
 			if(!isset($wikiembeds[$url]['url'])):
 			
@@ -534,28 +530,29 @@ function wikiembed_get_page_id( $url, $has_accordion, $has_tabs, $has_no_content
  * @return void
  */
 function wikiembed_get_wiki_content( $url, $has_accordion, $has_tabs, $has_no_contents, $has_no_edit, $has_no_infobox, $update, $has_source, $remove=null ) {
-	global $wikiembeds,$wikiembed_options,$wikiembed_content_count;
+	global $wikiembeds, $wikiembed_options, $wikiembed_content_count;
 	
 	
 	$wiki_page_id = wikiembed_get_page_id( $url, $has_accordion, $has_tabs, $has_no_contents, $has_no_edit, $has_no_infobox,  $remove );
-	$wiki_page_id_hash  = md5($wiki_page_id); // if we don't md5 the hash we can't really 
 	
 	
-	$wiki_page_body = get_option( $wiki_page_id_hash );
+	// get the cached version 
+	$wiki_page_body = wiki_embed_get_cache( $wiki_page_id );
+	
 	if( $wiki_page_body && $wikiembeds[$wiki_page_id]['expires_on'] < time() && !(isset($_GET['refresh']) && wp_verify_nonce($_GET['refresh'], $wiki_page_id))):
 		//If the cache exists but is expired (and an immediate refresh has not been forced:
 		//Refresh it at the end!
-		register_shutdown_function('wikiembed_refresh_after_load', $url, $has_accordion, $has_tabs, $has_no_contents, $has_no_edit, $has_no_infobox, $update, $has_source, $remove );
+		register_shutdown_function( 'wikiembed_refresh_after_load', $url, $has_accordion, $has_tabs, $has_no_contents, $has_no_edit, $has_no_infobox, $update, $has_source, $remove );
 		
 	elseif( $wiki_page_body && $wikiembeds[$wiki_page_id]['expires_on'] >= time() ):
 		//If cache exists and is fresh
-		
+		// we don't do anything
 		//then we don't really need to do anything special here!
 	elseif(!$wiki_page_body || (current_user_can( 'publish_pages' ) && isset($_GET['refresh']) && wp_verify_nonce($_GET['refresh'], $wiki_page_id))):	
 		//cache doesn't exist or a fresh is being forced
 		
 		//Get page from remote site
-		$wiki_page_body  = wp_remote_request_wikipage($url,$update);
+		$wiki_page_body  = wp_remote_request_wikipage( $url, $update );
 		
 		
 		if($wiki_page_body): 	// Successfully grabbed remote contnet
@@ -563,17 +560,7 @@ function wikiembed_get_wiki_content( $url, $has_accordion, $has_tabs, $has_no_co
 			//render page content
 			$wiki_page_body = wikiembed_render( $wiki_page_body, $has_no_edit, $has_no_contents , $has_no_infobox, $has_accordion, $has_tabs, $remove);
 			
-			// place the rendered content in to db
-     		$worked = update_option($wiki_page_id_hash, $wiki_page_body);
-     		
-     		// keep a track of what how long it is going to be in there
-     		if( is_array($wikiembeds) ):
-     			$wikiembeds[$wiki_page_id]['expires_on'] =  time() + ($update * 60);
-				update_option( 'wikiembeds', $wikiembeds );
-  			else:
-  				$wikiembeds[$wiki_page_id]['expires_on'] =  time() + ($update * 60);
-    			add_option( 'wikiembeds', $wikiembeds );
-    		endif;
+			$worked = wiki_embed_update_cache( $wiki_page_id, $wiki_page_body, $update );
 				
 				
 		else:	//Failed, (and there's no cache available) so show an error
@@ -586,55 +573,7 @@ function wikiembed_get_wiki_content( $url, $has_accordion, $has_tabs, $has_no_co
 						</span>';
 			
 		endif;
-	endif;
-	
-
-
-/*
-	// Get any existing copy of our transient data
-	if (false === ( $wiki_page_body = get_option( $wiki_page_id_hash ) ) || $wikiembeds[$wiki_page_id]['expires_on'] < time() ): 
-	
-		// lets try to get the  
-    	$wiki_page_body  = wp_remote_request_wikipage($url,$update);
-    	
-    	if(!$wiki_page_body): // we couldn't get the wiki content	
-    		if(false === ( $wiki_page_body = get_option( $wiki_page_id_hash ) ) ):	//See if there's any older (expired) data in the cache we can use
-    			//If not, give up and show an error.
-    			return '<span class="alert">
-							We were not able to Retrieve the content of this page, at this time.<br />
-							You can: <br />
-							1. Try refreshing the page. Press Ctrl + R (windows) or ⌘ Cmd + R (mac)<br />
-						2. Go to the <a href="'.esc_url($url).'" >source</a><br />
-						</span>';
-			else:	
-				$update=0;	//Set the expiry offset to 0 (now) to try again next time the page is loaded
-			endif;
-		endif; 
-		
-		
-		if(($update!==0)):	//If the refresh succceeded
-		
-			//get the page content
-			$wiki_page_body = wikiembed_render( $wiki_page_body, $has_no_edit, $has_no_contents , $has_no_infobox, $has_accordion, $has_tabs, $remove);
-			
-			// place the rendered content in to db
-     		$worked = update_option($wiki_page_id_hash, $wiki_page_body);
-     		
-     		// keep a track of what how long it is going to be in there
-     		if( is_array($wikiembeds) ):
-     			$wikiembeds[$wiki_page_id]['expires_on'] =  time() + ($update * 60);
-				update_option( 'wikiembeds', $wikiembeds );
-  			else:
-  				$wikiembeds[$wiki_page_id]['expires_on'] =  time() + ($update * 60);
-    			add_option( 'wikiembeds', $wikiembeds );
-    		endif;
-    		
-    	else:	//if the refresh failed
-    		//$wiki_page_body.='<span class="alert">(Note: Refresh failed. Falling back on expired content)</span>';
-    	endif;
-    	
-    endif;
-*/    
+	endif; 
     
 	// display the source 
 	$wiki_embed_end = '';
@@ -674,12 +613,10 @@ function wikiembed_get_wiki_content( $url, $has_accordion, $has_tabs, $has_no_co
  * @param mixed $update
  * @return void
  */
-function wp_remote_request_wikipage($url,$update)
-{
+function wp_remote_request_wikipage( $url, $update ) {
 	global $wikiembeds,$wikiembed_options;
 	
 	$wikiembed_id = wikiembed_get_page_id( $url, false, false, false, false, false ); // just the url gets converted to the id 
-	$wiki_page_id_hash = md5($url);
 	
 	if($wikiembed_options['security']['whitelist']):
 		$white_list_pass = false;
@@ -698,10 +635,10 @@ function wp_remote_request_wikipage($url,$update)
 	endif;
 	
 	// grab the content from the cache
-	if (false === ( $wiki_page_body = get_option( $wiki_page_id_hash ) ) ): 
+	if ( false === ( $wiki_page_body = wiki_embed_get_cache( $wikiembed_id ) ) || $wikiembeds[$wikiembed_id]['expires_on'] < time() ): 
 		
 		// else return the 
-		$wiki_page = wp_remote_request(wikiembed_action_url($url));
+		$wiki_page = wp_remote_request( wikiembed_action_url($url) );
 		if( !is_wp_error($wiki_page) ):
 		
 			//rudimentary error check - if the wiki content contains one of the error strings below
@@ -717,8 +654,10 @@ function wp_remote_request_wikipage($url,$update)
 				endif;
 			endforeach;
 			
-	    	if(!$errors && $wiki_page['response']['code']==200): 
+			// 
+	    	if( !$errors && $wiki_page['response']['code'] == 200 ): 
 	     		$wiki_page_body = $wiki_page['body'];
+	     		 
 	     	else:
 	     		return false;
 	     	endif;	
@@ -726,19 +665,44 @@ function wp_remote_request_wikipage($url,$update)
 	     	
 	    else:
 	     	// an error occured try getting the content again
-	     	$wiki_page = wp_remote_request(wikiembed_action_url($url));
+	     	$wiki_page = wp_remote_request( wikiembed_action_url($url) );
 	     	
 	     	// error occured while fetching content 
-	     	if( is_wp_error($wiki_page) ) return false;
+	     	if( is_wp_error( $wiki_page ) ) return false;
+	     	
 	     	$wiki_page_body = $wiki_page['body']; 
-	     endif;
+	    endif;
+	    // cach the result
+	    $wiki_page_body = wiki_embed_make_safe( $wiki_page_body );
+	 	wiki_embed_update_cache( $wikiembed_id, $wiki_page_body, $update );
      endif;
-				
-		$wikiembeds[$wikiembed_id]['expires_on'] =  time() + ($update * 60);
-		update_option( 'wikiembeds', $wikiembeds ); // but the new wiki embed hasn't been set yet
 		
      return $wiki_page_body;
      	
+}
+/**
+ * wiki_embed_make_safe function.
+ * 
+ * @access public
+ * @param mixed $body
+ * @return void
+ */
+function wiki_embed_make_safe( $body ) {
+
+	 global $allowedposttags;
+     $new_tags = $allowedposttags;
+      
+     foreach( $allowedposttags as $tag => $array):
+      
+      	$new_tags[$tag]['id'] = array();
+     	$new_tags[$tag]['class'] = array();
+      	$new_tags[$tag]['style'] = array();
+      	
+     endforeach;
+      
+     // lets sanitize this 
+    $body = wp_kses($body, $new_tags);
+	return $body;
 }
 
 /**
@@ -784,7 +748,7 @@ function wp_remote_request_wikipage($url,$update)
 		if( $has_no_infobox ):
 			$remove_elements[] = '.infobox';
 		endif;
-		
+		$html->encoding = 'UTF-8'; // insert proper
 		$finder = new DomCSS($html);
 		
 		// bonus you can remove any element by passing in a css selector and seperating them by commas
@@ -862,7 +826,7 @@ function wp_remote_request_wikipage($url,$update)
 			
 			if($has_accordion):	//jquery UI's accordions use <h2> and <div> pairs to organize accordion content
 				$article_content .= '
-					<h2><a href="#">' . wikiembed_extract_headline_text($headline) . '</a></h2>
+					<h2><a href="#">' . wikiembed_extract_headline_text( $headline ) . '</a></h2>
 					<div class="' . $class . '">
 						' . $content[$index] . '
 					</div>
@@ -966,25 +930,15 @@ function wikiembed_refresh_after_load($url, $has_accordion, $has_tabs, $has_no_c
 	//Get page from remote site
 		global $wikiembeds,$wikiembed_options;
 		$wiki_page_id = wikiembed_get_page_id( $url, $has_accordion, $has_tabs, $has_no_contents, $has_no_edit, $has_no_infobox,  $remove );
-		$wiki_page_id_hash  = md5($wiki_page_id); // if we don't md5 the hash we can't really 
-		$wiki_page_body  = wp_remote_request_wikipage($url,$update);
 		
-		if($wiki_page_body): 	// Successfully grabbed remote contnet
+		$wiki_page_body  = wp_remote_request_wikipage( $url, $update );
+		
+		if($wiki_page_body): 	// Successfully grabbed remote content
 			//render page content
 			$wiki_page_body = wikiembed_render( $wiki_page_body, $has_no_edit, $has_no_contents , $has_no_infobox, $has_accordion, $has_tabs, $remove);
 			
-			// place the rendered content in to db
-     		$worked = update_option($wiki_page_id_hash, $wiki_page_body);
-     		
-     		// keep a track of what how long it is going to be in there
-    
-     		if( is_array($wikiembeds) ):
-     			$wikiembeds[$wiki_page_id]['expires_on'] =  time() + ($update * 60);
-				update_option( 'wikiembeds', $wikiembeds );
-  			else:
-  				$wikiembeds[$wiki_page_id]['expires_on'] =  time() + ($update * 60);
-    			add_option( 'wikiembeds', $wikiembeds );
-    		endif;
+			wiki_embed_update_cache( $wiki_page_id,  $wiki_page_body, $update );
+		
     	endif;
 }
 
@@ -1100,78 +1054,6 @@ function wikiembed_overlay_ajax() {
  *
  *
  ********************************************************************/
- 
- //http://de3.php.net/manual/en/domdocumentfragment.appendxml.php
-function replaceNodeXML($dom, &$node,$xml) { 
- $f = $dom->createDocumentFragment(); 
- //$f->appendXML($xml); 
-	$text=$dom->createTextNode($xml);
- 	$f->appendChild($text);
- $node->parentNode->replaceChild($f,$node); 
-}
-
-/**
- * remove_unwanted_nodes function
- * Takes care of the mess  added by the PHP DOM library
- */
-function remove_unwanted_nodes($content) {
-    $new_content = preg_replace(array("/^\<\!DOCTYPE.*?<html><body>/si",
-                                  "!</body></html>$!si"),
-                            "",
-                            $content);
-
-		return $new_content;
-	}
-
-/**
- * Convert a CSS-selector into an xPath-query
- *
- * @return    string
- * @param    string $selector    The CSS-selector
- */
-function buildXPathQuery($selector)
-{
-    // redefine
-    $selector = (string) $selector;
-
-    // the CSS selector
-    $cssSelector = array(    // E F: Matches any F element that is a descendant of an E element
-                            '/(\w)\s+(\w)/',
-                            // E > F: Matches any F element that is a child of an element E
-                            '/(\w)\s*>\s*(\w)/',
-                            // E:first-child: Matches element E when E is the first child of its parent
-                            '/(\w):first-child/',
-                            // E + F: Matches any F element immediately preceded by an element
-                            '/(\w)\s*\+\s*(\w)/',
-                            // E[foo]: Matches any E element with the "foo" attribute set (whatever the value)
-                            '/(\w)\[([\w\-]+)]/',
-                            // E[foo="warning"]: Matches any E element whose "foo" attribute value is exactly equal to "warning"
-                            '/(\w)\[([\w\-]+)\=\"(.*)\"]/',
-                            // div.warning: HTML only. The same as DIV[class~="warning"]
-                            '/(\w+|\*)?\.([\w\-]+)+/',
-                            // E#myid: Matches any E element with id-attribute equal to "myid"
-                            '/(\w+)+\#([\w\-]+)/',
-                            // #myid: Matches any E element with id-attribute equal to "myid"
-                            '/\#([\w\-]+)/'
-                        );
-
-    // the xPath-equivalent
-    $xPathQuery = array(    '\1//\2',
-                            '\1/\2',
-                            '*[1]/self::\1',
-                            '\1/following-sibling::*[1]/self::\2',
-                            '\1 [ @\2 ]',
-                            '\1[ contains( concat( " ", @\2, " " ), concat( " ", "\3", " " ) ) ]',
-                            '\1[ contains( concat( " ", @class, " " ), concat( " ", "\2", " " ) ) ]',
-                            '\1[ @id = "\2" ]',
-                            '*[ @id = "\1" ]'
-                        );
-
-    // return
-    return (string) '//'. preg_replace($cssSelector, $xPathQuery, $selector);
-}
-
-
  
 /**
  * wikiembed_settings function.

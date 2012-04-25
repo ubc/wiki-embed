@@ -27,18 +27,18 @@ function wikiembed_list_page()
   			case 'trash':
   				if(is_array($post_wikiembed)):
   							
-	  				foreach($wikiembeds  as $wikiembeds_hash => $wikiembeds_item):
-	  					$bits = explode(",",$wikiembeds_hash);
+	  				foreach($wikiembeds  as $wikiembeds_id => $wikiembeds_item):
+	  					$bits = explode(",",$wikiembeds_id);
 						
-	  					if(in_array(esc_attr($bits[0]),$post_wikiembed) || in_array(esc_attr($wikiembeds_hash),$post_wikiembed))
+	  					if(in_array( esc_attr( $bits[0] ) ,$post_wikiembed ) || in_array( esc_attr( $wikiembeds_id ), $post_wikiembed ) )
 	  					{
-	  						unset($wikiembeds[$wikiembeds_hash]);
-							delete_option( md5($wikiembeds_hash) );
+	  						wiki_embed_delete_cache( $wikiembeds_id );
+	  						
 	  					}
 	  				endforeach;
 	  				unset($bits);
   				
-  				update_option( 'wikiembeds', $wikiembeds );
+  				
   				
   				endif;
   				
@@ -47,19 +47,16 @@ function wikiembed_list_page()
   			case 'clear-cache':
   				if(is_array($post_wikiembed)):
   				
-	  				foreach($wikiembeds  as $wikiembeds_hash => $wikiembeds_item):
-	  					$bits = explode(",",$wikiembeds_hash);
+	  				foreach($wikiembeds  as $wikiembeds_id => $wikiembeds_item):
+	  					$bits = explode(",",$wikiembeds_id);
 			
 	  					if(in_array(esc_attr($bits[0]),$post_wikiembed))
 	  					{
-	  						unset($wikiembeds[$wikiembeds_hash]['expires_on']);
-							delete_option( md5($wikiembeds_hash) );
-	  						// $undoItems[] = $wikiembeds[$wiki_page_id];
+	  						wiki_embed_clear_cache( $wikiembeds_id );
 	  					}
 	  				endforeach;
 	  				unset($bits);
-  				
-  				update_option( 'wikiembeds', $wikiembeds );
+
   				endif;
   			
   			break;

@@ -24,14 +24,14 @@ function wikiembed_settings_page() {
 	<div class="wrap">
 		
 	    <div class="icon32" id="icon-options-general"><br></div>
-		<h2>Wiki Embed Settings </h2>
+		<h2>Wiki Embed Settings</h2>
 		
 		<form method="post" action="admin.php?page=wikiembed_settings_page">
 			<?php settings_fields('wikiembed_options'); ?>
-						<a href="#" id="show-help" >Explain More</a>
-		<?php if($updated): ?>
-		<div class="updated below-h2" id="message"><p>Wiki Embed Settings Updated</p></div>
-		<?php endif; ?>
+			<a href="#" id="show-help" >Explain More</a>
+			<?php if($updated): ?>
+				<div class="updated below-h2" id="message"><p>Wiki Embed Settings Updated</p></div>
+			<?php endif; ?>
 		<h3>Enable Wiki Embed Functionality </h3>
 		<p>If there is functionality that wiki embed has that you don't want &mdash; disable it. This will keep pages lean and mean. </p>
 		<table class="form-table">
@@ -189,7 +189,6 @@ function wiki_embed_add_help_text($contextual_help, $screen_id, $screen) {
       
       '<h3>' . __('Shortcode') . '</h3>';
 
-     
       } 
   return $contextual_help;
 }
@@ -218,7 +217,7 @@ function wikiembed_options_validate($wikiembed_options) {
 	$wikiembed_options['default']['no-edit'] =  ( isset($wikiembed_options['default']['no-edit']) && $wikiembed_options['default']['no-edit'] == 1 ? 1 : 0 );
 	$wikiembed_options['default']['tabs'] =  ( is_numeric($wikiembed_options['default']['tabs']) ? $wikiembed_options['default']['tabs'] : "0" );
 	
-	$wikiembed_options['security']['whitelist'] = ( isset($wikiembed_options['security']['whitelist'] ) ? $wikiembed_options['security']['whitelist'] : null);
+	$wikiembed_options['security']['whitelist'] = ( isset($wikiembed_options['security']['whitelist'] ) ? trim($wikiembed_options['security']['whitelist']) : null);
 	
 	
 	return $wikiembed_options;

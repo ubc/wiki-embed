@@ -39,6 +39,11 @@ Maybe, but why would you want to? That is not what the tool was designed to do.
 
 
 == Changelog ==
+= 1.4.3 =
+* wiki_embed cache now not auto loaded.
+* better escaped content that is coming from the the wiki
+* removed unwanted site_options
+
 = 1.4.2 =
 * deploy script didn't quite work trying with a different user
 
