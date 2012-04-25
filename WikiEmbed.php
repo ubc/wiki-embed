@@ -3,7 +3,7 @@
 Plugin Name: Wiki Embed
 Plugin URI: 
 Description: Enables the inclusion of mediawiki pages into your own blog page or post through the use of shortcodes. 
-Version: 1.4.2
+Version: 1.4.3
 Author: Enej Bajgoric - CTLT - UBC
 Author URI: http://blogs.ubc.ca/beta/
 */
@@ -672,6 +672,8 @@ function wp_remote_request_wikipage( $url, $update ) {
 	     	
 	     	$wiki_page_body = $wiki_page['body']; 
 	    endif;
+	    // make sure that we are UTF-8
+	    $wiki_page_body = mb_convert_encoding($wiki_page_body, 'HTML-ENTITIES', "UTF-8"); 
 	    // cach the result
 	    $wiki_page_body = wiki_embed_make_safe( $wiki_page_body );
 	 	wiki_embed_update_cache( $wikiembed_id, $wiki_page_body, $update );
@@ -727,6 +729,7 @@ function wiki_embed_make_safe( $body ) {
 		//Prevent the parser from throwing PHP warnings if it receives malformed HTML
 		libxml_use_internal_errors(true);
 		
+		
 		//For some reason any other method of specifying the encoding doesn't seem to work and special characters get broken
 		$html = DOMDocument::loadHTML('<?xml version="1.0" encoding="UTF-8"?>'.$wiki_page_body);	
 		
@@ -748,7 +751,7 @@ function wiki_embed_make_safe( $body ) {
 		if( $has_no_infobox ):
 			$remove_elements[] = '.infobox';
 		endif;
-		$html->encoding = 'UTF-8'; // insert proper
+		
 		$finder = new DomCSS($html);
 		
 		// bonus you can remove any element by passing in a css selector and seperating them by commas

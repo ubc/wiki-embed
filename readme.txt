@@ -3,7 +3,7 @@ Contributors: enej, ejackisch, ctlt-dev, ubcdev
 Tags: mediawiki, wiki, wiki-embed, embed, content framework, wiki inc, 
 Requires at least: 3.0
 Tested up to: 3.3
-Stable tag: 1.4.2
+Stable tag: 1.4.3
 
 Wiki Embed lets you embed mediawiki pages in to your site, sites like Wikipedia
 
@@ -42,7 +42,8 @@ Maybe, but why would you want to? That is not what the tool was designed to do.
 = 1.4.3 =
 * wiki_embed cache now not auto loaded.
 * better escaped content that is coming from the the wiki
-* removed unwanted site_options
+* removed unwanted site_options 
+* bug fix: UTF encoding
 
 = 1.4.2 =
 * deploy script didn't quite work trying with a different user
