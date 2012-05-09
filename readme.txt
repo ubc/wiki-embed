@@ -39,6 +39,9 @@ Maybe, but why would you want to? That is not what the tool was designed to do.
 
 
 == Changelog ==
+= 1.4.4 =
+* allowing to display object and param tags so that we can embed kultura videos
+
 = 1.4.3 =
 * wiki_embed cache now not auto loaded.
 * better escaped content that is coming from the the wiki

@@ -3,7 +3,7 @@
 Plugin Name: Wiki Embed
 Plugin URI: 
 Description: Enables the inclusion of mediawiki pages into your own blog page or post through the use of shortcodes. 
-Version: 1.4.3
+Version: 1.4.4
 Author: Enej Bajgoric - CTLT - UBC
 Author URI: http://blogs.ubc.ca/beta/
 */
@@ -684,7 +684,7 @@ function wp_remote_request_wikipage( $url, $update ) {
 }
 /**
  * wiki_embed_make_safe function.
- * 
+ * strip out any unwanted tags - the same way wordpress does
  * @access public
  * @param mixed $body
  * @return void
@@ -693,7 +693,7 @@ function wiki_embed_make_safe( $body ) {
 
 	 global $allowedposttags;
      $new_tags = $allowedposttags;
-      
+     // var_dump( $allowedposttags );
      foreach( $allowedposttags as $tag => $array):
       
       	$new_tags[$tag]['id'] = array();
@@ -701,7 +701,19 @@ function wiki_embed_make_safe( $body ) {
       	$new_tags[$tag]['style'] = array();
       	
      endforeach;
-      
+     
+     // param
+     $new_tags['param']['name'] = array();
+     $new_tags['param']['value'] = array();
+     // object
+     $new_tags['object']['type'] = array();
+     $new_tags['object']['allowscriptaccess'] = array();
+     $new_tags['object']['allownetworking'] = array();
+     $new_tags['object']['allowfullscreen'] = array();
+     $new_tags['object']['width'] = array();
+     $new_tags['object']['height'] = array();
+     $new_tags['object']['data'] = array();
+     
      // lets sanitize this 
     $body = wp_kses($body, $new_tags);
 	return $body;
