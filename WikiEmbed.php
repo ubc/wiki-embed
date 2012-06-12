@@ -3,7 +3,7 @@
 Plugin Name: Wiki Embed
 Plugin URI: 
 Description: Enables the inclusion of mediawiki pages into your own blog page or post through the use of shortcodes. 
-Version: 1.4.4
+Version: 1.4.5
 Author: Enej Bajgoric - CTLT - UBC
 Author URI: http://blogs.ubc.ca/beta/
 */
@@ -673,7 +673,9 @@ function wp_remote_request_wikipage( $url, $update ) {
 	     	$wiki_page_body = $wiki_page['body']; 
 	    endif;
 	    // make sure that we are UTF-8
-	    $wiki_page_body = mb_convert_encoding($wiki_page_body, 'HTML-ENTITIES', "UTF-8"); 
+	    if( function_exists('mb_convert_encoding') ):
+	    $wiki_page_body = mb_convert_encoding( $wiki_page_body, 'HTML-ENTITIES', "UTF-8" ); 
+	    endif;
 	    // cach the result
 	    $wiki_page_body = wiki_embed_make_safe( $wiki_page_body );
 	 	wiki_embed_update_cache( $wikiembed_id, $wiki_page_body, $update );
@@ -713,6 +715,22 @@ function wiki_embed_make_safe( $body ) {
      $new_tags['object']['width'] = array();
      $new_tags['object']['height'] = array();
      $new_tags['object']['data'] = array();
+     
+     $new_tags['embed']['width'] = array();
+     $new_tags['embed']['height'] = array();
+     $new_tags['embed']['type'] = array();
+     
+     $new_tags['embed']['wmode'] = array();
+     $new_tags['embed']['src'] = array();
+     $new_tags['embed']['type'] = array();
+     
+     // <iframe width="480" height="360" src="http://www.youtube.com/embed/CoAv6yIVkSQ" frameborder="0" allowfullscreen></iframe>
+     // is there a better way of allowing trusted sources like youtube? 
+     $new_tags['iframe']['allowfullscreen'] = array();
+     $new_tags['iframe']['width'] = array();
+     $new_tags['iframe']['height'] = array();
+     $new_tags['iframe']['src'] = array();
+     $new_tags['iframe']['frameborder'] = array();
      
      // lets sanitize this 
     $body = wp_kses($body, $new_tags);
