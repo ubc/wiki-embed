@@ -5,11 +5,25 @@ add_action('admin_init', 'wikiembed_options_init' );
 add_action('admin_menu', 'wikiembed_options_add_page');
 
 // Init plugin options to white list our options
+
+/**
+ * wikiembed_options_init function.
+ * 
+ * @access public
+ * @return void
+ */
 function wikiembed_options_init(){
 	register_setting( 'wikiembed_options', 'wikiembed_options', 'wikiembed_options_validate' ); // the settings for wiki embed options
 }
 
 // Add menu page
+
+/**
+ * wikiembed_options_add_page function.
+ * 
+ * @access public
+ * @return void
+ */
 function wikiembed_options_add_page() {
 	
 	$awaiting_mod = 4;
@@ -22,6 +36,12 @@ function wikiembed_options_add_page() {
 	add_action('admin_print_styles-' . $settings_page, 'wikiembed_admin_styles_list_page');
 }
 
+/**
+ * wikiembed_admin_styles_list_page function.
+ * 
+ * @access public
+ * @return void
+ */
 function wikiembed_admin_styles_list_page(){
 	wp_register_style(  'wiki-embed-list-page', plugins_url('/wiki-embed/resources/css/wiki-list-page.css'));
 	wp_register_script( 'wiki-embed-list-page', plugins_url('/wiki-embed/resources/js/wiki-embed-list-page.js'));

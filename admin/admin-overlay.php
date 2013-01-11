@@ -31,8 +31,10 @@ function wikiembed_overlay_buttons( $context ) {
  * @return void
  */
 function wikiembed_overlay_popup_form() {
+	global $wikiembed_object,$pagenow,$post;
 	
-	global $wikiembed_options,$pagenow,$post;
+	
+	$wikiembed_options = $wikiembed_object->options;
 	
 	if( in_array( $pagenow, array( "post.php", "post-new.php" )) && in_array( $post->post_type , array("post","page") )):
 	

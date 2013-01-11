@@ -4,7 +4,11 @@
 // this function is used in the 
 function wikiembed_settings_page() {
 	
-	global $wikiembed_options, $wikiembed_version;
+	global $wikiembed_object;
+
+	$wikiembed_options = $wikiembed_object->options;
+	$wikiembed_version = $wikiembed_object->version;
+
 	$updated = false;
 	$option = "wikiembed_options";
 

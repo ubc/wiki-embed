@@ -948,7 +948,17 @@ div.thumb img.thumbimage {
 .nochecker .gallerybox .thumb img {
     background: white;
 }
-
+.wiki-embed .gallery{
+	margin: 0;
+	padding: 0;
+	position: relative;
+	overflow: hidden;
+}
+.gallerybox{
+	list-style: none;
+	float: left;
+	text-align: center;
+}
 /* Prevent floating boxes from overlapping any category listings,
    file histories, edit previews, and edit [Show changes] views */
 #mw-subcategories, #mw-pages, #mw-category-media, 

@@ -3,7 +3,7 @@ Contributors: enej, ejackisch, ctlt-dev, ubcdev
 Tags: mediawiki, wiki, wiki-embed, embed, content framework, wiki inc, 
 Requires at least: 3.0
 Tested up to: 3.3
-Stable tag: 1.4.5
+Stable tag: 2.0
 
 Wiki Embed lets you embed mediawiki pages in to your site, sites like Wikipedia
 
@@ -39,6 +39,10 @@ Maybe, but why would you want to? That is not what the tool was designed to do.
 
 
 == Changelog ==
+= 2 = 
+* Rewritten for performance and minor bug fixes 
+* removed un needed files
+
 = allowing more 
 = 1.4.4 =
 * allowing to display object and param tags so that we can embed kultura videos
