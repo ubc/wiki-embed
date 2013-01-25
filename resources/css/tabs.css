@@ -1,16 +1,22 @@
 /* Basic tabs Style
    very minimialistic 
 */
-
+.wiki-embed .ui-tabs .ui-tabs-nav
 .wiki-embed .ui-tabs { padding: .2em; zoom: 1;  clear: both; background: #FFF;}
-.wiki-embed .ui-tabs .ui-tabs-nav { list-style: none !important; position: relative; padding: .2em .2em 0!important; border-bottom: 1px solid #CCC; overflow: hidden; }
+.wiki-embed .ui-tabs .ui-tabs-nav { list-style: none !important; position: relative; padding: .2em .2em 0!important; border-bottom: 1px solid #CCC; overflow: hidden; margin:0; }
 .wiki-embed .ui-tabs .ui-tabs-nav li { position: relative; float: left; border-bottom-width: 0 !important; margin: 1px .3em 0 0 !important; padding: 0 !important; border: 1px solid #CCC; background: #EEE; list-style: none !important;  }
 .wiki-embed .ui-tabs .ui-tabs-nav li:before{ content: "";}
 .wiki-embed .ui-tabs .ui-tabs-nav li a { float: left; text-decoration: none; padding:2px 1em; color:#333; border:none!important;  }
-.wiki-embed .ui-tabs .ui-tabs-nav li.ui-tabs-selected { padding-bottom: 1px; border-bottom-width: 0px; border-bottom: 0; margin-bottom: -1px; background: #FFF; color:#111; }
-.wiki-embed .ui-tabs .ui-tabs-nav li.ui-tabs-selected a, .ui-tabs .ui-tabs-nav li.ui-state-disabled a, .ui-tabs .ui-tabs-nav li.ui-state-processing a { cursor: text; }
-.wiki-embed .ui-tabs .ui-tabs-nav li a, .ui-tabs.ui-tabs-collapsible .ui-tabs-nav li.ui-tabs-selected a { cursor: pointer;  } /* first selector in group seems obsolete, but required to overcome bug in Opera applying cursor: text overall if defined elsewhere... */
+.wiki-embed .ui-tabs .ui-tabs-nav li.ui-tabs-selected,
+.wiki-embed .ui-tabs .ui-tabs-nav li.ui-tabs-active { padding-bottom: 1px; border-bottom-width: 0px; border-bottom: 0; margin-bottom: -1px; background: #FFF; color:#111; }
+.wiki-embed .ui-tabs .ui-tabs-nav li.ui-tabs-selected a, 
+.wiki-embed .ui-tabs .ui-tabs-nav li.ui-tabs-active a,
+.wiki-embed .ui-tabs .ui-tabs-nav li.ui-state-disabled a, 
+.wiki-embed .ui-tabs .ui-tabs-nav li.ui-state-processing a { cursor: text; }
+.wiki-embed .ui-tabs .ui-tabs-nav li a, 
+.wiki-embed .ui-tabs.ui-tabs-collapsible .ui-tabs-nav li.ui-tabs-selected a,
+.wiki-embed .ui-tabs.ui-tabs-collapsible .ui-tabs-nav li.ui-tabs-active a  { cursor: pointer;  } 
+/* first selector in group seems obsolete, but required to overcome bug in Opera applying cursor: text overall if defined elsewhere... */ 
 .wiki-embed .ui-tabs .ui-tabs-panel { padding: 1em 1.4em; display: block; border-width: 0; background: none; }
 .wiki-embed .ui-tabs .ui-tabs-hide { display: none !important; }
-
 .wiki-embed .ui-tabs-panel{ clear: both;}

@@ -23,6 +23,10 @@ function wikiembed_settings_page() {
 		$wikiembed_options = $value;
 		
 	endif; 	
+	
+	$tabs_support = get_theme_support('tabs');
+	$accordion_support = get_theme_support( 'accordions' );
+	
 	?>
 	
 	<div class="wrap">
@@ -57,16 +61,19 @@ function wikiembed_settings_page() {
 			-->
 			<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[style]" id="wiki-embed-overlay" <?php checked( $wikiembed_options['style'] ); ?> /><span ><label for="wiki-embed-overlay"> Additional styling not commonly found in your theme.</label></span>    <br />
 			<div class="help-div">Loads wiki-embed css files on each page of the site. <br /> </div>
-			
-			<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[tabs-style]" id="wiki-embed-tab-style" <?php checked(  $wikiembed_options['tabs-style'] ); ?> /> <span ><label for="wiki-embed-tab-style">Additional tabs styling, useful if you theme doesn't support tab styling </label></span>    <br />
-			
+			<?php $disabled_tabs = ( empty($tabs_support) ? '' : 'disabled="disabled"'); ?>
+			<input type="checkbox" aria-required="true" value="1" <?php echo $disabled_tabs; ?> name="wikiembed_options[tabs-style]" id="wiki-embed-tab-style" <?php checked(  $wikiembed_options['tabs-style'] ); ?> /> <span ><?php if( !empty( $disabled_tabs ) ) { ?> <em> Your theme support tabs styling</em> <?php } else { ?><label for="wiki-embed-tab-style">Additional tabs styling, useful if you theme doesn't support tab styling </label><?php } ?></span>  <br />
 			<div class="help-div">Loads tabs css files on each page of the site.<br /> </div>
+			
+			<?php $disabled_accordion = ( empty($accordion_support) ? '' : 'disabled="disabled"'); ?>
+			<input type="checkbox" aria-required="true" value="1" <?php echo $disabled_accordion; ?> name="wikiembed_options[accordion-style]" id="wiki-embed-accordion-style" <?php checked(  $wikiembed_options['accordion-style'] ); ?> /> <span > <?php if( !empty( $disabled_accordion ) ) { ?>  <em> Your theme support accordion styling</em> <?php } else { ?>
+			<label for="wiki-embed-accordion-style">Additional Accordion styling, useful if you theme doesn't support accordion styling </label><?php } ?></span>    <br />
+			
+			<div class="help-div">Loads accordion css files on each page of the site.<br /> </div>
 			</td>
 		</tr>
 				
 			</table>
-			
-			
 			<h3>Global Settings </h3>
 			<p>These settings are applied site-wide</p>
 			
@@ -208,6 +215,7 @@ function wikiembed_options_validate($wikiembed_options) {
 	$wikiembed_options['accordions'] =  ( isset($wikiembed_options['accordions']) && $wikiembed_options['accordions'] == 1 ? 1 : 0 );
 	$wikiembed_options['style'] =  ( isset($wikiembed_options['style']) && $wikiembed_options['style'] == 1 ? 1 : 0 );
 	$wikiembed_options['tabs-style'] =  ( isset($wikiembed_options['tabs-style']) && $wikiembed_options['tabs-style'] == 1 ? 1 : 0 );
+	$wikiembed_options['accordion-style'] =  ( isset($wikiembed_options['accordion-style']) && $wikiembed_options['accordion-style'] == 1 ? 1 : 0 );
 	$wikiembed_options['wiki-update'] =  ( is_numeric($wikiembed_options['wiki-update']) ? $wikiembed_options['wiki-update'] : "30" );
 	
 	$wikiembed_options['wiki-links'] = ( in_array($wikiembed_options['wiki-links'],array("default","overlay","new-page")) ? $wikiembed_options['wiki-links']:"default" );

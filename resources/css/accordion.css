@@ -1,0 +1,43 @@
+
+.wikiembed-fragment-accordion,
+.wiki-embed-accordion .ui-accordion-header {
+	border:1px solid #CCC;
+	margin: 0;
+	padding:10px;
+}
+.wiki-embed-accordion .ui-accordion-header a{
+	color: inherit;
+	text-decoration: inherit;
+}
+.wikiembed-fragment-accordion{
+	border-top:none;
+}	
+.wiki-embed-accordion .ui-accordion-header{
+	margin-top: 10px;
+}
+.wiki-embed-accordion .ui-icon,
+.wiki-embed-accordion .ui-accordion-header-icon{
+	width: 20px;
+	float: right;
+	height: 20px;
+	display: block;
+	opacity: 0.8;
+	}
+.wiki-embed-accordion .ui-icon:before,
+.wiki-embed-accordion .ui-accordion-header-icon:before{
+	content: '\25B2';
+}
+.wiki-embed-accordion .ui-state-active .ui-icon:before,
+.wiki-embed-accordion .ui-accordion-header-active .ui-accordion-header-icon:before{
+	content:'\25BC';
+}
+
+@media print{
+	.wiki-embed-accordion .ui-icon:before,
+	.wiki-embed-accordion .ui-accordion-header-icon:before{
+		display: none;
+	}
+	.wikiembed-fragment-accordion{
+		display: block!important;
+	}
+}

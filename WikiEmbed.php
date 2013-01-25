@@ -61,6 +61,9 @@ Class Wiki_Embed{
 	public $pre_load_scripts;
 	public $load_scripts;
 	
+	public $tabs_support;
+	public $accordion_support;
+	
 	/**
 	 * __construct function.
 	 * 
@@ -77,7 +80,7 @@ Class Wiki_Embed{
 		
 		$this->wikiembeds 		= get_option( 'wikiembeds' ); // we might not need to load this here at all...
 		$this->content_count 	= 0; 
-		$this->version 			= 0.8;
+		$this->version 			= 0.9;
 		
 		// display a page when you are clicked from a wiki page
 		add_action( 'template_redirect', array($this,'load_page') );
@@ -96,14 +99,29 @@ Class Wiki_Embed{
 		
 		wp_register_script( 'wiki-embed-accordion', plugins_url( '/wiki-embed/resources/js/accordion.js' ), array( "jquery", "jquery-ui-accordion" ), $this->version, true );
 		
+		$this->tabs_support = get_theme_support('tabs');
+		$this->accordion_support = get_theme_support( 'accordions' );
+		
+		if( $this->tabs_support[0] == 'twitter-bootstrap' || $this->accordion_support[0] == 'twitter-bootstrap' )
+			require_once( 'support/twitter-bootstrap/action.php' );
+		
+		if( $this->tabs_support[0] == 'twitter-bootstrap' ):
+			wp_register_script( 'twitter-tab-shortcode' , plugins_url('support/twitter-bootstrap/twitter.bootstrap.tabs.js', __FILE__), array( 'jquery' ), '1.0', true );
+		
+		endif;
 		
 		
 		// ADD styling 
-		
+		$this->options['tabs-style'] = ( empty( $this->tabs_support ) ? $this->options['tabs-style']  : 0 );
+		$this->options['accordion-style'] = ( empty( $this->accordion_support ) ? $this->options['accordion-style']  : 0 );
+		 
 		// embed this if tabs enabled style
 		if( $this->options['tabs-style'] )
 			wp_enqueue_style( 'wiki-embed-tabs', plugins_url( '/wiki-embed/resources/css/tabs.css' ) ,false, $this->version ); 		
 		
+		if( $this->options['accordion-style'] )
+			wp_enqueue_style( 'wiki-embed-accordion', plugins_url( '/wiki-embed/resources/css/accordion.css' ) ,false, $this->version ); 
+			
 		// add some great wiki styling 
 		if( $this->options['style'] )
 			wp_enqueue_style( 'wiki-embed-style',plugins_url( '/wiki-embed/resources/css/wiki-embed.css' ),false, $this->version, 'screen');
@@ -201,6 +219,7 @@ Class Wiki_Embed{
 		$wikiembed_options['accordions'] = 1;
 		$wikiembed_options['style'] = 1;
 		$wikiembed_options['tabs-style'] = 0;
+		$wikiembed_options['accordion-style'] = 0;
 		$wikiembed_options['wiki-update'] = "30";
 		
 		$wikiembed_options['wiki-links'] = "default";
@@ -265,17 +284,9 @@ Class Wiki_Embed{
 		if( !is_numeric($update) || $update < 5)
 			$update = $this->options['wiki-update'];  // this can be overwritten on per page basis
 		
+
+		$this->load_scripts( $has_tabs, $has_accordion );
 		
-		if(!empty( $this->pre_load_scripts))
-			$this->load_scripts = $this->pre_load_scripts;
-			
-		if( $has_tabs )
-			$this->load_scripts[] = 'wiki-embed-tabs';
-		
-		if( $has_accordion )
-			$this->load_scripts[] = 'wiki-embed-accordion';	
-		
- 		
 		/**
 		 * code here lets you add the get and default_get parameter to your wiki-emebed
 		 */
@@ -381,18 +392,10 @@ Class Wiki_Embed{
 		
 		$accordion 	= ( $this->options['default']['tabs'] ==2 ? true : false); 
 			 
-		
 		$wiki_page_id = $this->get_page_id( $wiki_page_url, $accordion, $tabs, $this->options['default']['no-contents'], $this->options['default']['no-edit'], $this->options['default']['no-infobox'] );
 		
-		
-		if(!empty( $this->pre_load_scripts))
-			$this->load_scripts = $this->pre_load_scripts;
-			
-		if( $tabs )
-			$this->load_scripts[] = 'wiki-embed-tabs';
-		
-		if( $accordion )
-			$this->load_scripts[] = 'wiki-embed-accordion';	
+		// make sure to load scripts
+		$this->load_scripts( $has_tabs, $has_accordion );
 		
 		/* Generate the shortcode ? */
 		$wiki_embed_shortcode = $this->get_page_shortcode( $wiki_page_url, $accordion, $tabs, $this->options['default']['no-contents'], $this->options['default']['no-edit'], $this->options['default']['no-infobox'] );
@@ -500,6 +503,51 @@ Class Wiki_Embed{
 			
 		endif;
 		
+	}
+	
+	/**
+	 * load_scripts function.
+	 * 
+	 * @access public
+	 * @param mixed $has_tabs
+	 * @param mixed $has_accordion
+	 * @return void
+	 */
+	function load_scripts( $has_tabs, $has_accordion ){
+		
+		if(!empty( $this->pre_load_scripts))
+			$this->load_scripts = $this->pre_load_scripts;
+			
+		
+		if( is_array( $this->tabs_support ) ):
+			switch( $this->tabs_support[0]):
+				case 'twitter-bootstrap';
+					$this->load_scripts[] = 'twitter-tab-shortcode';
+				break; 
+				// add support for something else here 
+				default:
+					$this->load_scripts[] = 'wiki-embed-tabs';
+				break;
+			endswitch;
+		
+		elseif( $has_tabs ):
+			$this->load_scripts[] = 'wiki-embed-tabs';
+		endif;
+		
+		if( is_array( $this->accordion_support ) ):
+			switch( $this->accordion_support[0]):
+				case 'twitter-bootstrap';
+					
+				break; 
+				// add support for something else here 
+				default:
+					$this->load_scripts[] = 'wiki-embed-accordion';	
+				break;
+			endswitch;
+		elseif( $has_accordion ):
+			$this->load_scripts[] = 'wiki-embed-accordion';	
+		endif;
+	
 	}
 	
 	/**
@@ -620,6 +668,13 @@ Class Wiki_Embed{
 	
 	}
 	
+	/**
+	 * get_page_title function.
+	 * 
+	 * @access public
+	 * @param mixed $title
+	 * @return void
+	 */
 	function get_page_title( $title ){
 		$title =  esc_html( $title );
 		
@@ -851,58 +906,58 @@ Class Wiki_Embed{
 		return http_build_url(urldecode($url), array("query" => "action=render"), HTTP_URL_JOIN_QUERY );
 	}
 
-/**
- * wiki_embed_make_safe function.
- * strip out any unwanted tags - the same way wordpress does
- * @access public
- * @param mixed $body
- * @return void
- */
-function make_safe( $body ) {
-
-	 global $allowedposttags;
-     $new_tags = $allowedposttags;
-    
-     foreach( $allowedposttags as $tag => $array):
-      
-      	$new_tags[$tag]['id'] = array();
-     	$new_tags[$tag]['class'] = array();
-      	$new_tags[$tag]['style'] = array();
-      	
-     endforeach;
-     
-     // param
-     $new_tags['param']['name'] = array();
-     $new_tags['param']['value'] = array();
-     // object
-     $new_tags['object']['type'] = array();
-     $new_tags['object']['allowscriptaccess'] = array();
-     $new_tags['object']['allownetworking'] = array();
-     $new_tags['object']['allowfullscreen'] = array();
-     $new_tags['object']['width'] = array();
-     $new_tags['object']['height'] = array();
-     $new_tags['object']['data'] = array();
-     
-     $new_tags['embed']['width'] = array();
-     $new_tags['embed']['height'] = array();
-     $new_tags['embed']['type'] = array();
-     
-     $new_tags['embed']['wmode'] = array();
-     $new_tags['embed']['src'] = array();
-     $new_tags['embed']['type'] = array();
-     
-     // <iframe width="480" height="360" src="http://www.youtube.com/embed/CoAv6yIVkSQ" frameborder="0" allowfullscreen></iframe>
-     // is there a better way of allowing trusted sources like youtube? 
-     $new_tags['iframe']['allowfullscreen'] = array();
-     $new_tags['iframe']['width'] = array();
-     $new_tags['iframe']['height'] = array();
-     $new_tags['iframe']['src'] = array();
-     $new_tags['iframe']['frameborder'] = array();
-     
-     // lets sanitize this 
-    $body = wp_kses($body, $new_tags);
-	return $body;
-}
+	/**
+	 * wiki_embed_make_safe function.
+	 * strip out any unwanted tags - the same way wordpress does
+	 * @access public
+	 * @param mixed $body
+	 * @return void
+	 */
+	function make_safe( $body ) {
+	
+		 global $allowedposttags;
+	     $new_tags = $allowedposttags;
+	    
+	     foreach( $allowedposttags as $tag => $array):
+	      
+	      	$new_tags[$tag]['id'] = array();
+	     	$new_tags[$tag]['class'] = array();
+	      	$new_tags[$tag]['style'] = array();
+	      	
+	     endforeach;
+	     
+	     // param
+	     $new_tags['param']['name'] = array();
+	     $new_tags['param']['value'] = array();
+	     // object
+	     $new_tags['object']['type'] = array();
+	     $new_tags['object']['allowscriptaccess'] = array();
+	     $new_tags['object']['allownetworking'] = array();
+	     $new_tags['object']['allowfullscreen'] = array();
+	     $new_tags['object']['width'] = array();
+	     $new_tags['object']['height'] = array();
+	     $new_tags['object']['data'] = array();
+	     
+	     $new_tags['embed']['width'] = array();
+	     $new_tags['embed']['height'] = array();
+	     $new_tags['embed']['type'] = array();
+	     
+	     $new_tags['embed']['wmode'] = array();
+	     $new_tags['embed']['src'] = array();
+	     $new_tags['embed']['type'] = array();
+	     
+	     // <iframe width="480" height="360" src="http://www.youtube.com/embed/CoAv6yIVkSQ" frameborder="0" allowfullscreen></iframe>
+	     // is there a better way of allowing trusted sources like youtube? 
+	     $new_tags['iframe']['allowfullscreen'] = array();
+	     $new_tags['iframe']['width'] = array();
+	     $new_tags['iframe']['height'] = array();
+	     $new_tags['iframe']['src'] = array();
+	     $new_tags['iframe']['frameborder'] = array();
+	     
+	     // lets sanitize this 
+	    $body = wp_kses($body, $new_tags);
+		return $body;
+	}
 
 	/**
 	 * render function.
@@ -921,7 +976,7 @@ function make_safe( $body ) {
 		// Do we need to modify the content? 
 	
 		if($has_no_edit || $has_no_contents || $has_no_infobox || $has_accordion || $has_tabs || $remove ):
-			require_once("resources/css_selector.php");	//for using CSS selectors to query the DOM (instead of xpath)
+			require_once( "resources/css_selector.php" );	//for using CSS selectors to query the DOM (instead of xpath)
 			
 			//Prevent the parser from throwing PHP warnings if it receives malformed HTML
 			libxml_use_internal_errors(true);
@@ -969,98 +1024,121 @@ function make_safe( $body ) {
 			$wiki_page_body = preg_replace(array('/^<!DOCTYPE.+?>/u','/<\?.+?\?>/'), array('',''), str_replace( array('<html>', '</html>', '<body>', '</body>'), array('', '', '', ''), $html->saveHTML()));
 			
 			//Seperate article content into an array of headers and an array of content (for tabs/accordions/styling)
-				$start_offset=0;
-				$headlines=array();
-				$content=array();
-				$first_header_position = strpos($wiki_page_body, '<h2>');
+			$start_offset=0;
+			$headlines=array();
+			$content=array();
+			$first_header_position = strpos($wiki_page_body, '<h2>');
+			
+			//Check if the first header is from a table of contents. if so, need to move up and find the next header.
+			if(!$this->extract_headline_text(substr($wiki_page_body, $first_header_position, strpos($wiki_page_body, '</h2>')+5-$first_header_position))):
+				$first_header_position = strpos($wiki_page_body, '<h2>', $first_header_position+1);
+			endif;
+			
+			$article_intro = substr($wiki_page_body,0, $first_header_position);	//contains everything up to (but excluding) the first subsection of the article
+			$article_content = substr($wiki_page_body, $first_header_position);	//contains the rest of the article 
+			
+			//Go through the wiki body, find all the h2s and content between h2s and put them into arrays.
+			while(true):
+				$start_header=strpos($article_content, '<h2>', $start_offset);
 				
-				//Check if the first header is from a table of contents. if so, need to move up and find the next header.
-				if(!$this->extract_headline_text(substr($wiki_page_body, $first_header_position, strpos($wiki_page_body, '</h2>')+5-$first_header_position))):
-					$first_header_position = strpos($wiki_page_body, '<h2>', $first_header_position+1);
+				if($start_header===false):	//The article doesn't have any headers
+					$article_intro = $article_content;
+					break;
 				endif;
 				
-				$article_intro = substr($wiki_page_body,0, $first_header_position);	//contains everything up to (but excluding) the first subsection of the article
-				$article_content = substr($wiki_page_body, $first_header_position);	//contains the rest of the article 
+				//find out where the end of this header and the end of the corresponding section are
+				$end_header  = strpos( $article_content, '</h2>', $start_offset );
+				$end_section = strpos( $article_content, '<h2>', $end_header );
+				$headlines[] = substr( $article_content, $start_header+4, $end_header-$start_header-4 );
 				
-				//Go through the wiki body, find all the h2s and content between h2s and put them into arrays.
-				while(true):
-					$start_header=strpos($article_content, '<h2>', $start_offset);
-					if($start_header===false):	//The article doesn't have any headers
-						$article_intro = $article_content;
-						break;
-					endif;
-					
-					//find out where the end of this header and the end of the corresponding section are
-					$end_header=strpos($article_content, '</h2>', $start_offset);
-					$end_section=strpos($article_content, '<h2>', $end_header);
-					$headlines[] = substr($article_content, $start_header+4, $end_header-$start_header-4);
-					
-					if($end_section!==false):	//success, we've hit another header
-						$content[] = substr($article_content, $end_header+5, $end_section-$end_header-5);
-						$start_offset = $end_section;
-					else:						//we've hit the end of the article without finding anything else
-						$content[] = substr($article_content, $end_header+5);
-						break;
-					endif;
-					
-				endwhile;
+				if($end_section!==false):	//success, we've hit another header
+					$content[] = substr( $article_content, $end_header+5, $end_section-$end_header-5 );
+					$start_offset = $end_section;
+				else:						//we've hit the end of the article without finding anything else
+					$content[] = substr( $article_content, $end_header+5 );
+					break;
+				endif;
+				
+			endwhile;
 			//Now $content[] and $headers[] each are populated for the purposes of tabs/accordions etc
 			
 			//Build the main page content, with tabs & accordion if necessary
-			$article_content = "";
+			$article_sections = array();
 			$tab_list = "";
 			$index = 0;
-			$count = count($headlines)-1;
-			foreach($headlines as $headline):
+			$count = count( $headlines ) - 1 ;
+			
+			foreach( $headlines as $headline ):
 			
 				//add headline to the tabs list if we're using tabs
 				if($has_tabs):
-					$tab_list .= '<li><a href="#fragment-'.$this->content_count.'-'.$index.'" >'.$this->extract_headline_text($headline).'</a></li>';
+					$tab_list .= '<li><a href="#fragment-'.$this->content_count.'-'.$index.'" >'.$this->extract_headline_text( $headline ).'</a></li>';				
 				endif;
 				
-				$class = "wikiembed-fragment wikiembed-fragment-counter-".$index;
-				if($count == $index);
-					$class .= " wikiembed-fragment-last";
+				$headline_class = "wikiembed-fragment wikiembed-fragment-counter-".$index;
+				
+				if( $count == $index );
+					$headline_class .= " wikiembed-fragment-last";
 				
 				if($has_accordion):	//jquery UI's accordions use <h2> and <div> pairs to organize accordion content
-					$article_content .= '
-						<h2><a href="#">' . $this->extract_headline_text( $headline ) . '</a></h2>
-						<div class="' . $class . '">
-							' . $content[$index] . '
+					$headline_class .=" wikiembed-fragment-accordion ";
+					$headline_class = apply_filters( 'wiki-embed-article-content-class', $headline_class, $index, 'accordion' );
+					
+					$article_content_raw = '
+						<h2><!-- start of headline wiki-embed --><a href="#">' . $this->extract_headline_text( $headline )  . '</a><!--end of headline wiki-embed --></h2>
+						<!-- start of content headline --><div class="' . $headline_class . '">
+							<!-- start of content wiki-embed -->' . $content[$index] . '<!-- end of content wiki-embed -->
 						</div>
 					';
-				else:				//And this alternative structure for tabs. (or if there's neither tabs nor accordion)
-					$article_content .= '
-						<div id="fragment-'.$this->content_count.'-'.$index.'" class="'.$class.'">
+					
+					$article_sections[] = apply_filters( 'wiki-embed-article-content', $article_content_raw, $index, 'accordion', $this->content_count );
+				else: //And this alternative structure for tabs. (or if there's neither tabs nor accordion)
+				
+					$headline_class = apply_filters('wiki-embed-article-content-class', $headline_class, $index, 'tabs' );
+					$article_content_raw = '
+						<div id="fragment-'.$this->content_count.'-'.$index.'" class="'.$headline_class.'">
 							<h2>'.$headline.'</h2>
-							' . $content[$index] . '
+							<!-- start of content wiki-embed -->' . $content[$index] . '<!-- end of content wiki-embed -->
 						</div>
 					';
+					if( $has_tabs )
+						$article_sections[] = apply_filters( 'wiki-embed-article-content', $article_content_raw, $index, 'tabs', $this->content_count );
+					else
+						$article_sections[] = apply_filters( 'wiki-embed-article-content', $article_content_raw, $index, 'none', $this->content_count );
 				endif;
 				$index++;
 			endforeach; 
 			
 			
-			//Create tabs list/accordion/container div to wrap content
-			if( $has_tabs ):	
-				$tabs = '<div class="wiki-embed-tabs wiki-embed-fragment-count-'.$count.'">'; // shell div
-				if( $tab_list !='' ):
-					$tabs .= '<ul class="wiki-embed-tabs-nav">'.$tab_list.'</ul>';
+			
+			
+			
+			if( $has_tabs ): /* Tabs */
+			
+				$tab_list = apply_filters( 'wiki-embed-tab_list', $tab_list );
+				$start = '<div class="wiki-embed-tabs wiki-embed-fragment-count-'.$count.'">'; // shell div
+				
+				$tabs_shell_class = apply_filters( 'wiki-embed-tabs-shell-class', 'wiki-embed-tabs-nav');
+				
+				if( !empty( $tab_list ) ):
+					$start .= '<ul class="'.$tabs_shell_class.'">'.$tab_list.'</ul>';
 				endif;
 				
-			elseif ( $has_accordion ):
-				$tabs = '<div id="accordion-wiki-'.$this->content_count.'" class="wiki-embed-shell wiki-embed-accordion wiki-embed-fragment-count-'.$count.'">'; // shell div
-			
-			else:
-				$tabs = '<div class="wiki-embed-shell wiki-embed-fragment-count-'.$count.'">'; // shell div
-			endif;
-			$article_content = $tabs . $article_content . '</div>';
-			
-			$wiki_page_body = $article_intro . $article_content;
-		endif; // end of content modifications 
+				$articles_content = apply_filters( 'wiki-embed-articles', implode( " ", $article_sections ), 'tabs' );
 				
-		if( ! empty( $removed_elements ) )
-			$remove_att = 	'remove="'.implode( ",", $removed_elements ).'"';
+			elseif ( $has_accordion ): /* Accordion */
+				
+				$start = '<div id="accordion-wiki-'.$this->content_count.'" class="wiki-embed-shell wiki-embed-accordion wiki-embed-fragment-count-'.$count.'">'; // shell div
+				$articles_content = apply_filters( 'wiki-embed-articles', implode( " ", $article_sections ), 'accordion' );
+			
+			else: /* None  */
+				$start = '<div class="wiki-embed-shell wiki-embed-fragment-count-'.$count.'">'; // shell div
+				$articles_content = apply_filters( 'wiki-embed-articles', implode( " ", $article_sections ), 'none' );
+			endif;
+			
+			$wiki_page_body = $article_intro . $start . $articles_content . '</div>';
+			
+		endif; // end of content modifications 
 		
 		//clear the error buffer since we're not interested in handling minor HTML errors here
 		libxml_clear_errors();

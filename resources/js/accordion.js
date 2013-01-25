@@ -5,7 +5,7 @@ jQuery(document).ready( function($){
 						"active":0,
 						"animated":"slide",
 						"clearStyle":false,
-						"collapsible":false,
+						"collapsible":true,
 						"event":"click",
 						"fillSpace":false, 
 						"header":"h2"} ); 
