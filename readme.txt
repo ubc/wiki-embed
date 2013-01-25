@@ -3,20 +3,19 @@ Contributors: enej, ejackisch, ctlt-dev, ubcdev
 Tags: mediawiki, wiki, wiki-embed, embed, content framework, wiki inc, 
 Requires at least: 3.0
 Tested up to: 3.3
-Stable tag: 2.0
+Stable tag: 2.1
 
 Wiki Embed lets you embed mediawiki pages in to your site, sites like Wikipedia
 
 == Description ==
 
-The Wiki Embed's intent is to help create a (http://wiki.ubc.ca/Resource_Management_Framework "Resourse Management Framework").
+The Wiki Embed's intent is to help create a ( http://wiki.ubc.ca/Resource_Management_Framework "Resourse Management Framework" ).
 
 It tries its damn hardest to pull in the content from a MediaWiki page into the WordPress environment. After html scraping the content from the MediaWiki page using a special url. ( note: try adding '?action=render' to the end of to any MediaWiki url) it strips out unwanted content and adds some tabs if you so desire. 
 
 
 To contribute to this plugin 
-Start here:
-https://github.com/ubc/wiki-embed
+Start here: https://github.com/ubc/wiki-embed
 
 
 == Frequently Asked Questions ==
@@ -39,6 +38,9 @@ Maybe, but why would you want to? That is not what the tool was designed to do.
 
 
 == Changelog ==
+= 2.1 =
+* Added support for themes that use twitter bootstrap now use bootstrap html for tabs and accordions
+
 = 2 = 
 * Rewritten for performance and minor bug fixes 
 * removed un needed files
