@@ -1,18 +1,16 @@
 jQuery(document).ready(function ($) {
-	$(".wiki-embed-overlay a:not(.external,.new,sup.reference a,.ui-tabs-nav a)").click(function() {
-		
-		$.fn.colorbox({
+	$(".wiki-embed-overlay a:not(.external,.new,sup.reference a,.ui-tabs-nav a)").click( function() {
+		$.fn.colorbox( {
 			iframe: true, 
 			innerWidth: 800, 
 			innerHeight: "80%",
 			href: WikiEmbedSettings.wiki_embed_ajaxurl+"?url="+$.URLEncode(this.href)+"&action=wiki_embed&title="+$.URLEncode(this.innerHTML),
 			transition:"none"
-			});
+		} );
+		
 		return false;		
-	});
-
-});
-
+	} );
+} );
 
 jQuery.extend({URLEncode:function(c){var o='';var x=0;c=c.toString();var r=/(^[a-zA-Z0-9_.]*)/;
   while(x<c.length){var m=r.exec(c.substr(x));

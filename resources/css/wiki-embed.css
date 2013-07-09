@@ -1,13 +1,8 @@
-/** 
- * from 
-
-
-/* <source lang="css"> */
- 
 /* Main page fixes */
 #interwiki-completelist {
     font-weight: bold;
 }
+
 body.page-Main_Page #ca-delete {
     display: none !important;
 }
@@ -21,7 +16,11 @@ body.page-Main_Page #mp-topbanner {
     height: 22px;
     margin-bottom: 6px;
 }
-.wiki-embed p br{ display: none;}
+
+.wiki-embed p br {
+    display: none;
+}
+
 /* Margins for <ol> and <ul> */
 #content ol, #content ul,
 #mw_content ol, #mw_content ul {
@@ -56,7 +55,6 @@ sup.reference {
     font-style: normal;
 }
 
-
 /* Styling for citations */
 span.citation, cite {
     font-style: normal;
@@ -73,7 +71,6 @@ span.citation, cite {
     }
 }
 
-
 /* wikitable/prettytable class for skinning normal tables */
 table.wikitable,
 table.prettytable {
@@ -82,71 +79,84 @@ table.prettytable {
     border: 1px #aaa solid;
     border-collapse: collapse;
 }
+
 .wikitable th, .wikitable td,
 .prettytable th, .prettytable td {
     border: 1px #aaa solid;
     padding: 0.2em;
 }
+
 .wikitable th,
 .prettytable th {
     background: #f2f2f2;
     text-align: center;
 }
+
 .wikitable caption,
 .prettytable caption {
     font-weight: bold;
 }
 
 /* Default skin for navigation boxes */
-table.navbox {            /* Navbox container style */
-  border: 1px solid #aaa;
-  width: 100%; 
-  margin: auto;
-  clear: both;
-  font-size: 88%;
-  text-align: center;
-  padding: 1px;
+table.navbox { /* Navbox container style */
+    border: 1px solid #aaa;
+    width: 100%; 
+    margin: auto;
+    clear: both;
+    font-size: 88%;
+    text-align: center;
+    padding: 1px;
 }
+
 table.navbox + table.navbox {  /* Single pixel border between adjacent navboxes */
-  margin-top: -1px;            /* (doesn't work for IE6, but that's okay)       */
+    margin-top: -1px; /* (doesn't work for IE6, but that's okay) */
 }
+
 .navbox-title,
 .navbox-abovebelow,
 table.navbox th {
-  text-align: center;      /* Title and above/below styles */
-  padding-left: 1em;
-  padding-right: 1em;
+    text-align: center; /* Title and above/below styles */
+    padding-left: 1em;
+    padding-right: 1em;
 }
-.navbox-group {            /* Group style */
-  white-space: nowrap;
-  text-align: right;
-  font-weight: bold;
-  padding-left: 1em;
-  padding-right: 1em;
+
+.navbox-group { /* Group style */
+    white-space: nowrap;
+    text-align: right;
+    font-weight: bold;
+    padding-left: 1em;
+    padding-right: 1em;
 }
+
 .navbox, .navbox-subgroup {
-  background: #fdfdfd;     /* Background color */
+    background: #fdfdfd;     /* Background color */
 }
+
 .navbox-list {
-  border-color: #fdfdfd;   /* Must match background color */
+    border-color: #fdfdfd;   /* Must match background color */
 }
+
 .navbox-title,
 table.navbox th {
-  background: #ccccff;     /* Level 1 color */
+    background: #ccccff;     /* Level 1 color */
 }
+
 .navbox-abovebelow,
 .navbox-group,
 .navbox-subgroup .navbox-title {
-  background: #ddddff;     /* Level 2 color */
+    background: #ddddff;     /* Level 2 color */
 }
+
 .navbox-subgroup .navbox-group, .navbox-subgroup .navbox-abovebelow {
-  background: #e6e6ff;     /* Level 3 color */
+    background: #e6e6ff;     /* Level 3 color */
 }
+
 .navbox-even {
-  background: #f7f7f7;     /* Even row striping */
+    background: #f7f7f7;     /* Even row striping */
 }
+
 .navbox-odd {
-  background: transparent; /* Odd row striping */
+    background: transparent; /* Odd row striping */
 }
 
 .collapseButton {          /* 'show'/'hide' buttons created dynamically */
@@ -155,10 +165,10 @@ table.navbox th {
     text-align: right;     /* so they can be customised.                */
     width: auto;
 }
+
 .navbox .collapseButton {  /* In navboxes, the show/hide button balances */
     width: 6em;            /* the vde links from [[Template:Tnavbar]],   */
 }                          /* so they need to be the same width.         */
-
 
 /* Infobox template style */
 .infobox {
@@ -170,20 +180,25 @@ table.navbox th {
     float: right;
     clear: right;
 }
+
 .infobox td,
 .infobox th {
     vertical-align: top;
 }
+
 .infobox caption {
     font-size: larger;
 }
+
 .infobox.bordered {
     border-collapse: collapse;
 }
+
 .infobox.bordered td,
 .infobox.bordered th {
     border: 1px solid #aaa;
 }
+
 .infobox.bordered .borderless td,
 .infobox.bordered .borderless th {
     border: 0;
@@ -198,6 +213,7 @@ table.navbox th {
     border: 1px solid #c0c090;
     background-color: #f8eaba;
 }
+
 .infobox.standard-talk.bordered td,
 .infobox.standard-talk.bordered th {
     border: 1px solid #c0c090;
@@ -231,6 +247,7 @@ table.navbox th {
     border-top: solid 1px #aaa;
     padding: 0.4em 0.6em 0.4em 0.6em;
 }
+
 .infobox.geography .mergedtoprow td,
 .infobox.geography .mergedtoprow th {
     border-top: solid 1px #aaa;
@@ -266,8 +283,7 @@ table.navbox th {
    [[Template:Multi-video_start]]
 */
 div.listenlist {
-    background:
-        url("http://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Gnome-speakernotes.png/30px-Gnome-speakernotes.png");
+    background: url("http://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Gnome-speakernotes.png/30px-Gnome-speakernotes.png");
     padding-left: 40px;
 }
 
@@ -278,14 +294,17 @@ div.medialist {
     background-position: top left;
     background-repeat: no-repeat;
 }
+
 div.medialist ul {
     list-style-type: none; 
     list-style-image: none;
     margin: 0;
 }
+
 div.medialist ul li {
     padding-bottom: 0.5em;
 }
+
 div.medialist ul li li {
     font-size: 91%;
     padding-bottom: 0;
@@ -323,16 +342,19 @@ div.columns-2 div.column {
     width: 50%;
     min-width: 300px;
 }
+
 div.columns-3 div.column {
     float: left;
     width: 33.3%;
     min-width: 200px;
 }
+
 div.columns-4 div.column {
     float: left;
     width: 25%;
     min-width: 150px;
 }
+
 div.columns-5 div.column {
     float: left;
     width: 20%;
@@ -347,21 +369,25 @@ div.columns-5 div.column {
     margin: 0 auto 1em auto;
     padding: .2em;
 }
+
 .messagebox.merge {
     border: 1px solid #c0b8cc;
     background-color: #f0e5ff;
     text-align: center;
 }
+
 .messagebox.cleanup {
     border: 1px solid #9f9fff;
     background-color: #efefff;
     text-align: center;
 }
+
 .messagebox.standard-talk {
     border: 1px solid #c0c090;
     background-color: #f8eaba;
     margin: 4px auto;
 }
+
 /* For old WikiProject banners inside banner shells. */
 .mbox-inside .standard-talk,
 .messagebox.nested-talk {
@@ -371,6 +397,7 @@ div.columns-5 div.column {
     margin: 2px 0;
     padding: 2px;
 }
+
 .messagebox.small {
     width: 238px;
     font-size: 85%;
@@ -379,6 +406,7 @@ div.columns-5 div.column {
     margin: 0 0 1em 1em;
     line-height: 1.25em; 
 }
+
 .messagebox.small-talk {
     width: 238px;
     font-size: 85%;
@@ -396,16 +424,19 @@ th.mbox-text, td.mbox-text {     /* The message body cell(s) */
     padding: 0.25em 0.9em;       /* 0.9em left/right */
     width: 100%;    /* Make all mboxes the same width regardless of text length */
 }
+
 td.mbox-image {                  /* The left image cell */
     border: none; 
     padding: 2px 0 2px 0.9em;    /* 0.9em left, 0px right */
     text-align: center; 
 }
+
 td.mbox-imageright {             /* The right image cell */
     border: none;
     padding: 2px 0.9em 2px 0;    /* 0px left, 0.9em right */
     text-align: center; 
 }
+
 td.mbox-empty-cell {         /* An empty narrow cell */
     border: none;
     padding: 0px;
@@ -419,16 +450,20 @@ table.ambox {
     border-left: 10px solid #1e90ff;    /* Default "notice" blue */
     background: #fbfbfb; 
 }
+
 table.ambox + table.ambox {   /* Single border between stacked boxes. */
     margin-top: -1px;
 }
+
 .ambox th.mbox-text, 
 .ambox td.mbox-text {            /* The message body cell(s) */
     padding: 0.25em 0.5em;       /* 0.5em left/right */
 }
+
 .ambox td.mbox-image {           /* The left image cell */
     padding: 2px 0 2px 0.5em;    /* 0.5em left, 0px right */
 }
+
 .ambox td.mbox-imageright {      /* The right image cell */
     padding: 2px 0.5em 2px 0;    /* 0px left, 0.5em right */
 }
@@ -436,22 +471,28 @@ table.ambox + table.ambox {   /* Single border between stacked boxes. */
 table.ambox-notice {
     border-left: 10px solid #1e90ff;    /* Blue */
 }
+
 table.ambox-speedy {
     border-left: 10px solid #b22222;    /* Red */
     background: #fee;                   /* Pink */
 }
+
 table.ambox-delete {
     border-left: 10px solid #b22222;    /* Red */
 }
+
 table.ambox-content {
     border-left: 10px solid #f28500;    /* Orange */
 }
+
 table.ambox-style {
     border-left: 10px solid #f4c430;    /* Yellow */
 }
+
 table.ambox-move {
     border-left: 10px solid #9932cc;    /* Purple */
 }
+
 table.ambox-protection {
     border-left: 10px solid #bba;       /* Gray-gold */
 }
@@ -463,9 +504,11 @@ table.imbox {
     border: 3px solid #1e90ff;    /* Default "notice" blue */
     background: #fbfbfb;
 }
+
 .imbox .mbox-text .imbox {    /* For imboxes inside imbox-text cells. */
     margin: 0 -0.5em;    /* 0.9 - 0.5 = 0.4em left/right. */
 }
+
 .mbox-inside .imbox {    /* For imboxes inside other templates. */
     margin: 4px;
 }
@@ -473,29 +516,37 @@ table.imbox {
 table.imbox-notice {
     border: 3px solid #1e90ff;    /* Blue */
 }
+
 table.imbox-speedy {
     border: 3px solid #b22222;    /* Red */
     background: #fee;             /* Pink */
 }
+
 table.imbox-delete {
     border: 3px solid #b22222;    /* Red */
 }
+
 table.imbox-content {
     border: 3px solid #f28500;    /* Orange */
 }
+
 table.imbox-style {
     border: 3px solid #f4c430;    /* Yellow */
 }
+
 table.imbox-move {
     border: 3px solid #9932cc;    /* Purple */
 }
+
 table.imbox-protection {
     border: 3px solid #bba;       /* Gray-gold */
 }
+
 table.imbox-license {
     border: 3px solid #88a;       /* Dark gray */
     background: #f7f8ff;          /* Light gray */
 }
+
 table.imbox-featured {
     border: 3px solid #cba135;    /* Brown-gold */
 }
@@ -511,24 +562,30 @@ table.cmbox {
 table.cmbox-notice {
     background: #D8E8FF;    /* Blue */
 }
+
 table.cmbox-speedy {
     margin-top: 4px;
     margin-bottom: 4px;
     border: 4px solid #b22222;    /* Red */
     background: #FFDBDB;          /* Pink */
 }
+
 table.cmbox-delete {
     background: #FFDBDB;    /* Red */
 }
+
 table.cmbox-content {
     background: #FFE7CE;    /* Orange */
 }
+
 table.cmbox-style {
     background: #FFF9DB;    /* Yellow */
 }
+
 table.cmbox-move {
     background: #E4D8FF;    /* Purple */
 }
+
 table.cmbox-protection {
     background: #EFEFE1;    /* Gray-gold */
 }
@@ -544,22 +601,28 @@ table.ombox {
 table.ombox-notice {
     border: 1px solid #aaa;       /* Gray */
 }
+
 table.ombox-speedy {
     border: 2px solid #b22222;    /* Red */
     background: #fee;             /* Pink */
 }
+
 table.ombox-delete {
     border: 2px solid #b22222;    /* Red */
 }
+
 table.ombox-content {
     border: 1px solid #f28500;    /* Orange */
 }
+
 table.ombox-style {
     border: 1px solid #f4c430;    /* Yellow */
 }
+
 table.ombox-move {
     border: 1px solid #9932cc;    /* Purple */
 }
+
 table.ombox-protection {
     border: 2px solid #bba;       /* Gray-gold */
 }
@@ -571,10 +634,12 @@ table.tmbox {
     border: 1px solid #c0c090;    /* Default "notice" gray-brown */
     background: #f8eaba;
 }
+
 .mediawiki .mbox-inside .tmbox { /* For tmboxes inside other templates. The "mediawiki" */
     margin: 2px 0;               /* class ensures that this declaration overrides other */
     width: 100%;  /* For Safari and Opera */     /* styles (including mbox-small above) */
 }
+
 .mbox-inside .tmbox.mbox-small { /* "small" tmboxes should not be small when  */
     line-height: 1.5em;          /* also "nested", so reset styles that are   */   
     font-size: 100%;             /* set in "mbox-small" above.                */
@@ -584,18 +649,23 @@ table.tmbox-speedy {
     border: 2px solid #b22222;    /* Red */
     background: #fee;             /* Pink */
 }
+
 table.tmbox-delete {
     border: 2px solid #b22222;    /* Red */
 }
+
 table.tmbox-content {
     border: 2px solid #f28500;    /* Orange */
 }
+
 table.tmbox-style {
     border: 2px solid #f4c430;    /* Yellow */
 }
+
 table.tmbox-move {
     border: 2px solid #9932cc;    /* Purple */
 }
+
 table.tmbox-protection,
 table.tmbox-notice {
     border: 1px solid #c0c090;    /* Gray-brown */
@@ -618,16 +688,20 @@ table.fmbox {
     border: 1px solid #aaa;
     background: #f9f9f9;     /* Default "system" gray */
 }
+
 table.fmbox-system {
     background: #f9f9f9;
 }
+
 table.fmbox-warning {
     border: 1px solid #bb7070;  /* Dark pink */
     background: #ffdbdb;        /* Pink */
 }
+
 table.fmbox-editnotice {
     background: transparent;
 }
+
 /* Div based "warning" style fmbox messages. */
 div.mw-warning-with-logexcerpt,
 div.mw-lag-warn-high,
@@ -639,6 +713,7 @@ div#mw-protect-cascadeon {
     background: #ffdbdb;
     padding: 0.25em 0.9em;
 }
+
 /* Div based "system" style fmbox messages. 
    Used in [[MediaWiki:Readonly lag]]. */
 div.mw-lag-warn-normal,
@@ -661,6 +736,7 @@ body.mediawiki table.mbox-small {   /* For the "small=yes" option. */
     font-size: 88%;
     line-height: 1.25em;
 }
+
 body.mediawiki table.mbox-small-left {   /* For the "small=left" option. */
     margin: 4px 1em 4px 0;
     width: 238px;
@@ -668,7 +744,6 @@ body.mediawiki table.mbox-small-left {   /* For the "small=left" option. */
     font-size: 88%;
     line-height: 1.25em;
 }
-
 
 /* Remove default styles for [[MediaWiki:Noarticletext]]. */
 div.noarticletext {
@@ -689,6 +764,7 @@ div.noarticletext {
                  "Chrysanthi Unicode";
     font-family /**/: inherit;
 }
+
 .Unicode {
     font-family: Code2000, Code2001, "Free Serif", "TITUS Cyberbit Basic",
                  "Doulos SIL", "Chrysanthi Unicode", "Bitstream Cyberbit",
@@ -697,10 +773,12 @@ div.noarticletext {
                  "Microsoft Sans Serif", "Lucida Sans Unicode";
     font-family /**/: inherit;
 }
+
 .latinx {
     font-family: Code2000, Code2001, "TITUS Cyberbit Basic", "Microsoft Sans Serif";
     font-family /**/: inherit;
 }
+
 .polytonic {
     font-family: "Athena Unicode", Gentium, "Palatino Linotype",
                  "Arial Unicode MS", "Lucida Sans Unicode",
@@ -748,33 +826,39 @@ div.NavFrame {
     border-collapse: collapse;
     font-size: 95%;
 }
+
 div.NavFrame + div.NavFrame {
     border-top-style: none;
     border-top-style: hidden;
 }
+
 div.NavPic {
     background-color: #fff;
     margin: 0;
     padding: 2px;
     float: left;
 }
+
 div.NavFrame div.NavHead {
     height: 1.6em;
     font-weight: bold;
     background-color: #ccf;
     position: relative;
 }
+
 div.NavFrame p,
 div.NavFrame div.NavContent,
 div.NavFrame div.NavContent p {
     font-size: 100%;
 }
+
 div.NavEnd {
     margin: 0;
     padding: 0;
     line-height: 1px;
     clear: both;
 }
+
 a.NavToggle {
     position: absolute;
     top: 0;
@@ -790,6 +874,7 @@ a.NavToggle {
     padding-left: 2em;
     margin-bottom: 0.5em;
 }
+
 .rellink i,
 .dablink i {
     font-style: normal;
@@ -800,11 +885,13 @@ a.NavToggle {
     padding: 0;
     margin: 0;
 }
+
 .horizontal li { 
     padding: 0 0.6em 0 0.4em;
     display: inline;
     border-right: 1px solid;
 }
+
 .horizontal li:last-child {
     border-right: none;
     padding-right: 0;
@@ -834,6 +921,7 @@ a.NavToggle {
     margin: .3em 0 0;
     padding: 0;
 }
+
 .nonumtoc #toc ul ul, 
 .nonumtoc .toc ul ul { 
     margin: 0 0 0 2em; 
@@ -850,18 +938,22 @@ a.NavToggle {
 .toclimit-4 .toclevel-4,
 .toclimit-5 .toclevel-5,
 .toclimit-6 .toclevel-6,
-.toclimit-7 .toclevel-7 { display: none; }
+.toclimit-7 .toclevel-7 {
+    display: none;
+}
 
 /* Styling for Template:Quote */
-blockquote.templatequote { 
-     margin-top: 0; 
+blockquote.templatequote {
+    margin-top: 0; 
 }
+
 blockquote.templatequote div.templatequotecite { 
     line-height: 1em;
     text-align: left;
     padding-left: 2em;
     margin-top: 0;
 }
+
 blockquote.templatequote div.templatequotecite cite {
     font-size: 85%;
 }
@@ -917,10 +1009,12 @@ sup, sub {
 div.thumb {
     border: none;
 }
+
 div.tright {
     border: none;
     margin: 0.5em 0 0.8em 1.4em;
 }
+
 div.tleft {
     border: none;
     margin: 0.5em 1.4em 0.8em 0;
@@ -936,11 +1030,13 @@ div.thumb img.thumbimage {
 #content .gallerybox div.thumb {
     background-color: #F9F9F9;   /* Light gray padding */
 }
+
 /* Put a chequered background behind images, only visible if they have transparency */
 .gallerybox .thumb img,
 #file img {
     background: white url("http://upload.wikimedia.org/wikipedia/commons/5/5d/Checker-16x16.png") repeat;
 }
+
 /* But not on articles, user pages, portals or with opt-out. */
 .ns-0 .gallerybox .thumb img,
 .ns-2 .gallerybox .thumb img,
@@ -964,9 +1060,9 @@ div.thumb img.thumbimage {
 
 /* Styling for Abuse Filter tags */
 .mw-tag-markers {
- font-family:sans-serif;
- font-style:italic;
- font-size:90%;
+    font-family:sans-serif;
+    font-style:italic;
+    font-size:90%;
 }
 
 /* Fix so <tt>, <code> and <pre> tags get normal text size also in 
@@ -986,8 +1082,6 @@ span.alert{
 
 
 /* via :http://bits.wikimedia.org/skins-1.5/monobook/main.css?257z33
-*/
-/*
 ** content styles
 */
 
@@ -999,6 +1093,7 @@ span.alert{
 	padding: 5px;
 	font-size: 95%;
 }
+
 #toc h2,
 .toc h2 {
 	display: inline;
@@ -1007,12 +1102,14 @@ span.alert{
 	font-size: 100%;
 	font-weight: bold;
 }
+
 #toc #toctitle,
 .toc #toctitle,
 #toc .toctitle,
 .toc .toctitle {
 	text-align: center;
 }
+
 #toc ul,
 .toc ul {
 	list-style-type: none;
@@ -1021,10 +1118,12 @@ span.alert{
 	padding-left: 0;
 	text-align: left;
 }
+
 #toc ul ul,
 .toc ul ul {
 	margin: 0 0 0 2em;
 }
+
 #toc .toctoggle,
 .toc .toctoggle {
 	font-size: 94%;
@@ -1043,11 +1142,8 @@ div.floatright, table.floatright {
 	position: relative;
 	margin: 0 0 .5em .5em;
 	border: 0;
-/*
-	border: .5em solid white;
-	border-width: .5em 0 .8em 1.4em;
-*/
 }
+
 div.floatright p { font-style: italic; }
 div.floatleft, table.floatleft {
 	float: left;
@@ -1055,13 +1151,12 @@ div.floatleft, table.floatleft {
 	position: relative;
 	margin: 0 .5em .5em 0;
 	border: 0;
-/*
-	margin: .3em .5em .5em 0;
-	border: .5em solid white;
-	border-width: .5em 1.4em .8em 0;
-*/
 }
-div.floatleft p { font-style: italic; }
+
+div.floatleft p {
+    font-style: italic;
+}
+
 /* thumbnails */
 div.thumb {
 	margin-bottom: .5em;
@@ -1069,6 +1164,7 @@ div.thumb {
 	border-color: white;
 	width: auto;
 }
+
 div.thumbinner {
 	border: 1px solid #ccc;
 	padding: 3px !important;
@@ -1077,9 +1173,11 @@ div.thumbinner {
 	text-align: center;
 	overflow: hidden;
 }
+
 html .thumbimage {
 	border: 1px solid #ccc;
 }
+
 html .thumbcaption {
 	border: none;
 	text-align: left;
@@ -1087,30 +1185,37 @@ html .thumbcaption {
 	padding: 3px !important;
 	font-size: 94%;
 }
+
 div.magnify {
 	float: right;
 	border: none !important;
 	background: none !important;
 }
-div.magnify a, div.magnify img {
+
+div.magnify a,
+div.magnify img {
 	display: block;
 	border: none !important;
 	background: none !important;
 }
+
 div.tright {
 	clear: right;
 	float: right;
 	border-width: .5em 0 .8em 1.4em;
 }
+
 div.tleft {
 	float: left;
 	clear: left;
 	margin-right: .5em;
 	border-width: .5em 1.4em .8em 0;
 }
+
 img.thumbborder {
 	border: 1px solid #dddddd;
 }
+
 .hiddenStructure {
 	display: none;
 }
@@ -1119,7 +1224,6 @@ img.thumbborder {
 ** classes for special content elements like town boxes
 ** intended to be referenced directly from the wiki src
 */
-
 /*
 ** User styles
 */
@@ -1131,6 +1235,7 @@ table.rimage {
 	margin-bottom: 1em;
 	text-align: center;
 }
+
 .toccolours {
 	border: 1px solid #aaa;
 	background-color: #f9f9f9;
@@ -1141,6 +1246,7 @@ table.rimage {
 .wiki-embed table tr{
 	vertical-align: top;
 }
+
 /* All tabs should have this styling  */
 .wiki-embed b { font-weight: bold; }
 .wiki-embed i { font-style: italic; }
