@@ -1,7 +1,6 @@
 <?php 
-// This is the file where all the Wiki-embed caching functionality can be found. 
-
-
+// This file is not included any more.
+// you might need it if you are updating from an older version of the plugin
 function wiki_embed_update_db_check() {
     global $wikiembed_version;
     if (get_option('wikiembed_version') != $wikiembed_version) {

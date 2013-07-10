@@ -1,5 +1,5 @@
 === Wiki Embed ===
-Contributors: enej, ejackisch, devindra, ctlt-dev, ubcdev
+Contributors: enej, ejackisch, ctlt-dev, ubcdev
 Tags: mediawiki, wiki, wiki-embed, embed, content framework, wiki inc, 
 Requires at least: 3.0
 Tested up to: 3.3
@@ -7,27 +7,29 @@ Stable tag: 1.4.5
 
 Wiki Embed lets you embed mediawiki pages in to your site, sites like Wikipedia
 
-
 == Description ==
 
 The Wiki Embed's intent is to help create a (http://wiki.ubc.ca/Resource_Management_Framework "Resourse Management Framework").
+
 It tries its damn hardest to pull in the content from a MediaWiki page into the WordPress environment. After html scraping the content from the MediaWiki page using a special url. ( note: try adding '?action=render' to the end of to any MediaWiki url) it strips out unwanted content and adds some tabs if you so desire. 
 
-To contribute to this plugin, start here: https://github.com/ubc/wiki-embed
+
+To contribute to this plugin 
+Start here:
+https://github.com/ubc/wiki-embed
 
 
 == Frequently Asked Questions ==
 
 = Could you use this to replicate the whole of Wikipedia = 
-Maybe, but why would you want to? That is not what the tool was designed to do. 
 
+Maybe, but why would you want to? That is not what the tool was designed to do. 
 
 == Installation ==
 
 1. Upload `wiki-embed` folder to the `/wp-content/plugins/` directory
-2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Change the wiki embed settings to your liking
-
+1. Activate the plugin through the 'Plugins' menu in WordPress
+1. Change the wiki embed settings to your liking
 
 == Screenshots ==
 
@@ -37,6 +39,7 @@ Maybe, but why would you want to? That is not what the tool was designed to do.
 
 
 == Changelog ==
+= allowing more 
 = 1.4.4 =
 * allowing to display object and param tags so that we can embed kultura videos
 
@@ -82,6 +85,7 @@ Maybe, but why would you want to? That is not what the tool was designed to do.
 * #toc links weren't ignored properly 
 * force styles that might not be present
 
+
 = 1.2 = 
 * Added a security feature that only allows certain sites to be wiki embedable in your site.
 * Bug fixes, TOC is not hijacked by js any more and is treated as an internal link, update the overlay to use HTML5
@@ -91,8 +95,10 @@ Maybe, but why would you want to? That is not what the tool was designed to do.
 * allow for plan html view by going to the {siteurl}/wp-admin/admin-ajax.php?url={encoded_url}&action=wiki_embed&plain_html=1
 * this make the wiki embed act like a scraper.
 
+
 = 1.1 = 
 * Bug fix will display the admin overlay again, this bug occurs only when wiki embed is network activated 
+
 
 = 1.0 = 
 * removed not needed code 
@@ -112,6 +118,17 @@ Maybe, but why would you want to? That is not what the tool was designed to do.
 * Default Settings added
 * This is the version before that is undergoing verification testing
 
+
 = 0.9 =
 * Is the pre production release, please help us test it.
  
+
+ content from the wiki once.
+* Default Settings added
+* This is the version before that is undergoing verification testing
+
+
+= 0.9 =
+* Is the pre production release, please help us test it.
+ 
+

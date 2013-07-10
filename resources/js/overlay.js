@@ -1,31 +1,32 @@
 /* Overlay JS needed */
 jQuery(document).ready(function ($) {
-	$(".wiki-embed-overlay a:not(.external,.new,sup.reference a,.wiki-embed-tabs-nav a, h2 a, #toc a, .image,a[href$='.pdf'])").click(function() {
-		var url = this.href.split("#");
-		if ( url[1] ) {
-			var encoded_url = $.URLEncode(url[0]);
-			var hash = "#"+url[1];
-		} else {
-			var encoded_url = $.URLEncode(url[0]);
-			var hash ="";
-		}
-		
-		// add the remove attribute 
-		var remove = $(this).parents(".wiki-embed").attr("remove");
-		remove = ( remove ? "&remove="+$.URLEncode(remove) : "" );
-		
-		$.fn.colorbox( {
-			iframe: true, 
-			innerWidth: 900, 
-			innerHeight: "80%",
-			href: WikiEmbedSettings.wiki_embed_ajaxurl+"?url="+encoded_url+"&action=wiki_embed&title="+$.URLEncode(this.innerHTML)+remove+hash,
-			transition:"none",
-			onLoad: function() {
-				$('#colorbox').show();
+		$(".wiki-embed-overlay a:not(.external,.new,sup.reference a,.wiki-embed-tabs-nav a, h2 a, #toc a, .image,a[href$='.pdf'])").click(function() {
+			
+			var url = this.href.split("#");
+			
+			if( url[1] ){
+				var encoded_url = $.URLEncode(url[0]);
+				var hash = "#"+url[1];
+			}else{
+				var encoded_url = $.URLEncode(url[0]);
+				var hash ="";
 			}
-		} );
-		return false;		
-	});
+
+			// add the remove attribute 
+			var remove = $(this).parents(".wiki-embed").attr("remove");
+			remove  = ( remove ) ? "&remove="+$.URLEncode(remove) : "";
+			
+			$.fn.colorbox({
+				iframe: true, 
+				innerWidth: 900, 
+				innerHeight: "80%",
+				href: WikiEmbedSettings.ajaxurl+"?url="+encoded_url+"&action=wiki_embed&title="+$.URLEncode(this.innerHTML)+remove+hash,
+				transition:"none",
+				onLoad: function () { $('#colorbox').show(); }
+				});
+			return false;		
+		});
+			
 });
 
 
