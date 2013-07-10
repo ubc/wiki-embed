@@ -1,5 +1,5 @@
 === Wiki Embed ===
-Contributors: enej, ejackisch, ctlt-dev, ubcdev
+Contributors: enej, ejackisch, devindra, ctlt-dev, ubcdev
 Tags: mediawiki, wiki, wiki-embed, embed, content framework, wiki inc, 
 Requires at least: 3.0
 Tested up to: 3.3
@@ -11,12 +11,8 @@ Wiki Embed lets you embed mediawiki pages in to your site, sites like Wikipedia
 
 The Wiki Embed's intent is to help create a (http://wiki.ubc.ca/Resource_Management_Framework "Resourse Management Framework").
 
-It tries its damn hardest to pull in the content from a MediaWiki page into the WordPress environment. After html scraping the content from the MediaWiki page using a special url. ( note: try adding '?action=render' to the end of to any MediaWiki url) it strips out unwanted content and adds some tabs if you so desire. 
-
-
-To contribute to this plugin 
-Start here:
-https://github.com/ubc/wiki-embed
+It tries its damn hardest to pull in the content from a MediaWiki page into the WordPress environment.
+After html scraping the content from the MediaWiki page using a special url (note: try adding '?action=render' to the end of to any MediaWiki url), it strips out unwanted content and adds some tabs if you so desire. 
 
 
 == Frequently Asked Questions ==
@@ -25,11 +21,13 @@ https://github.com/ubc/wiki-embed
 
 Maybe, but why would you want to? That is not what the tool was designed to do. 
 
+
 == Installation ==
 
 1. Upload `wiki-embed` folder to the `/wp-content/plugins/` directory
-1. Activate the plugin through the 'Plugins' menu in WordPress
-1. Change the wiki embed settings to your liking
+2. Activate the plugin through the 'Plugins' menu in WordPress
+3. Change the wiki embed settings to your liking
+
 
 == Screenshots ==
 
@@ -39,7 +37,9 @@ Maybe, but why would you want to? That is not what the tool was designed to do.
 
 
 == Changelog ==
-= allowing more 
+= 1.4.5 =
+* 
+
 = 1.4.4 =
 * allowing to display object and param tags so that we can embed kultura videos
 

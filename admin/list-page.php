@@ -270,13 +270,14 @@ function wikiembed_list_page_add_link(){
 	
 	$wikiembeds = $wikiembed_object->wikiembeds;
 	
-	if(isset($_POST['id']) && isset($wikiembeds[urldecode($_POST['id'])]) &&  esc_url($_POST['url'])):
-		$wikiembeds[urldecode($_POST['id'])]['url'] = esc_url($_POST['url']);
-		echo "success";
+	if ( isset( $_POST['id'] ) && isset( $wikiembeds[urldecode( $_POST['id'] )] ) &&  esc_url( $_POST['url'] ) ) {
+		$wikiembeds[urldecode( $_POST['id'] )]['url'] = esc_url( $_POST['url'] );
 		update_option( 'wikiembeds', $wikiembeds );
-	else: 
+		echo "success";
+	} else { 
 		echo "fail";
-	endif;
+	}
+	
 	die(); // removed extra zero :) 
 }
 
@@ -286,20 +287,17 @@ function wikiembed_list_page_add_link(){
  * @access public
  * @return void
  */
-function wikiembed_list_page_remove_link()
-{
+function wikiembed_list_page_remove_link() {
 	global $wikiembed_object;
-	
 	$wikiembeds = $wikiembed_object->wikiembeds;
 	
-	
-	if(isset($_POST['id']) && isset($wikiembeds[urldecode($_POST['id'])])):
+	if ( isset( $_POST['id'] ) && isset( $wikiembeds[urldecode( $_POST['id'] )] ) ) {
 		unset($wikiembeds[urldecode($_POST['id'])]['url']);
 		echo "success";
 		update_option( 'wikiembeds', $wikiembeds );
-	else: 
+	} else {
 		echo "fail";
-	endif;
-	die(); // removed extra zero :) 
-
+	}
+	
+	die();
 }
