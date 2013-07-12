@@ -1326,8 +1326,8 @@ Class Wiki_Embed {
 	 * @return void
 	 */
 	function save_post( $post_id ) {	
-		if ( wp_is_post_revision($post_id) ) {
-			$post = get_post( wp_is_post_revision($post_id) );
+		if ( wp_is_post_revision( $post_id ) ) {
+			$post = get_post( wp_is_post_revision( $post_id ) );
 			
 			// start fresh each time you save the post or page
 			delete_post_meta( $post->ID, "wiki_embed" );
@@ -1336,17 +1336,20 @@ Class Wiki_Embed {
 		return $post_id;
 	}
 	
-	function update_wikiembed_postmeta( $post_id, $content ) {
-		$content = strip_tags( $content );
-		
-		if ( $this->content_count > 1 ) {
-			// If this is not the first piece of content to embed, then include the content that we got from previous shortcodes.
-			$old_content = get_post_meta( $post_id, "wikiembed_content" );
-			$old_content = $old_content[0];
-			$content = $old_content . $content;
+	function update_wikiembed_postmeta( $post_id, $url, $content ) {
+		if ( $this->wikiembeds[$url] != get_post_meta( $post_id, "wikiembed_expiration" ) ) {
+			$content = strip_tags( $content );
+			
+			if ( $this->content_count > 1 ) {
+				// If this is not the first piece of content to embed, then include the content that we got from previous shortcodes.
+				$old_content = get_post_meta( $post_id, "wikiembed_content" );
+				$old_content = $old_content[0];
+				$content = $old_content . $content;
+			}
+			
+			update_post_meta( $post_id, "wikiembed_content", $content );
+			update_post_meta( $post_id, "wikiembed_expiration", $this->wikiembeds[$url] );
 		}
-		
-		update_post_meta( $post_id, "wikiembed_content", $content );
 	}
 	/* END OF CACHING */
 }
