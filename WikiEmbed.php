@@ -320,7 +320,7 @@ Class Wiki_Embed {
 		// this function retuns the wiki content the way it is suppoed to come 
 		$content = $this->get_wiki_content( $url, $has_accordion, $has_tabs, $has_no_contents, $has_no_edit, $has_no_infobox,  $update, $has_source, $remove );
 		
-		update_post_meta( $post->ID, "wikiembed_content"/*"wikiembed_".md5( $url )*/, strip_tags( $content ) );
+		$this->update_wikiembed_postmeta( $post->ID, $content );
 		
 		// if the user is admin 
 		if ( current_user_can( 'publish_pages' ) ) {
@@ -1334,7 +1334,20 @@ Class Wiki_Embed {
 		}
 		
 		return $post_id;
-	} 
+	}
+	
+	function update_wikiembed_postmeta( $post_id, $content ) {
+		$content = strip_tags( $content );
+		
+		if ( $this->content_count > 1 ) {
+			// If this is not the first piece of content to embed, then include the content that we got from previous shortcodes.
+			$old_content = get_post_meta( $post_id, "wikiembed_content" );
+			$old_content = $old_content[0];
+			$content = $old_content . $content;
+		}
+		
+		update_post_meta( $post_id, "wikiembed_content", $content );
+	}
 	/* END OF CACHING */
 }
 
