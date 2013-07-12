@@ -320,7 +320,7 @@ Class Wiki_Embed {
 		// this function retuns the wiki content the way it is suppoed to come 
 		$content = $this->get_wiki_content( $url, $has_accordion, $has_tabs, $has_no_contents, $has_no_edit, $has_no_infobox,  $update, $has_source, $remove );
 		
-		$this->update_wikiembed_postmeta( $post->ID, $content );
+		$this->update_wikiembed_postmeta( $post->ID, $url, $content );
 		
 		// if the user is admin 
 		if ( current_user_can( 'publish_pages' ) ) {
