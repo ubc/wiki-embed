@@ -12,7 +12,7 @@ add_action('admin_menu', 'wikiembed_options_add_page');
  * @access public
  * @return void
  */
-function wikiembed_options_init(){
+function wikiembed_options_init() {
 	register_setting( 'wikiembed_options', 'wikiembed_options', 'wikiembed_options_validate' ); // the settings for wiki embed options
 }
 

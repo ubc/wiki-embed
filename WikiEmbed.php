@@ -91,6 +91,8 @@ Class Wiki_Embed {
 		
 		// display a page when you are clicked from a wiki page
 		add_action( 'template_redirect', array( $this, 'load_page' ) );
+		add_filter( 'posts_join', array( $this, 'search_metadata_join' ) );
+		add_filter( 'posts_where', array( $this, 'search_metadata_where' ) );
 	}
 	
 	/**
@@ -314,9 +316,11 @@ Class Wiki_Embed {
 			
 			unset( $wikiembeds_id ); 
 		}
-	
+		
 		// this function retuns the wiki content the way it is suppoed to come 
 		$content = $this->get_wiki_content( $url, $has_accordion, $has_tabs, $has_no_contents, $has_no_edit, $has_no_infobox,  $update, $has_source, $remove );
+		
+		update_post_meta( $post->ID, "wikiembed_content"/*"wikiembed_".md5( $url )*/, strip_tags( $content ) );
 		
 		// if the user is admin 
 		if ( current_user_can( 'publish_pages' ) ) {
@@ -664,7 +668,7 @@ Class Wiki_Embed {
 			//If the cache exists but is expired (and an immediate refresh has not been forced:
 			// Refresh it at the end!
 			register_shutdown_function( array( $this, 'refresh_after_load'), $url, $has_accordion, $has_tabs, $has_no_contents, $has_no_edit, $has_no_infobox, $update, $has_source, $remove );
-		} elseif( $wiki_page_body && $this->wikiembeds[$wiki_page_id]['expires_on'] >= time() ) {
+		} elseif ( $wiki_page_body && $this->wikiembeds[$wiki_page_id]['expires_on'] >= time() ) {
 			//If cache exists and is fresh
 			// we don't do anything
 			//then we don't really need to do anything special here!
@@ -685,7 +689,7 @@ Class Wiki_Embed {
 					2. Go to the <a href="'.esc_url($url).'" >source</a><br />
 					</span>';
 			}
-		} 
+		}
 	    
 		// display the source 
 		$wiki_embed_end = '';
@@ -964,7 +968,7 @@ Class Wiki_Embed {
 			
 			//Go through the wiki body, find all the h2s and content between h2s and put them into arrays.
 			while ( true ) {
-				$start_header=strpos( $article_content, '<h2>', $start_offset );
+				$start_header = strpos( $article_content, '<h2>', $start_offset );
 				
 				if ( $start_header === false ) { //The article doesn't have any headers
 					$article_intro = $article_content;
@@ -1137,7 +1141,9 @@ Class Wiki_Embed {
 			$remove
 		);
 		
-		if ( ! $plain_html ):
+		if ( $plain_html ):
+			echo $content;
+		else:
 			?>
 			<!doctype html>
 			
@@ -1159,11 +1165,7 @@ Class Wiki_Embed {
 					<div id="wiki-embed-iframe">
 						<div class="wiki-embed-content">
 							<h1 class="wiki-embed-title" ><?php echo $title; ?></h1>
-							<?php 
-							endif;
-							echo $content;
-							if(!$plain_html):
-							?>
+							<?php echo $content; ?>
 						</div>
 					</div>
 				</body>
@@ -1173,6 +1175,26 @@ Class Wiki_Embed {
 		die(); // don't need any more help 
 	}
 	
+	function search_metadata_join( $join ) {
+		global $wpdb, $wp_query;
+		
+		if ( ! is_admin() && $wp_query->is_search ) {
+			$join .= " LEFT JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND ( ".$wpdb->postmeta.".meta_key = 'wikiembed_content' ) ";
+		}
+		
+		return $join;
+	}
+	
+	function search_metadata_where( $where ) {
+		global $wpdb, $wp, $wp_query;
+		
+		if ( ! is_admin() && $wp_query->is_search ) {
+			$where .= " OR ( ".$wpdb->postmeta.".meta_value LIKE '%".$wp->query_vars['s']."%' ) ";
+		}
+		
+		return $where;
+	}
+
 	
 	/* CACHING */
 	/**
@@ -1228,7 +1250,7 @@ Class Wiki_Embed {
 	 * @return void
 	 */
 	function delete_cache( $wiki_page_id ) {
-		$hash = $this->get_hash( $wiki_page_id);
+		$hash = $this->get_hash( $wiki_page_id );
 		
 		delete_option( $hash );
 		
@@ -1282,8 +1304,8 @@ Class Wiki_Embed {
 	 * @param mixed $remove (default: null)
 	 * @return void
 	 */
-	function refresh_after_load($url, $has_accordion, $has_tabs, $has_no_contents, $has_no_edit, $has_no_infobox, $update, $has_source, $remove=null ) {
-	//Get page from remote site
+	function refresh_after_load($url, $has_accordion, $has_tabs, $has_no_contents, $has_no_edit, $has_no_infobox, $update, $has_source, $remove = null ) {
+		//Get page from remote site
 		global $wikiembeds,$wikiembed_options;
 		$wiki_page_id = $this->get_page_id( $url, $has_accordion, $has_tabs, $has_no_contents, $has_no_edit, $has_no_infobox,  $remove );
 		$wiki_page_body  = $this->remote_request_wikipage( $url, $update );
