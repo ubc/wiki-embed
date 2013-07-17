@@ -11,8 +11,8 @@ Wiki Embed lets you embed mediawiki pages in to your site, sites like Wikipedia
 
 The Wiki Embed's intent is to help create a (http://wiki.ubc.ca/Resource_Management_Framework "Resourse Management Framework").
 
-It tries its damn hardest to pull in the content from a MediaWiki page into the WordPress environment.
-After html scraping the content from the MediaWiki page using a special url (note: try adding '?action=render' to the end of to any MediaWiki url), it strips out unwanted content and adds some tabs if you so desire. 
+This plugin will pull content from any Media Wiki website (Such as wikipedia.org).
+It strips and reformats the content, allowing you to supply some arguments to dictate how this works.
 
 
 == Frequently Asked Questions ==
@@ -20,6 +20,26 @@ After html scraping the content from the MediaWiki page using a special url (not
 = Could you use this to replicate the whole of Wikipedia = 
 
 Maybe, but why would you want to? That is not what the tool was designed to do. 
+
+
+== Usage ==
+
+Wiki Embed is implemented using the shortcode [wiki-embed]. It accepts the following arguments:
+* url: (required) the web address of the wiki article that you want to embed on this page.
+* no-edit: Hide the "edit" links from the wiki.
+* no-contents: Hide the page's contents box.
+* no-infobox: Hide any infobox that appears on the wiki for this page.
+* tabs: Replaces the sections of the wiki article with tabs.
+* accordion: Replaces the sections of the wiki article with an accordian. This option cannot be used as the same time as 'tabs'.
+
+Example;
+[wiki-embed url="http://en.wikipedia.org/wiki/Example" no-edit no-contents no-infobox accordion]
+
+
+== Configuration ==
+
+Settings for the plugin can be found in 'Wiki Embed' -> 'Settings'.
+Here you can enable/disable various features, define shortcode defaults, and configure some global settings for the plugin.
 
 
 == Installation ==
@@ -37,8 +57,9 @@ Maybe, but why would you want to? That is not what the tool was designed to do.
 
 
 == Changelog ==
+
 = 1.4.5 =
-* 
+* wordpress search queries will now also search wiki-embedded content.
 
 = 1.4.4 =
 * allowing to display object and param tags so that we can embed kultura videos
@@ -85,7 +106,6 @@ Maybe, but why would you want to? That is not what the tool was designed to do.
 * #toc links weren't ignored properly 
 * force styles that might not be present
 
-
 = 1.2 = 
 * Added a security feature that only allows certain sites to be wiki embedable in your site.
 * Bug fixes, TOC is not hijacked by js any more and is treated as an internal link, update the overlay to use HTML5
@@ -95,13 +115,11 @@ Maybe, but why would you want to? That is not what the tool was designed to do.
 * allow for plan html view by going to the {siteurl}/wp-admin/admin-ajax.php?url={encoded_url}&action=wiki_embed&plain_html=1
 * this make the wiki embed act like a scraper.
 
-
 = 1.1 = 
 * Bug fix will display the admin overlay again, this bug occurs only when wiki embed is network activated 
 
-
 = 1.0 = 
-* removed not needed code 
+* removed unneeded code 
 * improved setting menu navigation 
 * improved Wiki Embed List | added the ability to see embeds that don't have a target url easier
 * bug fix. embedded images are not conceded as internal links any more 
@@ -118,17 +136,12 @@ Maybe, but why would you want to? That is not what the tool was designed to do.
 * Default Settings added
 * This is the version before that is undergoing verification testing
 
-
 = 0.9 =
-* Is the pre production release, please help us test it.
- 
-
- content from the wiki once.
+* Is the pre production release, please help us test it. 
 * Default Settings added
 * This is the version before that is undergoing verification testing
 
-
 = 0.9 =
 * Is the pre production release, please help us test it.
  
-
+ 

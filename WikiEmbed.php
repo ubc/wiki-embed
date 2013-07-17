@@ -93,6 +93,7 @@ Class Wiki_Embed {
 		add_action( 'template_redirect', array( $this, 'load_page' ) );
 		add_filter( 'posts_join', array( $this, 'search_metadata_join' ) );
 		add_filter( 'posts_where', array( $this, 'search_metadata_where' ) );
+		add_filter( 'sf_posts_query', array( $this, 'search_metadata_ajaxy' ) );
 	}
 	
 	/**
@@ -259,8 +260,23 @@ Class Wiki_Embed {
 			'has_source'  => NULL,
 		), $atts ) );
 		
-		if ( ! $url ) { // checks to see if url is defined 
-			return "you need to set a url";
+		if ( ! $url && current_user_can( 'manage_options' ) ) { // checks to see if url is defined 
+			ob_start();
+			?>
+			<hr />
+			<div class="wiki-embed-warning">
+				<div style="color: darkred;">
+					You need to specify a url for your Wiki-Embed Shortcode
+				</div>
+				<small>
+					This message is only displayed to administrators.
+					<br />
+					Please <a href=" <?php echo get_edit_post_link( $post->ID ); ?> ">edit this page</a>, and remove the [wiki-embed] shortcode, or specify a url parameter.
+				</small>
+			</div>
+			<hr />
+			<?php
+			return ob_get_clean();
 		}
 		
 		$url = $this->get_page_url( $url ); // escape the url 
@@ -1177,6 +1193,7 @@ Class Wiki_Embed {
 	
 	function search_metadata_join( $join ) {
 		global $wpdb, $wp_query;
+		error_log("Hooking into join");
 		
 		if ( ! is_admin() && $wp_query->is_search ) {
 			$join .= " LEFT JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND ( ".$wpdb->postmeta.".meta_key = 'wikiembed_content' ) ";
@@ -1187,12 +1204,47 @@ Class Wiki_Embed {
 	
 	function search_metadata_where( $where ) {
 		global $wpdb, $wp, $wp_query;
+		error_log("Hooking into where");
 		
 		if ( ! is_admin() && $wp_query->is_search ) {
 			$where .= " OR ( ".$wpdb->postmeta.".meta_value LIKE '%".$wp->query_vars['s']."%' ) ";
 		}
 		
 		return $where;
+	}
+	
+	/**
+	 * Makes the plugin searchable by Ajaxy Live Search.
+	 * http://wordpress.org/plugins/ajaxy-search-form/
+	 *
+	 * This is a specific fix for integration with Ajaxy, and only for Ajaxy.
+	 * It hooks into a custom filter created by the Ajaxy plugin,
+	 * and makes assumptions about how the query is formatted.
+	 * If Ajaxy changes how they query, this function will very easily break.
+	 */
+	function search_metadata_ajaxy( $query ) {
+		global $wpdb;
+		
+		$result = true;
+		if ( preg_match( '/%(.*?)%/', $query, $result ) ) {
+			$search = $result[1];
+			
+			$query = explode( "where", $query, 2 );
+			$where = $query[1];
+			$query = $query[0];
+			
+			$where = explode( "limit", $where, 2 );
+			$limit = $where[1];
+			$where = $where[0];
+			
+			$where = explode( ")", $where, 2 );
+			$where = $where[0] . " OR ".$wpdb->postmeta.".meta_value LIKE '%".$search."%' ) " . $where[1];
+			
+			$join = " LEFT JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND ( ".$wpdb->postmeta.".meta_key = 'wikiembed_content' ) ";
+			$query = $query . $join . "WHERE" . $where . "LIMIT" . $limit;
+		}
+		
+		return $query;
 	}
 
 	
@@ -1340,8 +1392,8 @@ Class Wiki_Embed {
 		if ( $this->wikiembeds[$url] != get_post_meta( $post_id, "wikiembed_expiration" ) ) {
 			$content = strip_tags( $content );
 			
+			// If this is not the first piece of content to be embeded, then include the content that we got from previous shortcodes.
 			if ( $this->content_count > 1 ) {
-				// If this is not the first piece of content to embed, then include the content that we got from previous shortcodes.
 				$old_content = get_post_meta( $post_id, "wikiembed_content" );
 				$old_content = $old_content[0];
 				$content = $old_content . $content;
