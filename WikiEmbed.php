@@ -1193,7 +1193,6 @@ Class Wiki_Embed {
 	
 	function search_metadata_join( $join ) {
 		global $wpdb, $wp_query;
-		error_log("Hooking into join");
 		
 		if ( ! is_admin() && $wp_query->is_search ) {
 			$join .= " LEFT JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND ( ".$wpdb->postmeta.".meta_key = 'wikiembed_content' ) ";
@@ -1204,7 +1203,6 @@ Class Wiki_Embed {
 	
 	function search_metadata_where( $where ) {
 		global $wpdb, $wp, $wp_query;
-		error_log("Hooking into where");
 		
 		if ( ! is_admin() && $wp_query->is_search ) {
 			$where .= " OR ( ".$wpdb->postmeta.".meta_value LIKE '%".$wp->query_vars['s']."%' ) ";
