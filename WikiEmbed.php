@@ -315,7 +315,7 @@ Class Wiki_Embed {
 			$url = str_replace( $gets_search, $gets_replace, $url );
 		}
 		
-		$wiki_page_id = $this->get_page_id( $url, $has_accordion, $has_tabs, $has_no_contents, $has_no_edit, $has_no_infobox, $remove );
+		$wiki_page_id = $this->get_page_id( urlencode( $url ), $has_accordion, $has_tabs, $has_no_contents, $has_no_edit, $has_no_infobox, $remove );
 		
 		// check to see if we need a refresh or was forced 
 		if ( current_user_can( 'publish_pages' ) && isset( $_GET['refresh'] ) && wp_verify_nonce( $_GET['refresh'], $wiki_page_id ) ) {
