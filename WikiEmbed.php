@@ -315,7 +315,7 @@ Class Wiki_Embed {
 			$url = str_replace( $gets_search, $gets_replace, $url );
 		}
 		
-		$wiki_page_id = $this->get_page_id( urlencode( $url ), $has_accordion, $has_tabs, $has_no_contents, $has_no_edit, $has_no_infobox, $remove );
+		$wiki_page_id = $this->get_page_id( rawurlencode( $url ), $has_accordion, $has_tabs, $has_no_contents, $has_no_edit, $has_no_infobox, $remove );
 		
 		// check to see if we need a refresh or was forced 
 		if ( current_user_can( 'publish_pages' ) && isset( $_GET['refresh'] ) && wp_verify_nonce( $_GET['refresh'], $wiki_page_id ) ) {
@@ -334,7 +334,7 @@ Class Wiki_Embed {
 		}
 		
 		// this function retuns the wiki content the way it is suppoed to come 
-		$content = $this->get_wiki_content( $url, $has_accordion, $has_tabs, $has_no_contents, $has_no_edit, $has_no_infobox,  $update, $has_source, $remove );
+		$content = $this->get_wiki_content( urlencode( $url), $has_accordion, $has_tabs, $has_no_contents, $has_no_edit, $has_no_infobox,  $update, $has_source, $remove );
 		
 		$this->update_wikiembed_postmeta( $post->ID, $url, $content );
 		
@@ -711,7 +711,7 @@ Class Wiki_Embed {
 		$wiki_embed_end = '';
 		if ( $has_source ) {
 			$source_text = ( isset( $this->options['default']['pre-source'] ) ? $this->options['default']['pre-source'] : "source:" ); 
-			$wiki_embed_end .= '<span class="wiki-embed-source">'.$source_text.' <a href="'.$url.'">'.$url.'</a></span>';
+			$wiki_embed_end .= '<span class="wiki-embed-source">'.$source_text.' <a href="'.esc_url( urldecode($url)) .'">'.urldecode($url).'</a></span>';
 		}
 		
 		// add special wiki embed classed depending on what should be happening
