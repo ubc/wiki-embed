@@ -170,8 +170,6 @@ function wikiembed_list_page() {
 						<input type="checkbox" value="<?php echo $hash; ?>" name="wikiembed[]">
 					</th>
 					<td>
-						<span style="color: lightgray;"><?php echo $hash; ?></span>
-						<br />
 						<a href="<?php echo esc_url( $bits[0] ); ?>">
 							<?php echo $url; ?>
 							<br />
