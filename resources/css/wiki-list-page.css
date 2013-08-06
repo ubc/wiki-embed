@@ -99,5 +99,5 @@ td a:hover span {
 }
 
 #icon-wiki-embed {
-	background:url(<?phpechoplugins_url('/wiki-embed/resources/img/icon_large.gif');
+	background:url('../img/icon_large.gif') no-repeat top left;
 }
