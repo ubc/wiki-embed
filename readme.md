@@ -3,7 +3,7 @@ Contributors: enej, ejackisch, devindra, ctlt-dev, ubcdev
 Tags: mediawiki, wiki, wiki-embed, embed, content framework, wiki inc, 
 Requires at least: 3.0
 Tested up to: 3.3
-Stable tag: 1.4.5
+Stable tag: 1.4.6
 
 Wiki Embed lets you embed mediawiki pages in to your site, sites like Wikipedia
 
