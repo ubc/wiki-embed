@@ -923,9 +923,11 @@ Class Wiki_Embed {
 	 * @return void
 	 */
 	function render( $wiki_page_id, $wiki_page_body, $has_no_edit, $has_no_contents, $has_no_infobox, $has_accordion, $has_tabs, $remove ) {
+		
 		if ( $has_no_edit || $has_no_contents || $has_no_infobox || $has_accordion || $has_tabs || $remove ) {
 			require_once( "resources/css_selector.php" );	//for using CSS selectors to query the DOM (instead of xpath)
 			
+			$wiki_page_id = md5( $wiki_page_id );	
 			//Prevent the parser from throwing PHP warnings if it receives malformed HTML
 			libxml_use_internal_errors(true);
 			
