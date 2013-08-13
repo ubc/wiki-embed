@@ -694,7 +694,7 @@ Class Wiki_Embed {
 			
 			if ( $wiki_page_body ) { // Successfully grabbed remote contnet
 				//render page content
-				$wiki_page_body = $this->render( $wiki_page_body, $has_no_edit, $has_no_contents , $has_no_infobox, $has_accordion, $has_tabs, $remove );
+				$wiki_page_body = $this->render( $wiki_page_id, $wiki_page_body, $has_no_edit, $has_no_contents , $has_no_infobox, $has_accordion, $has_tabs, $remove );
 				$worked = $this->update_cache( $wiki_page_id, $wiki_page_body, $update );
 			} else { //Failed, (and there's no cache available) so show an error
 				$update = 0;	//Set the expiry offset to 0 (now) to try again next time the page is loaded
@@ -922,7 +922,7 @@ Class Wiki_Embed {
 	 * @param mixed $has_tabs
 	 * @return void
 	 */
-	function render( $wiki_page_body, $has_no_edit, $has_no_contents, $has_no_infobox, $has_accordion, $has_tabs, $remove ) {
+	function render( $wiki_page_id, $wiki_page_body, $has_no_edit, $has_no_contents, $has_no_infobox, $has_accordion, $has_tabs, $remove ) {
 		if ( $has_no_edit || $has_no_contents || $has_no_infobox || $has_accordion || $has_tabs || $remove ) {
 			require_once( "resources/css_selector.php" );	//for using CSS selectors to query the DOM (instead of xpath)
 			
@@ -1015,7 +1015,7 @@ Class Wiki_Embed {
 			foreach ( $headlines as $headline ) {
 				//add headline to the tabs list if we're using tabs
 				if ( $has_tabs ) {
-					$tab_list .= '<li><a href="#fragment-'.$this->content_count.'-'.$index.'" >'.$this->extract_headline_text( $headline ).'</a></li>';				
+					$tab_list .= '<li><a href="#fragment-'.$wiki_page_id.'-'.$index.'" >'.$this->extract_headline_text( $headline ).'</a></li>';				
 				}
 				
 				$headline_class = "wikiembed-fragment wikiembed-fragment-counter-".$index;
@@ -1035,19 +1035,19 @@ Class Wiki_Embed {
 						</div>
 					';
 					
-					$article_sections[] = apply_filters( 'wiki-embed-article-content', $article_content_raw, $index, 'accordion', $this->content_count );
+					$article_sections[] = apply_filters( 'wiki-embed-article-content', $article_content_raw, $index, 'accordion', $wiki_page_id );
 				} else { //And this alternative structure for tabs. (or if there's neither tabs nor accordion)
 					$headline_class = apply_filters('wiki-embed-article-content-class', $headline_class, $index, 'tabs' );
 					$article_content_raw = '
-						<div id="fragment-'.$this->content_count.'-'.$index.'" class="'.$headline_class.'">
+						<div id="fragment-'.$wiki_page_id.'-'.$index.'" class="'.$headline_class.'">
 							<h2>'.$headline.'</h2>
 							<!-- start of content wiki-embed -->' . $content[$index] . '<!-- end of content wiki-embed -->
 						</div>
 					';
 					if ( $has_tabs ) {
-						$article_sections[] = apply_filters( 'wiki-embed-article-content', $article_content_raw, $index, 'tabs', $this->content_count );
+						$article_sections[] = apply_filters( 'wiki-embed-article-content', $article_content_raw, $index, 'tabs', $wiki_page_id );
 					} else {
-						$article_sections[] = apply_filters( 'wiki-embed-article-content', $article_content_raw, $index, 'none', $this->content_count );
+						$article_sections[] = apply_filters( 'wiki-embed-article-content', $article_content_raw, $index, 'none', $wiki_page_id );
 					}
 				}
 				
@@ -1358,11 +1358,11 @@ Class Wiki_Embed {
 		//Get page from remote site
 		global $wikiembeds,$wikiembed_options;
 		$wiki_page_id = $this->get_page_id( $url, $has_accordion, $has_tabs, $has_no_contents, $has_no_edit, $has_no_infobox,  $remove );
-		$wiki_page_body  = $this->remote_request_wikipage( $url, $update );
+		$wiki_page_body = $this->remote_request_wikipage( $url, $update );
 		
 		if ( $wiki_page_body ) { // Successfully grabbed remote content
 			//render page content
-			$wiki_page_body = $this->render( $wiki_page_body, $has_no_edit, $has_no_contents , $has_no_infobox, $has_accordion, $has_tabs, $remove);
+			$wiki_page_body = $this->render( $wiki_page_id, $wiki_page_body, $has_no_edit, $has_no_contents , $has_no_infobox, $has_accordion, $has_tabs, $remove );
 			$this->update_cache( $wiki_page_id,  $wiki_page_body, $update );
 		}
 	}
