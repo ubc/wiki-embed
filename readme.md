@@ -57,6 +57,8 @@ Here you can enable/disable various features, define shortcode defaults, and con
 
 
 == Changelog ==
+= 1.4.6 =
+* user bug please update.
 
 = 1.4.5 =
 * wordpress search queries will now also search wiki-embedded content.

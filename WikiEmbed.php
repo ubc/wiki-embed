@@ -251,6 +251,7 @@ Class Wiki_Embed {
 		// url is the unique identifier
 		$atts = apply_filters( 'wikiembed_override_atts', $atts );
 		
+		
 		extract( shortcode_atts( array(
 			'url'         => NULL,
 			'update'      => NULL, // 30 minutes
@@ -259,6 +260,9 @@ Class Wiki_Embed {
 			'default_get' => NULL,
 			'has_source'  => NULL,
 		), $atts ) );
+		
+		if( 0 === strpos ( $url , site_url() ) )
+			return "can't embed yourself";
 		
 		if ( ! $url && current_user_can( 'manage_options' ) ) { // checks to see if url is defined 
 			ob_start();
