@@ -23,7 +23,11 @@ Once you save the page you will have the content of the wiki embed into you page
 Only the page will look like as if it is part of your site. Any changes that are made on the wiki will be reflected on your site, once the cache has expired and a new version of the page is requested from the wiki. 
 
 **Why would you want to do that?**
-You can build a better navigation structure to your site, while crowd sourcing the content of the pages. 
+You can build a better navigation structure to your site, while crowd sourcing the content of the pages inside the wiki. 
+Win Win. 
+
+** Where can I get more info?**
+Checkout our Support page http://support.cms.ubc.ca/cms-manual/adding-content/embedding-content-from-the-ubc-wiki/ that is using the wiki-embed plugin to grab content from our [wiki http://wiki.ubc.ca/Documentation:UBC_Content_Management_System/CLF_Theme/How_to_embed_content_from_the_UBC_Wiki
 
 
 
@@ -57,7 +61,7 @@ Wiki Embed is implemented using the shortcode [wiki-embed]. It accepts the follo
 * accordion: Replaces the sections of the wiki article with an accordian. This option cannot be used as the same time as 'tabs'.
 
 Example;
-[wiki-embed url="http://en.wikipedia.org/wiki/Example" no-edit no-contents no-infobox accordion]
+`[wiki-embed url="http://en.wikipedia.org/wiki/Example" no-edit no-contents no-infobox accordion]`
 
 
 == Configuration ==
@@ -81,6 +85,9 @@ Here you can enable/disable various features, define shortcode defaults, and con
 4. A way to embed a media wiki page inside your site. 
 
 == Changelog ==
+= 1.4.7 =
+* Security update. 
+
 = 1.4.6 =
 * user bug please update.
 
