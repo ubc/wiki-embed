@@ -1,13 +1,4 @@
 <?php
-/* required for some wiki embed ajax stuff */
-add_action('wp_ajax_wiki_embed_add_link', 'wikiembed_list_page_add_link');
-add_action('wp_ajax_wiki_embed_remove_link', 'wikiembed_list_page_remove_link');
-// add link 
-add_action( 'wp_ajax_wiki_embed_add_link', 'wikiembed_list_page_add_link');
-add_action( 'wp_ajax__nopriv_wiki_embed_add_link', 'wikiembed_list_page_add_link');
-// edit link
-add_action( 'wp_ajax_wiki_embed_remove_link', 'wikiembed_list_page_remove_link');
-add_action( 'wp_ajax__nopriv_wiki_embed_remove_link', 'wikiembed_list_page_remove_link');
 
 /**
  * wikiembed_list_page function.
@@ -262,49 +253,4 @@ function wikiembed_list_page() {
 		wp_nonce_field( 'wikiembed-list','wikiembed-list' ); ?>
 	</form>
 	<?php 
-}
-
-/**
- * wikiembed_list_page_add_link function.
- * used to add a target url to the wiki-embed
- * @access public
- * @return void
- */
-function wikiembed_list_page_add_link() {
-	global $wikiembed_object;
-	
-	$wikiembeds = $wikiembed_object->wikiembeds;
-	
-	$decoded_id = urldecode( $_POST['id'] );
-	if ( isset( $_POST['id'] ) && isset( $wikiembeds[$decoded_id] ) &&  esc_url( $_POST['url'] ) ) {
-		$wikiembeds[$decoded_id]['url'] = esc_url( $_POST['url'] );
-		update_option( 'wikiembeds', $wikiembeds );
-		echo "success";
-	} else { 
-		echo "fail";
-	}
-	
-	die();
-}
-
-/**
- * wikiembed_list_page_remove_link function.
- * used to remove a target url from the wiki-embed
- * @access public
- * @return void
- */
-function wikiembed_list_page_remove_link() {
-	global $wikiembed_object;
-	$wikiembeds = $wikiembed_object->wikiembeds;
-	
-	$decoded_id = urldecode( $_POST['id'] );
-	if ( isset( $_POST['id'] ) && isset( $wikiembeds[$decoded_id] ) ) {
-		unset( $wikiembeds[$decoded_id]['url']);
-		echo "success";
-		update_option( 'wikiembeds', $wikiembeds );
-	} else {
-		echo "fail";
-	}
-	
-	die();
 }

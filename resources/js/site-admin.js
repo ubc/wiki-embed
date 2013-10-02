@@ -5,6 +5,7 @@
 		var link = $(this);
 		var data = {
 			action: 'wiki_embed_add_link',
+			nonce: WikiEmbedSettings.nonce,
 			url: link.attr('rel'),
 			id: link.attr('alt')
 		};

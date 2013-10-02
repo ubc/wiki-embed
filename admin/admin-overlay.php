@@ -1,4 +1,6 @@
 <?php
+
+
 add_action( 'admin_footer', 'wikiembed_overlay_popup_form' );
 add_action( 'media_buttons_context', 'wikiembed_overlay_buttons' );
 

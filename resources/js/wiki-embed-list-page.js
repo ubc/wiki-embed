@@ -1,50 +1,49 @@
-function isURL(s) {
- 		var regexp = /http:\/\/[A-Za-z0-9\.-]{3,}\.[A-Za-z]{3}/;
- 		alert(regexp.test(s));
-	}
-
-jQuery(function($){
+jQuery( function($){
+	
 	$("a.add-target-url").click(function(e){
-	 $(this).parent().hide().next().show();
-	 // make the text box be focus 
+		$(this).parent().hide().next().show();
+	 	// make the text box be focus 
 	 
-	var input =  $(this).parent().next().children('input[type=text]');
-		input.focus().select();
-	 	input.keypress(function(e)
-     	{
-        code= (e.keyCode ? e.keyCode : e.which);
-        if (code == 13) {
-       		var data = {
-			action: 'wiki_embed_add_link',
-			url: input.val(),
-			id: input.attr('name')
-			};
-			var el = $(this).siblings('input.button');
-			// since 2.8 ajaxurl is always defined in the admin header and points to admin-ajax.php
-			
-							
-			jQuery.post(ajaxurl, data, function(response) {
-				if(response == "success")
-				{
-					el.parent().hide().prev().show();
-					var patent = el.parent().prev();
-					patent.children('a').html("Edit");
-					patent.children('span.spacer').html("<a href='"+input.val()+"'>"+input.val()+"</a> ");
-					if(el.val() == "Add Target URL")
+		var input =  $(this).parent().next().children('input[type=text]');
+			input.focus().select();
+		 	input.keypress(function(e) {
+	        code= (e.keyCode ? e.keyCode : e.which); // if we push the return key
+	        
+	        if (code == 13) {
+	       		var data = {
+					action: 'wiki_embed_add_link',
+					nonce: WikiEmbedSettings_S.nonce, 
+					url: input.val(),
+					id: input.attr('name')
+				};
+				var el = $(this).siblings('input.button');
+				// since 2.8 ajaxurl is always defined in the admin header and points to admin-ajax.php
+				
+								
+				jQuery.post( ajaxurl, data, function(response) {
+					if(response == "success")
 					{
-						el.val("Edit Target URL");
-						patent.append(" <span class='divider'>|</span> <span class='trash'><a class='remove-link' rel='"+input.attr('name')+"' href='#remove'>Remove</a></span>");
+						el.parent().hide().prev().show();
+						var patent = el.parent().prev();
+						patent.children('a').html("Edit");
+						patent.children('span.spacer').html("<a href='"+input.val()+"'>"+input.val()+"</a> ");
+						if(el.val() == "Add Target URL")
+						{
+							el.val("Edit Target URL");
+							patent.append(" <span class='divider'>|</span> <span class='trash'><a class='remove-link' rel='"+input.attr('name')+"' href='#remove'>Remove</a></span>");
+						}
+						
 					}
-					
-				}
-			});
-		e.preventDefault();
-        }
-        
-      });
-
-	 e.preventDefault();
+				});
+			e.preventDefault();
+	        }
+	        
+	      });
+	
+		 e.preventDefault();
 	});
+	
+	// cancel button
 	$('a.cancel-tagert-url').click(function(e){
 		$(this).parent().hide().prev().show();
 		e.preventDefault();
@@ -56,6 +55,7 @@ jQuery(function($){
 		el = $(this);
 		var data = {
 			action: 'wiki_embed_remove_link',
+			nonce: WikiEmbedSettings_S.nonce,
 			id: el.attr('rel')
 		};
 		jQuery.post(ajaxurl, data, function(response) {
@@ -85,12 +85,12 @@ jQuery(function($){
 		// get the image rolling 
 		var el = $(this);
 		var input = el.prev();
-		
-		
+			
 		var data = {
-		action: 'wiki_embed_add_link',
-		url: input.val(),
-		id: input.attr('name')
+			action: 'wiki_embed_add_link',
+			nonce: WikiEmbedSettings_S.nonce, 
+			url: input.val(),
+			id: input.attr('name')
 		};
 
 		// since 2.8 ajaxurl is always defined in the admin header and points to admin-ajax.php
@@ -111,18 +111,18 @@ jQuery(function($){
 		});
 	}); // end of submit click 
 	
-	
+	// lets expalin more or less
 	$("#show-help").click(function(){
-				if(jQuery(this).text() == "Explain More")
-					jQuery(this).text("Explain Less");
-				else 
-					jQuery(this).text("Explain More");
-			
-				
-				jQuery(".help-div").slideToggle();
-				
-				return false;
-			})
+		if( $(this).text() == "Explain More"){
+			$(this).text("Explain Less");
+		} else {
+			$(this).text("Explain More");
+		}
+		
+		jQuery(".help-div").slideToggle();
+		
+		return false;
+	})
 })
 	
 	

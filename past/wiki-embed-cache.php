@@ -1,4 +1,6 @@
 <?php
+// This file is not being used any more
+
 /**
  * wiki_embed_get_cache function.
  * 

@@ -53,12 +53,10 @@
 \--------------------------------------------------------------------/
 */
 
-// admin side 
-require( 'admin/admin-overlay.php' );
-require( 'admin/admin.php' );
-
-// update
-// require( 'wiki-embed-update.php' );
+define( 'WIKI_EMBED_VERSION' , 0.9 );
+define( 'WIKI_EMBED_ROOT' , dirname(__FILE__) );
+define( 'WIKI_EMBED_FILE_PATH' , WIKI_EMBED_ROOT . '/' . basename(__FILE__) );
+define( 'WIKI_EMBED_URL' , plugins_url( '/', __FILE__ ) );
 
 Class Wiki_Embed {
 	static $instance;
@@ -87,7 +85,7 @@ Class Wiki_Embed {
 		$this->options       = shortcode_atts( $this->default_settings(), get_option( 'wikiembed_options' ) );
 		$this->wikiembeds    = get_option( 'wikiembeds' ); // we might not need to load this here at all...
 		$this->content_count = 0; 
-		$this->version       = 0.9;
+		$this->version       = WIKI_EMBED_VERSION;
 		
 		// display a page when you are clicked from a wiki page
 		add_action( 'template_redirect', array( $this, 'load_page' ) );
@@ -110,7 +108,7 @@ Class Wiki_Embed {
 		$this->accordion_support = get_theme_support( 'accordions' );
 		
 		if ( $this->tabs_support[0] == 'twitter-bootstrap' || $this->accordion_support[0] == 'twitter-bootstrap' ) {
-			require_once( 'support/twitter-bootstrap/action.php' );
+			require_once( WIKI_EMBED_ROOT.'/support/twitter-bootstrap/action.php' );
 		}
 		
 		if ( $this->tabs_support[0] == 'twitter-bootstrap' ) {
@@ -148,10 +146,13 @@ Class Wiki_Embed {
 			case "new-page":
 				wp_register_script( 'wiki-embed-new-page', plugins_url( '/wiki-embed/resources/js/new-page.js' ), array( "jquery" ), $this->version, true );
 				$this->pre_load_scripts[] = 'wiki-embed-new-page';
-				wp_localize_script( 'wiki-embed-new-page', 'WikiEmbedSettings', array( 'siteurl' => get_site_url(), 'ajaxurl' => admin_url('admin-ajax.php') ) );
+				wp_localize_script( 'wiki-embed-new-page', 'WikiEmbedSettings', 
+					array( 'siteurl' => get_site_url(), 'ajaxurl' => admin_url('admin-ajax.php'), 'nonce' => wp_create_nonce("wiki_embed_ajax") ) 
+				);
 				
 				if ( current_user_can( 'pulish_pages' ) || current_user_can('unfiltered_html') ) {
 					wp_register_script( 'wiki-embed-site-admin', plugins_url( '/wiki-embed/resources/js/site-admin.js'),array( "jquery", 'wiki-embed-new-page' ), $this->version, true );
+					
 					$this->pre_load_scripts[] = 'wiki-embed-site-admin';
 				}
 				break;
@@ -186,10 +187,10 @@ Class Wiki_Embed {
 		// add_action('init','wikiembed_init');
 		if ( ! is_admin() ) {
 			$this->register_scripts();
-		}
-		
-		if ( ! is_admin() ) { // never display this stuff in the admin 
 			add_filter( 'page_link', array( $this, 'page_link' ) );
+		} else {
+			require( WIKI_EMBED_ROOT.'/admin/admin-overlay.php' );
+			require( WIKI_EMBED_ROOT.'/admin/admin.php' );
 		}
 		
 		// wiki embed shortcode
@@ -262,7 +263,7 @@ Class Wiki_Embed {
 		), $atts ) );
 		
 		if( 0 === strpos ( $url , site_url() ) )
-			return "can't embed yourself";
+			return "Sorry can't wiki embed content from your own site";
 		
 		if ( ! $url && current_user_can( 'manage_options' ) ) { // checks to see if url is defined 
 			ob_start();
@@ -679,6 +680,11 @@ Class Wiki_Embed {
 	 * @return void
 	 */
 	function get_wiki_content( $url, $has_accordion, $has_tabs, $has_no_contents, $has_no_edit, $has_no_infobox, $update, $has_source, $remove = null ) {
+		
+		if ( ! $this->pass_url_check( $url ) ) {
+			return "This url does not meet the site security guidelines.";
+		}
+	
 		$wiki_page_id = $this->get_page_id( $url, $has_accordion, $has_tabs, $has_no_contents, $has_no_edit, $has_no_infobox,  $remove );
 		
 		// get the cached version 
@@ -749,10 +755,6 @@ Class Wiki_Embed {
 	 */
 	function remote_request_wikipage( $url, $update ) {
 		$wikiembed_id = $this->get_page_id( $url, false, false, false, false, false ); // just the url gets converted to the id 
-		
-		if ( ! $this->pass_url_check( $url ) ) {
-			return "This url does not meet the site security guidelines.";
-		}
 		
 		// grab the content from the cache
 		if ( false === ( $wiki_page_body = $this->get_cache( $wikiembed_id ) ) || $this->wikiembeds[$wikiembed_id]['expires_on'] < time() ) {
@@ -826,12 +828,25 @@ Class Wiki_Embed {
 	 * @return void
 	 */
 	function pass_url_check( $url ) {
+		
 		$white_list = trim( $this->options['security']['whitelist'] );
 		
-		if ( ! empty( $white_list ) ) {
+		$global_white_list =  get_site_option('wiki_embed_white_list'); 
+		
+		if ( !empty( $white_list ) || !empty( $global_white_list ) ) {
 			$white_list_pass = false;
-			$white_list_urls = preg_split( '/\r\n|\r|\n/', $this->options['security']['whitelist'] ); 
-			// http://blog.motane.lu/2009/02/16/exploding-new-lines-in-php/
+			
+			if( !empty( $white_list ) ):
+				// http://blog.motane.lu/2009/02/16/exploding-new-lines-in-php/
+				$white_list_urls = preg_split( '/\r\n|\r|\n/', $this->options['security']['whitelist'] ); 
+			
+			endif;
+			
+			if( !empty( $global_white_list ) && empty( $white_list_urls ) ):
+				$white_list_urls = preg_split( '/\r\n|\r|\n/', $global_white_list ); 
+			elseif( !empty( $global_white_list ) ):
+				$white_list_urls = array_merge( $white_list_urls, preg_split( '/\r\n|\r|\n/', $global_white_list ) );
+			endif;
 			
 			foreach ( $white_list_urls as $check_url ) {
 				if ( substr( $url, 0, strlen( $check_url ) ) == $check_url ) {
@@ -857,7 +872,7 @@ Class Wiki_Embed {
 	 */
 	function action_url( $url ) {
 		if ( ! function_exists( 'http_build_url' ) ) {
-			require( 'http_build_url.php' );
+			require( WIKI_EMBED_ROOT.'/inc/http_build_url.php' );
 		}
 		
 		return http_build_url( $url, array( "query" => "action=render" ), HTTP_URL_JOIN_QUERY );
@@ -929,7 +944,7 @@ Class Wiki_Embed {
 	function render( $wiki_page_id, $wiki_page_body, $has_no_edit, $has_no_contents, $has_no_infobox, $has_accordion, $has_tabs, $remove ) {
 		
 		if ( $has_no_edit || $has_no_contents || $has_no_infobox || $has_accordion || $has_tabs || $remove ) {
-			require_once( "resources/css_selector.php" );	//for using CSS selectors to query the DOM (instead of xpath)
+			require_once( WIKI_EMBED_ROOT."/inc/css_selector.php" );	//for using CSS selectors to query the DOM (instead of xpath)
 			
 			$wiki_page_id = md5( $wiki_page_id );	
 			//Prevent the parser from throwing PHP warnings if it receives malformed HTML
@@ -1179,9 +1194,9 @@ Class Wiki_Embed {
 					
 					<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js"></script>
 					<link media="screen" href="<?php bloginfo('stylesheet_url')?>" type="text/css" rel="stylesheet" >
-					<link media="screen" href="/<?php echo PLUGINDIR ; ?>/wiki-embed/resources/css/wiki-embed.css" type="text/css" rel="stylesheet" >
-					<link media="screen" href="/<?php echo PLUGINDIR ; ?>/wiki-embed/resources/css/wiki-overlay.css" type="text/css" rel="stylesheet" >
-					<script src="/<?php echo PLUGINDIR ; ?>/wiki-embed/resources/js/wiki-embed-overlay.js" ></script>
+					<link media="screen" href="<?php echo WIKI_EMBED_URL ; ?>resources/css/wiki-embed.css" type="text/css" rel="stylesheet" >
+					<link media="screen" href="<?php echo WIKI_EMBED_URL ; ?>resources/css/wiki-overlay.css" type="text/css" rel="stylesheet" >
+					<script src="<?php echo WIKI_EMBED_URL ; ?>resources/js/wiki-embed-overlay.js" ></script>
 				</head>
 				<body>
 					<div id="wiki-embed-iframe">
@@ -1392,6 +1407,15 @@ Class Wiki_Embed {
 		return $post_id;
 	}
 	
+	/**
+	 * update_wikiembed_postmeta function.
+	 * 
+	 * @access public
+	 * @param mixed $post_id
+	 * @param mixed $url
+	 * @param mixed $content
+	 * @return void
+	 */
 	function update_wikiembed_postmeta( $post_id, $url, $content ) {
 		if ( $this->wikiembeds[$url] != get_post_meta( $post_id, "wikiembed_expiration" ) ) {
 			$content = strip_tags( $content );
@@ -1411,3 +1435,65 @@ Class Wiki_Embed {
 }
 
 $wikiembed_object = new Wiki_Embed();
+
+
+
+/* Helper Functions */
+
+// add link 
+   add_action( 'wp_ajax_wiki_embed_add_link',         'wikiembed_list_page_add_link' );
+   add_action( 'wp_ajax__nopriv_wiki_embed_add_link', 'wikiembed_list_page_add_link' );
+
+// edit link
+   add_action( 'wp_ajax_wiki_embed_remove_link',         'wikiembed_list_page_remove_link' );
+   add_action( 'wp_ajax__nopriv_wiki_embed_remove_link', 'wikiembed_list_page_remove_link' );
+/**
+ * wikiembed_list_page_add_link function.
+ * used to add a target url to the wiki-embed
+ * @access public
+ * @return void
+ */
+function wikiembed_list_page_add_link() {
+	global $wikiembed_object;
+	
+	check_ajax_referer( "wiki_embed_ajax", 'nonce' );
+	
+	$wikiembeds = $wikiembed_object->wikiembeds;
+	#todo: needs nonce
+	$decoded_id = urldecode( $_POST['id'] );
+	if ( isset( $_POST['id'] ) && isset( $wikiembeds[$decoded_id] ) &&  esc_url( $_POST['url'] ) ) {
+		$wikiembeds[$decoded_id]['url'] = esc_url( $_POST['url'] );
+		update_option( 'wikiembeds', $wikiembeds );
+		echo "success";
+	} else { 
+		echo "fail";
+	}
+	
+	die();
+}
+
+/**
+ * wikiembed_list_page_remove_link function.
+ * used to remove a target url from the wiki-embed
+ * @access public
+ * @return void
+ */
+function wikiembed_list_page_remove_link() {
+	global $wikiembed_object;
+	$wikiembeds = $wikiembed_object->wikiembeds;
+	
+	check_ajax_referer( "wiki_embed_ajax", 'nonce' );
+	
+	#todo: needs nonce
+	$decoded_id = urldecode( $_POST['id'] );
+	if ( isset( $_POST['id'] ) && isset( $wikiembeds[$decoded_id] ) ) {
+		unset( $wikiembeds[$decoded_id]['url']);
+		echo "success";
+		update_option( 'wikiembeds', $wikiembeds );
+	} else {
+		echo "fail";
+	}
+	
+	die();
+}
+

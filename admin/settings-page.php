@@ -1,4 +1,11 @@
 <?php 
+
+/**
+ * wikiembed_settings_page function.
+ * 
+ * @access public
+ * @return void
+ */
 function wikiembed_settings_page() {
 	global $wikiembed_object;
 
@@ -47,9 +54,9 @@ function wikiembed_settings_page() {
 						<br />
 						<div class="help-div">Loads the tabs javascript file on each page of the site.</div>
 						
-						<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[accordions]" id="wiki-embed-edit" <?php checked( $wikiembed_options['accordions'] ); ?>/>
+						<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[accordions]" id="wiki-embed-edit-accordion" <?php checked( $wikiembed_options['accordions'] ); ?>/>
 						<span>
-							<label for="wiki-embed-edit">Ability to convert a Wiki page headlines into accordion</label>
+							<label for="wiki-embed-edit-accordion">Ability to convert a Wiki page headlines into accordion</label>
 						</span>
 						<br />
 						<div class="help-div">Loads the accordions javascript file on each page of the site.</div>
@@ -117,7 +124,7 @@ function wikiembed_settings_page() {
 						<span class="alignleft">
 							<label for="src">Internal wiki links</label>
 						</span>
-						<br />
+						<br /><br />
 						<div class="help-div">Internal wiki links are links that take you to a different page on the same wiki.</div>
 					</th>
 					<td class="field">
@@ -131,7 +138,7 @@ function wikiembed_settings_page() {
 						<br />
 						<label>
 							email
-							<input type="text" name="wikiembed_options[wiki-links-new-page-email]" value="<?php echo $wikiembed_options['wiki-links-new-page-email']; ?>"/>
+							<input type="text" name="wikiembed_options[wiki-links-new-page-email]" value="<?php echo esc_attr( $wikiembed_options['wiki-links-new-page-email']); ?>"/>
 						</label>
 						<div class="help-div">Specify an email address if you would like to be contacted when some access a new page. that has not been cached yet. This will help you create a better site structure as the content on the wiki grows.</div>
 					</td>
@@ -141,7 +148,7 @@ function wikiembed_settings_page() {
 						<span class="alignleft">
 							<label for="src">Credit wiki page</label>
 						</span>
-						<br />
+						<br /><br />
 						<div class="help-div">This makes it easy to insert a link back to the wiki page.</div>
 					</th>
 					<td>
@@ -151,7 +158,7 @@ function wikiembed_settings_page() {
 						</span>  
 						<br />
 						<div id="display-wiki-source" >
-							<div style="float:left; width:80px;" >Before the link <br /><input type="text" name="wikiembed_options[default][pre-source]" size="7" value="<?php echo esc_attr($wikiembed_options['default']['pre-source']); ?>" /><br /></div>
+							<div style="float:left; width:80px;" >Before the link <br /><input type="text" name="wikiembed_options[default][pre-source]" size="7" value="<?php echo esc_attr( $wikiembed_options['default']['pre-source'] ); ?>" /><br /></div>
 							<div style="float:left; width:230px; padding-top:23px;" >http://www.link-to-the-wiki-page.com</div>
 						</div>
 					</td>
@@ -191,10 +198,23 @@ function wikiembed_settings_page() {
 					<td class="field">
 						<span>Separate urls by new lines</span>
 						<br />
-						<textarea name="wikiembed_options[security][whitelist]"  rows="10" cols="50">
-							<?php echo $wikiembed_options['security']['whitelist']; ?>
-						</textarea>
+						<textarea name="wikiembed_options[security][whitelist]"  rows="10" cols="50"><?php echo esc_textarea( $wikiembed_options['security']['whitelist']); ?></textarea>
 						<div class="help-div">We are checking only the beginning of the url if it matches the url that you provided.  So for example: <em>http://en.wikipedia.org/wiki/</em> would allow any urls from the english wikipedia, but not from <em>http://de.wikipedia.org/wiki/</em> German wikipedia</div>
+						
+						<?php $links_text = get_site_option('wiki_embed_white_list'); 
+						
+						$links_array = preg_split( '/\r\n|\r|\n/', $links_text );
+						
+						if( is_array($links_array) ): ?>
+						<p><strong>Currently allowed urls.</strong><br />
+					 	<?php 
+					 		foreach($links_array as $links):
+								echo $links."<br />";
+							endforeach;
+						
+						endif;
+						?>
+						</p>
 					</td>
 				</tr>
 			</table>
@@ -207,28 +227,20 @@ function wikiembed_settings_page() {
 	<?php	
 }
 
-// Display contextual help for Books
-function wiki_embed_add_help_text( $contextual_help, $screen_id, $screen ) { 
-	if ( 'wiki-embed_page_wikiembed_settings_page' == $screen->id ) {
-		$contextual_help =
-			'<h3>' . __('Wiki Embed Explained') . '</h3>' .
-			'<ul>' .
-			'<li>' . __('Specify the correct genre such as Mystery, or Historic.') . '</li>' .
-			'<li>' . __('Specify the correct writer of the book.  Remember that the Author module refers to you, the author of this book review.') . '</li>' .
-			'</ul>' .
-			'<p>' . __('If you want to schedule the book review to be published in the future:') . '</p>' .
-			'<ul>' .
-			'<li>' . __('Under the Publish module, click on the Edit link next to Publish.') . '</li>' .
-			'<li>' . __('Change the date to the date to actual publish this article, then click on Ok.') . '</li>' .
-			'</ul>' .
-			'<h3>' . __('Shortcode') . '</h3>';
-	}
-	
-	return $contextual_help;
-}
 
-// Sanitize and validate input. Accepts an array, return a sanitized array.
+/**
+ * wikiembed_options_validate function.
+ * Sanitize and validate input. Accepts an array, return a sanitized array.
+ *
+ * @access public
+ * @param mixed $wikiembed_options
+ * @return void
+ */
 function wikiembed_options_validate( $wikiembed_options ) {
+
+	
+	$esc_whitelist = wikiembed_text_to_array_of_urls( trim( $wikiembed_options['security']['whitelist'] ) );
+	
 	return array(
 		'tabs'            => ( isset( $wikiembed_options['tabs']            ) && $wikiembed_options['tabs']            == 1 ? 1 : 0 ),
 		'accordians'      => ( isset( $wikiembed_options['accordions']      ) && $wikiembed_options['accordions']      == 1 ? 1 : 0 ),
@@ -247,7 +259,7 @@ function wikiembed_options_validate( $wikiembed_options ) {
 			'tabs'        => ( is_numeric( $wikiembed_options['default']['tabs'] ) ? $wikiembed_options['default']['tabs'] : "0" ),
 		),
 		'security' => array(
-			'whitelist' => ( isset( $wikiembed_options['security']['whitelist'] ) ? trim( $wikiembed_options['security']['whitelist'] ) : null ),
+			'whitelist' => ( isset( $esc_whitelist ) ? implode( "\n",  $esc_whitelist ) : null ),
 		),
 	);
 }
