@@ -9,10 +9,22 @@ Wiki Embed lets you embed mediawiki pages in to your site, sites like Wikipedia
 
 == Description ==
 
-The Wiki Embed's intent is to help create a (http://wiki.ubc.ca/Resource_Management_Framework "Resourse Management Framework").
 
 This plugin will pull content from any Media Wiki website (Such as wikipedia.org).
+
 It strips and reformats the content, allowing you to supply some arguments to dictate how this works.
+
+**How does it work?**
+On your WordPress page or post. You embed a shortcode, something like 
+ 
+`[wiki-embed url='http://en.wikipedia.org/wiki/WordPress' tabs no-contents no-infobox ]`
+
+Once you save the page you will have the content of the wiki embed into you page. Kind of like a youtube video. 
+Only the page will look like as if it is part of your site. Any changes that are made on the wiki will be reflected on your site, once the cache has expired and a new version of the page is requested from the wiki. 
+
+**Why would you want to do that?**
+You can build a better navigation structure to your site, while crowd sourcing the content of the pages. 
+
 
 
 == Frequently Asked Questions ==
@@ -21,6 +33,18 @@ It strips and reformats the content, allowing you to supply some arguments to di
 
 Maybe, but why would you want to? That is not what the tool was designed to do. 
 
+= Images are now showing up properly =
+This might have to do with your MediaWiki Install make sure its set in such a way that allows you to embed images from the media wiki into another site. 
+
+= Dark background WordPress themes =
+Sorry, but at the moment this plugin works well with themes that have a white background. 
+
+To make it work with a dark background you need to change your css to add rules that will make it work with your theme.
+
+= How do I import wiki pages into my site =
+This plugin is not a wiki importer. It helps mirror wiki pages inside your WordPress site.
+
+= 
 
 == Usage ==
 
@@ -53,8 +77,8 @@ Here you can enable/disable various features, define shortcode defaults, and con
 
 1. A page that list all the wiki content that is embedded on the site. 
 2. A look at the wiki embed settings page. 
-3. A way to embed a media wiki page inside your site. 
-
+3. Click on this ICON to get a Model window that will help you embed the site.
+4. A way to embed a media wiki page inside your site. 
 
 == Changelog ==
 = 1.4.6 =
