@@ -150,7 +150,7 @@ Class Wiki_Embed {
 					array( 'siteurl' => get_site_url(), 'ajaxurl' => admin_url('admin-ajax.php'), 'nonce' => wp_create_nonce("wiki_embed_ajax") ) 
 				);
 				
-				if ( current_user_can( 'pulish_pages' ) || current_user_can('unfiltered_html') ) {
+				if ( current_user_can( 'publish_pages' ) || current_user_can('unfiltered_html') ) {
 					wp_register_script( 'wiki-embed-site-admin', plugins_url( '/wiki-embed/resources/js/site-admin.js'),array( "jquery", 'wiki-embed-new-page' ), $this->version, true );
 					
 					$this->pre_load_scripts[] = 'wiki-embed-site-admin';
@@ -217,7 +217,7 @@ Class Wiki_Embed {
 	function default_settings() {
 		return array(
 			'tabs'            => 1,
-			'accordians'      => 1,
+			'accordions'      => 1,
 			'style'           => 1,
 			'tabs-style'      => 0,
 			'accordion-style' => 0,
@@ -1075,7 +1075,7 @@ Class Wiki_Embed {
 				$index++;
 			}
 			
-			if ( $has_tabs ) { // Accordians
+			if ( $has_tabs ) { // Accordions
 				$tab_list = apply_filters( 'wiki-embed-tab_list', $tab_list );
 				$start = '<div class="wiki-embed-tabs wiki-embed-fragment-count-'.$count.'">'; // shell div
 				

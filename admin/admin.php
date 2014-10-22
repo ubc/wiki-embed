@@ -108,6 +108,7 @@ function wikiembed_network_site_admin_options_process(){
  */
 function wikiembed_text_to_array_of_urls( $text ) {
 	$white_list_array = preg_split( '/\r\n|\r|\n/', $text );
+	$array_of_urls = array();
 	foreach( $white_list_array as $url):
 		$url = trim($url);
 		if (filter_var($url, FILTER_VALIDATE_URL) !== false) {

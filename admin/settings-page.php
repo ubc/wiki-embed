@@ -69,7 +69,7 @@ function wikiembed_settings_page() {
 						<div class="help-div">Loads wiki-embed css files on each page of the site.<br /></div>
 						
 						<?php $disabled_tabs = ( empty($tabs_support) ? '' : 'disabled="disabled"'); ?>
-						<input type="checkbox" aria-required="true" value="1" <?php echo $disabled_tabs; ?> name="wikiembed_options[tabs-style]" id="wiki-embed-tab-style" <?php checked( $wikiembed_options['tabs-style'] ); ?> />
+						<input type="checkbox" aria-required="true" value="1" <?php echo $disabled_tabs; ?> name="wikiembed_options[tabs-style]" id="wiki-embed-tab-style" <?php checked( (isset($wikiembed_options['tabs-style']) && $wikiembed_options['tabs-style'] )); ?> />
 						<span>
 							<?php if ( ! empty( $disabled_tabs ) ) { ?>
 								<em> Your theme support tabs styling</em>
@@ -81,7 +81,7 @@ function wikiembed_settings_page() {
 						<div class="help-div">Loads tabs css files on each page of the site.<br /></div>
 						
 						<?php $disabled_accordion = ( empty($accordion_support) ? '' : 'disabled="disabled"'); ?>
-						<input type="checkbox" aria-required="true" value="1" <?php echo $disabled_accordion; ?> name="wikiembed_options[accordion-style]" id="wiki-embed-accordion-style" <?php checked( $wikiembed_options['accordion-style'] ); ?> />
+						<input type="checkbox" aria-required="true" value="1" <?php echo $disabled_accordion; ?> name="wikiembed_options[accordion-style]" id="wiki-embed-accordion-style" <?php checked( (isset($wikiembed_options['accordion-style']) && $wikiembed_options['accordion-style'] )); ?> />
 						<span>
 							<?php if ( ! empty( $disabled_accordion ) ) { ?>
 								<em> Your theme support accordion styling</em>
@@ -158,8 +158,8 @@ function wikiembed_settings_page() {
 						</span>  
 						<br />
 						<div id="display-wiki-source" >
-							<div style="float:left; width:80px;" >Before the link <br /><input type="text" name="wikiembed_options[default][pre-source]" size="7" value="<?php echo esc_attr( $wikiembed_options['default']['pre-source'] ); ?>" /><br /></div>
-							<div style="float:left; width:230px; padding-top:23px;" >http://www.link-to-the-wiki-page.com</div>
+							<div style="float:left; width:100px;" >Before the link <br /><input type="text" name="wikiembed_options[default][pre-source]" size="7" value="<?php echo esc_attr( $wikiembed_options['default']['pre-source'] ); ?>" /><br /></div>
+							<div style="float:left; width:270px; padding-top:23px;" >http://www.link-to-the-wiki-page.com</div>
 						</div>
 					</td>
 				</tr>
@@ -179,12 +179,12 @@ function wikiembed_settings_page() {
 					<input type="radio" name="wikiembed_options[default][tabs]" value="0" id="wiki-embed-normal-headers" <?php checked( $wikiembed_options['default']['tabs'],0 ); ?> />
 					<span><label for="wiki-embed-normal-headers">Don't convert section headings</label></span><br />
 					
-					<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[default][no-edit]" id="wiki-remove-edit" <?php checked( $wikiembed_options['default']['no-edit'] ); ?> /> <span ><label for="wiki-remove-edit">Remove edit links</label></span>    <br />
+					<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[default][no-edit]" id="wiki-remove-edit" <?php checked( (isset($wikiembed_options['default']['no-edit']) && $wikiembed_options['default']['no-edit'] )); ?> /> <span ><label for="wiki-remove-edit">Remove edit links</label></span>    <br />
 					<div class="help-div">Often wiki pages have edit links displayed next to sections, which is not always desired. </div>
-					<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[default][no-contents]" id="wiki-embed-contents" <?php checked( $wikiembed_options['default']['no-contents'] ); ?> /> <span ><label for="wiki-embed-contents">Remove table of contents</label></span>    <br />
+					<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[default][no-contents]" id="wiki-embed-contents" <?php checked( (isset($wikiembed_options['default']['no-contents']) && $wikiembed_options['default']['no-contents'] )); ?> /> <span ><label for="wiki-embed-contents">Remove table of contents</label></span>    <br />
 					<div class="help-div">Often wiki pages have a table of contents (a list of content) at the top of each page. </div>
 					
-					<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[default][no-infobox]" id="wiki-embed-infobox" <?php checked( $wikiembed_options['default']['no-infobox'] ); ?> /> <span ><label for="wiki-embed-infobox">Remove infoboxes</label></span>    <br />
+					<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[default][no-infobox]" id="wiki-embed-infobox" <?php checked( (isset($wikiembed_options['default']['no-infobox']) && $wikiembed_options['default']['no-infobox'] )); ?> /> <span ><label for="wiki-embed-infobox">Remove infoboxes</label></span>    <br />
 					<div class="help-div"></div>
 					</td>
 				</tr>
