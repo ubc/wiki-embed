@@ -93,7 +93,7 @@ function wikiembed_overlay_popup_form() {
 									<th valign="top" class="label" scope="row">
 									</th>
 									<td class="field"><input type="checkbox" disabled="disabled" /><span><label for="wiki-embed-tabs"> <del>Top section converted into tabs</del></label></span>
-									&mdash; to enable see the <a href="">Settings page</a>
+									&mdash; to enable see the <a href="<?php echo admin_url('admin.php?page=wikiembed_settings_page');?>">Settings page</a>
 									</td>
 								</tr>
 							<?php endif; ?>

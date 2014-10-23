@@ -47,21 +47,21 @@ function wikiembed_settings_page() {
 				<tr>
 					<th valign="top" class="label" scope="row"></th>
 					<td class="field">
-						<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[tabs]" id="wiki-embed-edit" <?php checked( $wikiembed_options['tabs'] ); ?> />
+						<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[tabs]" id="wiki-embed-edit" <?php checked( (isset($wikiembed_options['tabs']) && $wikiembed_options['tabs']) ); ?> />
 						<span>
 							<label for="wiki-embed-edit">Ability to convert a Wiki page headlines into tabs</label>
 						</span>
 						<br />
 						<div class="help-div">Loads the tabs javascript file on each page of the site.</div>
 						
-						<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[accordions]" id="wiki-embed-edit-accordion" <?php checked( $wikiembed_options['accordions'] ); ?>/>
+						<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[accordions]" id="wiki-embed-edit-accordion" <?php checked( (isset($wikiembed_options['accordions']) && $wikiembed_options['accordions']) ); ?>/>
 						<span>
 							<label for="wiki-embed-edit-accordion">Ability to convert a Wiki page headlines into accordion</label>
 						</span>
 						<br />
 						<div class="help-div">Loads the accordions javascript file on each page of the site.</div>
 						
-						<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[style]" id="wiki-embed-overlay" <?php checked( $wikiembed_options['style'] ); ?> />
+						<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[style]" id="wiki-embed-overlay" <?php checked( (isset($wikiembed_options['style']) && $wikiembed_options['style']) ); ?> />
 						<span>
 							<label for="wiki-embed-overlay">Additional styling not commonly found in your theme.</label>
 						</span>
@@ -152,7 +152,7 @@ function wikiembed_settings_page() {
 						<div class="help-div">This makes it easy to insert a link back to the wiki page.</div>
 					</th>
 					<td>
-						<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[default][source]" id="wiki-embed-display-links" <?php checked( $wikiembed_options['default']['source']); ?> />
+						<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[default][source]" id="wiki-embed-display-links" <?php checked( (isset($wikiembed_options['default']['source']) && $wikiembed_options['default']['source']) ); ?> />
 						<span>
 							<label for="wiki-embed-display-links">Display a link to the content source after the embedded content</label>
 						</span>  

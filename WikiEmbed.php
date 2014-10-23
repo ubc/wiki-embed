@@ -805,6 +805,7 @@ Class Wiki_Embed {
 		//rudimentary error check - if the wiki content contains one of the error strings below
 		//or the http status code is an error than it should not be saved.
 		$error_strings = array( "Can't contact the database server" );
+		$errors = false;
 		
 		foreach ( $error_strings as $error ) {
 			if ( strpos( $wiki_page['body'], $error ) !== false ) {
@@ -952,7 +953,7 @@ Class Wiki_Embed {
 			
 			//For some reason any other method of specifying the encoding doesn't seem to work and special characters get broken
 			$html = DOMDocument::loadHTML( '<?xml version="1.0" encoding="UTF-8"?>' . $wiki_page_body );	
-			
+
 			//Remove specified elements
 			$remove_elements = explode( ",", $remove );
 			
@@ -1150,13 +1151,14 @@ Class Wiki_Embed {
 	function overlay_ajax() {
 		$url = $this->action_url( $_GET['url'] );
 		$source_url = esc_url( urldecode( $_GET['url'] ) );
-		$remove = esc_attr( urldecode( $_GET['remove'] ) );
-		$title = esc_html( urldecode( $_GET['title'] ) );
+		$remove = isset($_GET['remove']) ? esc_attr( urldecode( $_GET['remove'] ) ) : '';
+		$title = isset($_GET['title']) ? esc_html( urldecode( $_GET['title'] ) ) : '';
 		$plain_html = isset( $_GET['plain_html'] );
 		$source_url = $this->remove_action_render( $source_url );
+		$has_source = $this->options['default']['source'];	//seems to be a depricated parameter.  Need to spend a bit more time to confirm later maybe.
 		
 		// constuct 
-		$wiki_page_id = esc_url( $_GET['wikiembed-url'] ).",";
+		$wiki_page_id = isset($_GET['wikiembed-url']) ? esc_url( $_GET['wikiembed-url'] )."," : '';
 		
 		if ( $this->options['default']['tabs'] == 2   ) $wiki_page_id .= "accordion,";
 		if ( $this->options['default']['tabs'] == 1   ) $wiki_page_id .= "tabs,";
@@ -1168,7 +1170,7 @@ Class Wiki_Embed {
 	
 		$content = $this->get_wiki_content(
 			$url,
-			$this->options['default']['accordion']=='2',
+			$this->options['default']['tabs']=='2',
 			$this->options['default']['tabs']=='1',
 			$this->options['default']['no-contents'],
 			$this->options['default']['no-edit'],

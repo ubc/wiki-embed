@@ -22,7 +22,7 @@ class Wiki_Embed_Twitter_Bootstrap_Support{
 	 * @param mixed $tab_list
 	 * @return void
 	 */
-	function tab_list( $tab_list ) {
+	public static function tab_list( $tab_list ) {
 		
 		$tab_list = str_replace('<a href="#fragment', '<a data-toggle="tab" href="#fragment', $tab_list );
 		$tab_list = substr( $tab_list, 4 );
@@ -46,7 +46,7 @@ class Wiki_Embed_Twitter_Bootstrap_Support{
 	 * @param mixed $type
 	 * @return void
 	 */
-	function articles( $content, $type ){
+	public static function articles( $content, $type ){
 		
 		switch( $type ) {
 			case 'tabs':
@@ -63,7 +63,7 @@ class Wiki_Embed_Twitter_Bootstrap_Support{
 	
 	}
 	
-	function article_content( $content, $index, $type, $global_count ){
+	public static function article_content( $content, $index, $type, $global_count ){
 		
 		switch( $type ) {
 			case 'tabs':
@@ -97,7 +97,7 @@ class Wiki_Embed_Twitter_Bootstrap_Support{
 	 * @param mixed $type
 	 * @return void
 	 */
-	function article_content_class( $class, $index, $type ){
+	public static function article_content_class( $class, $index, $type ){
 		
 		switch( $type ) {
 			case 'tabs':
