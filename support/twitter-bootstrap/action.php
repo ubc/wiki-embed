@@ -30,7 +30,7 @@ class Wiki_Embed_Twitter_Bootstrap_Support{
 		return '<li class="active">'.$tab_list;
 	}
 	
-	function tab_list_class( $class ) {
+	public static function tab_list_class( $class ) {
 		$class .= ' nav nav-tabs ';
 		return $class;
 	}

@@ -103,7 +103,7 @@ Class Wiki_Embed {
 	function register_scripts() {
 		wp_register_script( 'wiki-embed-tabs', plugins_url( '/wiki-embed/resources/js/tabs.js' ), array( "jquery", "jquery-ui-tabs" ), $this->version, true );
 		wp_register_script( 'wiki-embed-accordion', plugins_url( '/wiki-embed/resources/js/accordion.js' ), array( "jquery", "jquery-ui-accordion" ), $this->version, true );
-		
+		wp_register_script( 'wiki-embed-tabs-accordion-anchors', plugins_url( '/wiki-embed/resources/js/anchor-links.js' ), array( 'jquery' ), $this->version, true );
 		$this->tabs_support = get_theme_support('tabs');
 		$this->accordion_support = get_theme_support( 'accordions' );
 		
@@ -506,6 +506,11 @@ Class Wiki_Embed {
 	function load_scripts( $has_tabs, $has_accordion ) {
 		if ( ! empty( $this->pre_load_scripts ) ) {
 			$this->load_scripts = $this->pre_load_scripts;
+		}
+		
+		//this script is added so that links on the page still work for accordion and tabs
+		if ($has_tabs || $has_accordion) {
+			$this->load_scripts[] = 'wiki-embed-tabs-accordion-anchors';
 		}
 		
 		if ( is_array( $this->tabs_support ) ) {
