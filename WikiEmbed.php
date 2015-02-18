@@ -121,16 +121,16 @@ Class Wiki_Embed {
 		
 		// embed this if tabs enabled style
 		if ( $this->options['tabs-style'] ) {
-			wp_enqueue_style( 'wiki-embed-tabs', plugins_url( '/wiki-embed/resources/css/tabs.css' ), false, $this->version ); 		
+			// wp_enqueue_style( 'wiki-embed-tabs', plugins_url( '/wiki-embed/resources/css/tabs.css' ), false, $this->version ); 		
 		}
 		
 		if ( $this->options['accordion-style'] ) {
-			wp_enqueue_style( 'wiki-embed-accordion', plugins_url( '/wiki-embed/resources/css/accordion.css' ), false, $this->version ); 
+			// wp_enqueue_style( 'wiki-embed-accordion', plugins_url( '/wiki-embed/resources/css/accordion.css' ), false, $this->version ); 
 		}
 		
 		// add some great wiki styling 
 		if ( $this->options['style'] ) {
-			wp_enqueue_style( 'wiki-embed-style', plugins_url( '/wiki-embed/resources/css/wiki-embed.css' ), false, $this->version, 'screen' );
+			// wp_enqueue_style( 'wiki-embed-style', plugins_url( '/wiki-embed/resources/css/wiki-embed.css' ), false, $this->version, 'screen' );
 		}
 		
 		switch ( $this->options['wiki-links'] ) {
@@ -139,7 +139,7 @@ Class Wiki_Embed {
 				wp_register_script( 'colorbox', plugins_url( '/wiki-embed/resources/js/jquery.colorbox.min.js'),array("jquery"), "1.3.20.2", true );
 				wp_register_script( 'wiki-embed-overlay', plugins_url( '/wiki-embed/resources/js/overlay.js'),array( "colorbox", "jquery" ), $this->version, true );
 				wp_localize_script( 'wiki-embed-overlay', 'WikiEmbedSettings', array( 'ajaxurl' => admin_url('admin-ajax.php') ) );
-				wp_enqueue_style( 'wiki-embed-overlay', plugins_url( '/wiki-embed/resources/css/colorbox.css'),false, $this->version, 'screen');
+				// wp_enqueue_style( 'wiki-embed-overlay', plugins_url( '/wiki-embed/resources/css/colorbox.css'),false, $this->version, 'screen');
 				
 				$this->pre_load_scripts[] = 'wiki-embed-overlay';
 				break;
@@ -252,6 +252,31 @@ Class Wiki_Embed {
 		// url is the unique identifier
 		$atts = apply_filters( 'wikiembed_override_atts', $atts );
 		
+
+		// ADD styling 
+		$this->options['tabs-style'] = ( empty( $this->tabs_support ) ? $this->options['tabs-style'] : 0 );
+		$this->options['accordion-style'] = ( empty( $this->accordion_support ) ? $this->options['accordion-style'] : 0 );
+		
+		// embed this if tabs enabled style
+		if ( $this->options['tabs-style'] ) {
+			wp_enqueue_style( 'wiki-embed-tabs', plugins_url( '/wiki-embed/resources/css/tabs.css' ), false, $this->version ); 		
+		}
+		
+		if ( $this->options['accordion-style'] ) {
+			wp_enqueue_style( 'wiki-embed-accordion', plugins_url( '/wiki-embed/resources/css/accordion.css' ), false, $this->version ); 
+		}
+		
+		// add some great wiki styling 
+		if ( $this->options['style'] ) {
+			wp_enqueue_style( 'wiki-embed-style', plugins_url( '/wiki-embed/resources/css/wiki-embed.css' ), false, $this->version, 'screen' );
+		}
+		
+		switch ( $this->options['wiki-links'] ) {
+			case "overlay":
+				wp_enqueue_style( 'wiki-embed-overlay', plugins_url( '/wiki-embed/resources/css/colorbox.css'),false, $this->version, 'screen');
+				break;
+			default:
+		}
 		
 		extract( shortcode_atts( array(
 			'url'         => NULL,
