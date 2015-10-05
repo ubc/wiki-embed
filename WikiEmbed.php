@@ -383,60 +383,60 @@ Class Wiki_Embed {
 					$admin .= " <br /> <span>Target URL set: ".esc_url( $this->wikiembeds[$url]['url'] )."</span>";
 				}
 			}
-			
+
 			$admin .= "</div>";
-			return $content.$admin; 
+			return $content.$admin;
 		}
-		
+
 		return $content;
 	}
-	
+
 	/**
 	 * load_page function.
-	 * 
+	 *
 	 * @access public
 	 * @return void
 	 */
 	function load_page() {
-		if ( ! isset( $_GET['wikiembed-url'] ) && ! isset( $_GET['wikiembed-title'] ) ) {
-			return true; // do nothing 
+		if ( ! isset( $_GET['wikiembed-url'] ) && ! isset( $_GET['wikiembed-title'] ) && current_user_can( 'publish_pages' ) ) {
+			return true; // do nothing
 		}
-		
-		// call global variables 
+
+		// call global variables
 		global $wp_query;
-		
-		// do we need to redirect the page ? 
-		$wiki_page_url = esc_url( $_GET['wikiembed-url'] ); 
-		
-		// we could try to load it 
+
+		// do we need to redirect the page ?
+		$wiki_page_url = esc_url( $_GET['wikiembed-url'] );
+
+		// we could try to load it
 		if ( isset( $this->wikiembeds[$wiki_page_url]['url'] ) ):
 			wp_redirect( esc_url( $this->wikiembeds[$wiki_page_url]['url'] ) );
 			die();
 		endif;
-		
-		$tabs      = ( $this->options['default']['tabs'] == 1 ? true : false); 
-		$accordion = ( $this->options['default']['tabs'] == 2 ? true : false); 
+
+		$tabs      = ( $this->options['default']['tabs'] == 1 ? true : false);
+		$accordion = ( $this->options['default']['tabs'] == 2 ? true : false);
 		$wiki_page_id = $this->get_page_id( $wiki_page_url, $accordion, $tabs, $this->options['default']['no-contents'], $this->options['default']['no-edit'], $this->options['default']['no-infobox'] );
-		
+
 		// make sure to load scripts
 		$this->load_scripts( $has_tabs, $has_accordion );
-		
+
 		/* Generate the shortcode ? */
 		$wiki_embed_shortcode = $this->get_page_shortcode( $wiki_page_url, $accordion, $tabs, $this->options['default']['no-contents'], $this->options['default']['no-edit'], $this->options['default']['no-infobox'] );
-		
-	    // no we have no where to redirect the page to just stay here 
+
+	    // no we have no where to redirect the page to just stay here
 		if ( ! isset( $has_source ) ) {
 			$has_source = $this->options['default']['source'];
 		}
-		
+
 		if ( ! isset( $remove ) ) {
-			$remove = ""; // nothing to remove 
+			$remove = ""; // nothing to remove
 		}
-		
+
 		$url   = $this->get_page_url( $_GET['wikiembed-url'] );
 		$title = $this->get_page_title( $_GET['wikiembed-title'] );
-		
-		$content = $this->get_wiki_content(	
+
+		$content = $this->get_wiki_content(
 			$url,
 			$accordion,
 			$tabs,
