@@ -398,8 +398,12 @@ Class Wiki_Embed {
 	 * @return void
 	 */
 	function load_page() {
-		if ( ! isset( $_GET['wikiembed-url'] ) && ! isset( $_GET['wikiembed-title'] ) && current_user_can( 'publish_pages' ) ) {
+		if ( ! isset( $_GET['wikiembed-url'] ) && ! isset( $_GET['wikiembed-title'] ) ) {
 			return true; // do nothing
+		}
+
+		if ( ! current_user_can( 'publish_pages' ) ) {
+			return;
 		}
 
 		// call global variables
