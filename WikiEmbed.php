@@ -793,7 +793,7 @@ Class Wiki_Embed {
 		// grab the content from the cache
 		if ( false === ( $wiki_page_body = $this->get_cache( $wikiembed_id ) ) || $this->wikiembeds[$wikiembed_id]['expires_on'] < time() ) {
 			// else return the
-			$wiki_page = wp_remote_request( $this->action_url( $url ) );
+			$wiki_page = wp_remote_request( $this->action_url( $url ), array( 'timeout' => 20 ) );
 
 			if ( ! is_wp_error( $wiki_page ) ) {
 				$wiki_page_body = $this->rudermentory_check( $wiki_page );
@@ -803,7 +803,7 @@ Class Wiki_Embed {
 				}
 			} else {
 		     	// an error occured try getting the content again
-		     	$wiki_page = wp_remote_request( $this->action_url($url) );
+		     	$wiki_page = wp_remote_request( $this->action_url( $url ), array( 'timeout' => 30 ) );
 		     	if ( ! is_wp_error( $wiki_page ) ) {
 		     		$wiki_page_body = $this->rudermentory_check( $wiki_page );
 
