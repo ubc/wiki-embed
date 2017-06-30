@@ -3,7 +3,7 @@
  * Plugin Name: Wiki Embed
  * Plugin URI: http://wordpress.org/extend/plugins/wiki-embed/
  * Description: Enables the inclusion of mediawiki pages into your own blog page or post through the use of shortcodes.
- * Version: 1.4.8
+ * Version: 1.4.9
  * Author: Enej Bajgoric, Devindra Payment, CTLT, UBC
  * Author URI: http://cms.ubc.ca
  *
