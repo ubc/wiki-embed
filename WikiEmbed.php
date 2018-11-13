@@ -1166,7 +1166,7 @@ Class Wiki_Embed {
 	function page_link( $url ) {
 		global $post;
 
-		if ( $post->ID === 0 ) {
+		if ( isset( $post->ID ) && $post->ID === 0 ) {
 			return $post->guid;
 		}
 
