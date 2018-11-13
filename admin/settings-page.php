@@ -1,8 +1,8 @@
-<?php 
+<?php
 
 /**
  * wikiembed_settings_page function.
- * 
+ *
  * @access public
  * @return void
  */
@@ -15,29 +15,31 @@ function wikiembed_settings_page() {
 	$updated = false;
 	$option = "wikiembed_options";
 
-	if ( isset( $_POST[$option] ) ):
-		$value = $_POST[$option];
-		
+	if ( isset( $_POST[ $option ] ) ) {
+
+		$value = $_POST[ $option ];
+
 		if ( ! is_array( $value ) ) {
-			$value = trim($value);
+			$value = trim( $value );
 		}
-		
-		$value = stripslashes_deep( $value );
-		$updated = update_option( $option, $value );
+
+		$value             = stripslashes_deep( $value );
+		$updated           = update_option( $option, $value );
 		$wikiembed_options = $value;
-	endif; 	
-	
-	$tabs_support = get_theme_support( 'tabs' );
+
+	}
+
+	$tabs_support      = get_theme_support( 'tabs' );
 	$accordion_support = get_theme_support( 'accordions' );
 	?>
 	<div class="wrap">
 	    <div class="icon32" id="icon-options-general"><br /></div>
-		
+
 		<h2>Wiki Embed Settings</h2>
 		<form method="post" action="admin.php?page=wikiembed_settings_page">
 			<?php settings_fields('wikiembed_options'); ?>
 			<a href="#" id="show-help" >Explain More</a>
-			
+
 			<?php if ( $updated ): ?>
 				<div class="updated below-h2" id="message"><p>Wiki Embed Settings Updated</p></div>
 			<?php endif; ?>
@@ -53,21 +55,21 @@ function wikiembed_settings_page() {
 						</span>
 						<br />
 						<div class="help-div">Loads the tabs javascript file on each page of the site.</div>
-						
+
 						<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[accordions]" id="wiki-embed-edit-accordion" <?php checked( (isset($wikiembed_options['accordions']) && $wikiembed_options['accordions']) ); ?>/>
 						<span>
 							<label for="wiki-embed-edit-accordion">Ability to convert a Wiki page headlines into accordion</label>
 						</span>
 						<br />
 						<div class="help-div">Loads the accordions javascript file on each page of the site.</div>
-						
+
 						<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[style]" id="wiki-embed-overlay" <?php checked( (isset($wikiembed_options['style']) && $wikiembed_options['style']) ); ?> />
 						<span>
 							<label for="wiki-embed-overlay">Additional styling not commonly found in your theme.</label>
 						</span>
 						<br />
 						<div class="help-div">Loads wiki-embed css files on each page of the site.<br /></div>
-						
+
 						<?php $disabled_tabs = ( empty($tabs_support) ? '' : 'disabled="disabled"'); ?>
 						<input type="checkbox" aria-required="true" value="1" <?php echo $disabled_tabs; ?> name="wikiembed_options[tabs-style]" id="wiki-embed-tab-style" <?php checked( (isset($wikiembed_options['tabs-style']) && $wikiembed_options['tabs-style'] )); ?> />
 						<span>
@@ -79,7 +81,7 @@ function wikiembed_settings_page() {
 						</span>
 						<br />
 						<div class="help-div">Loads tabs css files on each page of the site.<br /></div>
-						
+
 						<?php $disabled_accordion = ( empty($accordion_support) ? '' : 'disabled="disabled"'); ?>
 						<input type="checkbox" aria-required="true" value="1" <?php echo $disabled_accordion; ?> name="wikiembed_options[accordion-style]" id="wiki-embed-accordion-style" <?php checked( (isset($wikiembed_options['accordion-style']) && $wikiembed_options['accordion-style'] )); ?> />
 						<span>
@@ -94,7 +96,7 @@ function wikiembed_settings_page() {
 					</td>
 				</tr>
 			</table>
-			
+
 			<h3>Global Settings </h3>
 			<p>These settings are applied site-wide</p>
 			<table class="form-table">
@@ -134,7 +136,7 @@ function wikiembed_settings_page() {
 						<br />
 						<label><input name="wikiembed_options[wiki-links]" type="radio" value="new-page" <?php checked($wikiembed_options['wiki-links'],"new-page"); ?>  /> WordPress Page &mdash; links open a WordPress page with the content of the wiki</label>
 						<br />
-						Note: You can make the links open in specific page by specifying a <a href="?page=wiki-embed">target url</a>. 
+						Note: You can make the links open in specific page by specifying a <a href="?page=wiki-embed">target url</a>.
 						<br />
 						<label>
 							email
@@ -155,7 +157,7 @@ function wikiembed_settings_page() {
 						<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[default][source]" id="wiki-embed-display-links" <?php checked( (isset($wikiembed_options['default']['source']) && $wikiembed_options['default']['source']) ); ?> />
 						<span>
 							<label for="wiki-embed-display-links">Display a link to the content source after the embedded content</label>
-						</span>  
+						</span>
 						<br />
 						<div id="display-wiki-source" >
 							<div style="float:left; width:100px;" >Before the link <br /><input type="text" name="wikiembed_options[default][pre-source]" size="7" value="<?php echo esc_attr( $wikiembed_options['default']['pre-source'] ); ?>" /><br /></div>
@@ -164,7 +166,7 @@ function wikiembed_settings_page() {
 					</td>
 				</tr>
 			</table>
-			
+
 			<h3>Shortcode Defaults</h3>
 			<p>Tired of checking off all the same settings across the site. Set the shortcodes defaults here</p>
 			<table class="form-table">
@@ -178,18 +180,18 @@ function wikiembed_settings_page() {
 					<span><label for="wiki-embed-accordion">Convert section headings to accordion</label></span><br />
 					<input type="radio" name="wikiembed_options[default][tabs]" value="0" id="wiki-embed-normal-headers" <?php checked( $wikiembed_options['default']['tabs'],0 ); ?> />
 					<span><label for="wiki-embed-normal-headers">Don't convert section headings</label></span><br />
-					
+
 					<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[default][no-edit]" id="wiki-remove-edit" <?php checked( (isset($wikiembed_options['default']['no-edit']) && $wikiembed_options['default']['no-edit'] )); ?> /> <span ><label for="wiki-remove-edit">Remove edit links</label></span>    <br />
 					<div class="help-div">Often wiki pages have edit links displayed next to sections, which is not always desired. </div>
 					<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[default][no-contents]" id="wiki-embed-contents" <?php checked( (isset($wikiembed_options['default']['no-contents']) && $wikiembed_options['default']['no-contents'] )); ?> /> <span ><label for="wiki-embed-contents">Remove table of contents</label></span>    <br />
 					<div class="help-div">Often wiki pages have a table of contents (a list of content) at the top of each page. </div>
-					
+
 					<input type="checkbox" aria-required="true" value="1" name="wikiembed_options[default][no-infobox]" id="wiki-embed-infobox" <?php checked( (isset($wikiembed_options['default']['no-infobox']) && $wikiembed_options['default']['no-infobox'] )); ?> /> <span ><label for="wiki-embed-infobox">Remove infoboxes</label></span>    <br />
 					<div class="help-div"></div>
 					</td>
 				</tr>
 			</table>
-			
+
 			<h3>Security</h3>
 			<p>Restrict the urls of wikis that you want content to be embedded from. This way only url from </p>
 			<table class="form-table">
@@ -200,31 +202,31 @@ function wikiembed_settings_page() {
 						<br />
 						<textarea name="wikiembed_options[security][whitelist]"  rows="10" cols="50"><?php echo esc_textarea( $wikiembed_options['security']['whitelist']); ?></textarea>
 						<div class="help-div">We are checking only the beginning of the url if it matches the url that you provided.  So for example: <em>http://en.wikipedia.org/wiki/</em> would allow any urls from the english wikipedia, but not from <em>http://de.wikipedia.org/wiki/</em> German wikipedia</div>
-						
-						<?php $links_text = get_site_option('wiki_embed_white_list'); 
-						
+
+						<?php $links_text = get_site_option('wiki_embed_white_list');
+
 						$links_array = preg_split( '/\r\n|\r|\n/', $links_text );
-						
+
 						if( is_array($links_array) ): ?>
 						<p><strong>Currently allowed urls.</strong><br />
-					 	<?php 
+					 	<?php
 					 		foreach($links_array as $links):
 								echo $links."<br />";
 							endforeach;
-						
+
 						endif;
 						?>
 						</p>
 					</td>
 				</tr>
 			</table>
-			
+
 			<p class="submit">
 				<input type="submit" class="button-primary" value="<?php _e('Save Changes') ?>" />
 			</p>
-		</form>	
+		</form>
 	</div>
-	<?php	
+	<?php
 }
 
 
@@ -238,12 +240,12 @@ function wikiembed_settings_page() {
  */
 function wikiembed_options_validate( $wikiembed_options ) {
 
-	
+
 	$esc_whitelist = wikiembed_text_to_array_of_urls( trim( $wikiembed_options['security']['whitelist'] ) );
-	
-	return array(
+
+	$to_return = array(
 		'tabs'            => ( isset( $wikiembed_options['tabs']            ) && $wikiembed_options['tabs']            == 1 ? 1 : 0 ),
-		'accordians'      => ( isset( $wikiembed_options['accordions']      ) && $wikiembed_options['accordions']      == 1 ? 1 : 0 ),
+		'accordions'      => ( isset( $wikiembed_options['accordions']      ) && $wikiembed_options['accordions']      == 1 ? 1 : 0 ),
 		'style'           => ( isset( $wikiembed_options['style']           ) && $wikiembed_options['style']           == 1 ? 1 : 0 ),
 		'tabs-style'      => ( isset( $wikiembed_options['tabs-style']      ) && $wikiembed_options['tabs-style']      == 1 ? 1 : 0 ),
 		'accordion-style' => ( isset( $wikiembed_options['accordion-style'] ) && $wikiembed_options['accordion-style'] == 1 ? 1 : 0 ),
@@ -262,4 +264,6 @@ function wikiembed_options_validate( $wikiembed_options ) {
 			'whitelist' => ( isset( $esc_whitelist ) ? implode( "\n",  $esc_whitelist ) : null ),
 		),
 	);
+
+	return $to_return;
 }
