@@ -986,7 +986,8 @@ Class Wiki_Embed {
 			libxml_use_internal_errors(true);
 
 			//For some reason any other method of specifying the encoding doesn't seem to work and special characters get broken
-			$html = DOMDocument::loadHTML( '<?xml version="1.0" encoding="UTF-8"?>' . $wiki_page_body );
+			$html = new DOMDocument();
+			$html->loadHTML( '<?xml version="1.0" encoding="UTF-8"?>' . $wiki_page_body );
 
 			//Remove specified elements
 			$remove_elements = explode( ",", $remove );
@@ -1011,7 +1012,8 @@ Class Wiki_Embed {
 			// bonus you can remove any element by passing in a css selector and seperating them by commas
 			if ( ! empty( $remove_elements ) ) {
 				foreach ( $remove_elements as $element ) {
-					if ( $element ) {
+					$result = $finder->query( $element );
+					if ( $element && isset( $result ) && is_array( $result ) ) {
 						foreach ( $finder->query( $element ) as $e ) {
 							$e->parentNode->removeChild($e);
 						}
