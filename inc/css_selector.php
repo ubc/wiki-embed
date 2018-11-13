@@ -24,9 +24,9 @@ class DOMCSS {
     '/\[([a-z][0-9_a-z]*)\]/' => '[@\1]',                       // E[attr]
     '/\[([a-z][0-9_a-z]*)=([^"\'\]]+)\]/' => '[@\1="\2"]',      // E[attr=v]
     '/\[([a-z][0-9_a-z]*)~=([^"\'\]]+?)\]/' =>                  // E[attr~=v]
-      '[contains(concat(" ",@\1," "),concat(" ","\2", " "))]',   
+      '[contains(concat(" ",@\1," "),concat(" ","\2", " "))]',
     '/\[[a-z][0-9_a-z]*\|=([^"\'\]]+?)\]/' =>                   // E[attr|=v]
-      '[@\1="\2" or starts-with(@\1,concat("\2","-"))]',         
+      '[@\1="\2" or starts-with(@\1,concat("\2","-"))]',
     '/\.([a-z][0-9_a-z]*)/' =>                                  // E.class
       '[contains(concat(" ",@class," "),concat(" ","\1"," "))]',
     '/#([a-z][0-9_a-z]*)/' => '[@id="\1"]',                     // E#id
@@ -43,10 +43,16 @@ class DOMCSS {
    * @param string $q
    * @return DOMNodeList
    */
-  public function query($q) {
-    $x = new DOMXPath($this->document);
-    foreach (self::$c as $search => $replace)
+  public function query( $q ) {
+
+    $current_error_reporting = error_reporting();
+    error_reporting( $current_error_reporting ^ ( E_WARNING ) ); // prevent E_WARNING messages from being shown
+
+    $x = new DOMXPath( $this->document );
+    foreach ( self::$c as $search => $replace ) {
       $q = preg_replace($search . 'i', $replace, $q);
+    }
+    error_reporting($current_error_reporting); // restore the former error reporting settings
     return $x->query("//$q");
   }
 }
