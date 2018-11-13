@@ -8,28 +8,28 @@
  */
 function wikiembed_list_page() {
 	global $wikiembed_object;
-	
+
 	$wikiembeds = $wikiembed_object->wikiembeds;
 	$wikiembed_options = $wikiembed_object->options;
-	
+
 	if ( ! empty($_POST) && wp_verify_nonce( $_POST['wikiembed-list'], 'wikiembed-list' ) && isset( $_POST['wikiembed'] ) ) {
 		foreach( $_POST['wikiembed'] as $post_item ):
   			$post_wikiembed[] = esc_attr( $post_item );
   		endforeach;
-		
+
   		unset($post_item, $_POST['wikiembed']);
-		
+
   		switch( $_POST['action'] ) {
   			case 'trash':
   				if ( is_array( $post_wikiembed ) ):
 	  				foreach ( $wikiembeds as $wikiembeds_id => $wikiembeds_item ):
 	  					$bits = explode( ",", $wikiembeds_id );
-						
+
 	  					if ( in_array( esc_attr( $bits[0] ) ,$post_wikiembed ) || in_array( esc_attr( $wikiembeds_id ), $post_wikiembed ) ) {
 	  						$wikiembed_object->delete_cache( $wikiembeds_id );
 	  					}
 	  				endforeach;
-					
+
 	  				unset( $bits );
   				endif;
 	  			break;
@@ -37,19 +37,19 @@ function wikiembed_list_page() {
   				if ( is_array( $post_wikiembed ) ):
 	  				foreach( $wikiembeds as $wikiembeds_id => $wikiembeds_item ):
 	  					$bits = explode( ",", $wikiembeds_id );
-						
+
 	  					if ( in_array( esc_attr( $bits[0] ), $post_wikiembed ) ) {
 	  						$wikiembed_object->clear_cache( $wikiembeds_id );
 	  					}
 	  				endforeach;
-					
+
 	  				unset($bits);
   				endif;
 				break;
-  		}	
+  		}
 	}
-	
-	// sort $wikiembeds by page parent and 
+
+	// sort $wikiembeds by page parent and
 	if ( is_array( $wikiembeds ) ):
 		ksort( $wikiembeds );
 		$wikiembeds_parents = array();
@@ -57,8 +57,8 @@ function wikiembed_list_page() {
 		$parent_count = 0;
 		$count_non_url_items = 0;
 		$total_parent_count = 0;
-		
-		foreach ( $wikiembeds as $hash => $item ): // group wiki embeds with the same url together. so they can have the same url 
+
+		foreach ( $wikiembeds as $hash => $item ): // group wiki embeds with the same url together. so they can have the same url
 			$bits = explode( ",", $hash );
 			if ( $previous_url != $bits[0] ): // only group the parent url
 				if ( isset( $_GET['non_url_items'] ) && ! isset( $item['url'] ) ):
@@ -76,27 +76,34 @@ function wikiembed_list_page() {
 						$wikiembeds_parents[$parent_count][$hash] = $item;
 						$parent_count++;
 					endif;
-					
+
 					if ( ! isset( $item['url'] ) ):
 						$count_non_url_items++;
 					endif;
 				endif;
-				
+
 				$total_parent_count++;
 				$previous_url = $bits[0];
 			else:
-				
+
 			endif;
 		endforeach;
 	endif;
-	
+
+	if ( ! isset( $total_parent_count ) ) {
+		$total_parent_count = 0;
+	}
+
+	if ( ! isset( $count_non_url_items ) ) {
+		$count_non_url_items = 0;
+	}
 	?>
 	<div class="wrap">
 	<div id="icon-wiki-embed" class="icon32"><br /></div>
 	<h2>Wiki Embed List</h2>
 	<p>Here is a list of all the wiki content that is being embedded</p>
-	
-	<form method="post" acction=""> 
+
+	<form method="post" acction="">
 	<ul class="subsubsub">
 		<li><a href="?page=wiki-embed" <?php if ( ! isset( $_GET['non_url_items'] ) ) { ?>class="current"<?php } ?> >All <span class="count">(<?php echo $total_parent_count; ?>)</span></a> |</li>
 		<li><a href="?page=wiki-embed&non_url_items=true" <?php if(isset($_GET['non_url_items'])) { ?>class="current"<?php } ?>>No Target URL <span class="count">(<?php echo $count_non_url_items;?>)</span></a></li>
@@ -108,13 +115,13 @@ function wikiembed_list_page() {
 			<option value="clear-cache">Clear Cache</option>
 			<option value="trash">Delete Entry</option>
 		</select>
-		
+
 		<input type="submit" class="button-secondary action" id="doaction" name="doaction" value="Apply" />
 		</div>
-				
+
 		<div class="clear"></div>
 	</div>
-	
+
 	<table cellspacing="0" class="widefat post fixed">
 		<thead>
 			<tr>
@@ -133,26 +140,26 @@ function wikiembed_list_page() {
 			</tr>
 		</tfoot>
 		<tbody>
-			<?php if ( $wikiembeds_parents ):
+			<?php if ( isset( $wikiembeds_parents ) ) :
 				$total_size = sizeof( $wikiembeds_parents );
-				
+
 				$items_per_page = 20;
-				
+
 				if ( isset( $_GET['p'] ) && is_int( intval( $_GET['p'] ) ) ):
 					$page = intval($_GET['p']);
 				else:
 					$page = 1;
 				endif;
-				
+
 				$count_till = $page * $items_per_page;
-				
+
 				if ( $count_till > $total_size ):
 					$count_till = $total_size;
 				endif;
-				
+
 				for ( $i = ( $page - 1 ) * $items_per_page; $i < $count_till; $i++ ) {
 					$hash = key( $wikiembeds_parents[$i] );
-					$item = $wikiembeds_parents[$i][$hash];		
+					$item = $wikiembeds_parents[$i][$hash];
 					$bits = explode( ",", $hash );
 					$url = parse_url( $bits[0], PHP_URL_PATH );
 				?>
@@ -175,7 +182,7 @@ function wikiembed_list_page() {
 							</p>
 							<p style="display:none;">
 								<input type="text" name="<?php echo urlencode( $hash ); ?>" value="http://" size="80" />
-								<input type="button" value="Add Target URL" class="button submit-target-url button-primary" /> 
+								<input type="button" value="Add Target URL" class="button submit-target-url button-primary" />
 								<a href="#" class="cancel-tagert-url button-secondary">cancel</a>
 							</p>
 						<?php else: //REMOVE ?>
@@ -184,7 +191,7 @@ function wikiembed_list_page() {
 									<a href="<?php echo esc_url( $item['url'] ); ?>">
 										<?php echo $item['url']; ?>
 									</a>
-								</span> 
+								</span>
 								<a href="#" class="add-target-url" id="<?php echo urlencode( $hash ); ?>">Edit</a>
 								<span class="divider">|</span>
 								<span class="trash">
@@ -193,13 +200,13 @@ function wikiembed_list_page() {
 							</p>
 							<p style="display:none;">
 								<input type="text" name="<?php echo urlencode( $hash ); ?>" class="" value="<?php echo $item['url']; ?>" size="80" />
-								<input type="button" value="Edit Target URL" class="button submit-target-url button-primary" /> 
+								<input type="button" value="Edit Target URL" class="button submit-target-url button-primary" />
 								<a href="#" class="cancel-tagert-url button-secondary">cancel</a>
 							</p>
 						<?php endif; ?>
 					</td>
 					<td>
-						<?php 
+						<?php
 							if ( ! isset( $item['expires_on'] ) )
 								$item['expires_on'] = 0;
 							if ( $item['expires_on'] > time() )
@@ -215,7 +222,7 @@ function wikiembed_list_page() {
 					<td>
 						You don't have any Wiki Embeds Stored
 						<br />
-						Try embeding a wiki using a shortcode. 
+						Try embeding a wiki using a shortcode.
 					</td>
 					<td></td>
 					<td></td>
@@ -224,8 +231,8 @@ function wikiembed_list_page() {
 		</tbody>
 	</table>
 	<!-- current time: <?php echo date("Y/m/d h:i:s A",time()); ?> -->
-	<?php 
-		if ( $wikiembeds_parents ):
+	<?php
+		if ( isset( $wikiembeds_parents ) ) :
 			?>
 			<div class="tablenav">
 				<div class="tablenav-pages">
@@ -243,14 +250,14 @@ function wikiembed_list_page() {
 							<a href="admin.php?page=wiki-embed&p=<?php echo $i; ?>" class="page-numbers"> <?php echo $i; ?></a>
 							<?php
 						}
-					} 
+					}
 					?>
 				</div>
 			</div>
 			<?php
 		endif;
-		
+
 		wp_nonce_field( 'wikiembed-list','wikiembed-list' ); ?>
 	</form>
-	<?php 
+	<?php
 }
