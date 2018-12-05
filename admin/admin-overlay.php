@@ -6,14 +6,14 @@ add_action( 'media_buttons_context', 'wikiembed_overlay_buttons' );
 
 /**
  * wikiembed_overlay_buttons function.
- * 
+ *
  * @access public
  * @param mixed $context
  * @return void
  */
 function wikiembed_overlay_buttons( $context ) {
 	global $post, $pagenow;
-	
+
 	if ( in_array( $pagenow, array( "post.php", "post-new.php" ) ) && in_array( $post->post_type , array( "post", "page" ) ) ) {
 		$wiki_embed_overlay_image_button = plugins_url('/wiki-embed/resources/img/icon.png');
 	    $output_link = '<a href="#TB_inline?height=400&width=670&inlineId=wiki_embed_form" class="thickbox" title="' .__("Wiki Embed", 'wiki-embed') . '" id="wiki-embed-overlay-button"><img src="'. $wiki_embed_overlay_image_button.'" alt="' . __("Wiki Embed", 'wiki-embed') . '" /></a><style>#wiki_embed_form{ display:none;}</style>';
@@ -25,19 +25,32 @@ function wikiembed_overlay_buttons( $context ) {
 
 /**
  * wikiembed_overlay_popup_form function.
- * 
+ *
  * @access public
  * @return void
  */
 function wikiembed_overlay_popup_form() {
+
 	global $wikiembed_object, $pagenow, $post;
-	
+
 	$wikiembed_options = $wikiembed_object->options;
-	
+
+	// Only show this overlay window if Gutenberg is disabled
+	if ( ! class_exists( 'Gutenberg_Ramp' ) ) {
+		return;
+	}
+
+	$gb_ramp       = Gutenberg_Ramp::get_instance();
+	$gb_is_loading = $gb_ramp->gutenberg_should_load( $post );
+
+	if ( true === $gb_is_loading ) {
+		return;
+	}
+
 	if ( in_array( $pagenow, array( "post.php", "post-new.php" ) ) && in_array( $post->post_type , array( "post", "page" ) ) ) {
 		?>
 		<script type="text/javascript">
-			
+
 			function wiki_embed_insert_overlay_form(){
 				var wikiEmbedUrl        = jQuery("#wiki-embed-src").attr('value');
 				var wikiEmbedSource 	= ( jQuery("#wiki-embed-display-links").attr('checked') ? jQuery("#wiki-embed-display-links").attr('value') : "" );
@@ -47,11 +60,11 @@ function wikiembed_overlay_popup_form() {
 				var wikiEmbedNoContents = ( jQuery("#wiki-embed-contents").attr('checked')      ? jQuery("#wiki-embed-contents").attr('value')      : "" );
 				var wikiEmbedNoInfobox  = ( jQuery("#wiki-embed-infobox").attr('checked')       ? jQuery("#wiki-embed-infobox").attr('value')       : "" );
 				var win = parent;
-				
+
 				win.send_to_editor( "[wiki-embed url='"+wikiEmbedUrl+"' "+ wikiEmbedSource + wikiEmbedOverlay + wikiEmbedTabs + wikiEmbedNoEdit + wikiEmbedNoContents + wikiEmbedNoInfobox +" ]" );
 			}
 		</script>
-		
+
 		<div id="wiki_embed_form">
 			<div class="wiki_embed_form_wrap">
 				<div class="media-item media-blank">
@@ -65,7 +78,7 @@ function wikiembed_overlay_popup_form() {
 								</th>
 								<td class="field"><input type="text" aria-required="true" value="http://" name="wiki-embed-src" id="wiki-embed-src" size="60"><br /><br /></td>
 							</tr>
-							
+
 							<?php if ( $wikiembed_options['tabs'] ): ?>
 								<tr>
 									<th valign="top" class="label" scope="row">
@@ -97,7 +110,7 @@ function wikiembed_overlay_popup_form() {
 									</td>
 								</tr>
 							<?php endif; ?>
-							
+
 							<tr>
 								<th valign="top" class="label" scope="row">
 								</th>
