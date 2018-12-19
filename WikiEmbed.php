@@ -1013,7 +1013,7 @@ Class Wiki_Embed {
 			if ( ! empty( $remove_elements ) ) {
 				foreach ( $remove_elements as $element ) {
 					$result = $finder->query( $element );
-					if ( $element && isset( $result ) && is_array( $result ) ) {
+					if ( $element && isset( $result ) && ( is_array( $result ) || is_object( $result )  ) ) {
 						foreach ( $finder->query( $element ) as $e ) {
 							$e->parentNode->removeChild($e);
 						}
