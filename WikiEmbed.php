@@ -959,6 +959,10 @@ Class Wiki_Embed {
 		$new_tags['iframe']['src'] = array();
 		$new_tags['iframe']['frameborder'] = array();
 
+		// CTLT change - since mediawiki citation url has colon within it. WordPress will strip out the first part of the url and link will not be complete.
+		// The change here is to replace :(colon) with _(underscore) so WordPress will pass it.
+		$body = str_replace(array('cite_ref-:', 'cite_note-:'), array('cite_ref-_', 'cite_note-_'), $body);
+
 		// lets sanitize this
 	    $body = wp_kses( $body, $new_tags );
 		return $body;
