@@ -107,11 +107,19 @@ Class Wiki_Embed {
 		$this->tabs_support = get_theme_support('tabs');
 		$this->accordion_support = get_theme_support( 'accordions' );
 
-		if ( $this->tabs_support[0] == 'twitter-bootstrap' || $this->accordion_support[0] == 'twitter-bootstrap' ) {
+		if ( ! is_array( $this->tabs_support ) ) {
+			$this->tabs_support = array();
+		}
+
+		if ( ! is_array( $this->accordion_support ) ) {
+			$this->accordion_support = array();
+		}
+
+		if ( ( isset( $this->tabs_support[0] ) && $this->tabs_support[0] === 'twitter-bootstrap' ) || ( isset( $this->accordion_support[0] ) && $this->accordion_support[0] === 'twitter-bootstrap' ) ) {
 			require_once( WIKI_EMBED_ROOT.'/support/twitter-bootstrap/action.php' );
 		}
 
-		if ( $this->tabs_support[0] == 'twitter-bootstrap' ) {
+		if ( isset( $this->tabs_support[0] ) && $this->tabs_support[0] === 'twitter-bootstrap' ) {
 			wp_register_script( 'twitter-tab-shortcode' , plugins_url('support/twitter-bootstrap/twitter.bootstrap.tabs.js', __FILE__), array( 'jquery' ), '1.0', true );
 		}
 
@@ -542,7 +550,8 @@ Class Wiki_Embed {
 			$this->load_scripts[] = 'wiki-embed-tabs-accordion-anchors';
 		}
 
-		if ( is_array( $this->tabs_support ) ) {
+
+		if ( is_array( $this->tabs_support ) && array_key_exists( 0, $this->tabs_support ) ) {
 			switch( $this->tabs_support[0] ) {
 				case 'twitter-bootstrap';
 					$this->load_scripts[] = 'twitter-tab-shortcode';
@@ -556,7 +565,7 @@ Class Wiki_Embed {
 			$this->load_scripts[] = 'wiki-embed-tabs';
 		}
 
-		if ( is_array( $this->accordion_support ) ) {
+		if ( is_array( $this->accordion_support ) && array_key_exists( 0, $this->accordion_support ) ) {
 			switch( $this->accordion_support[0] ) {
 				case 'twitter-bootstrap';
 					// Do Nothing
