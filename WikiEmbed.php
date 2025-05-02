@@ -309,7 +309,7 @@ Class Wiki_Embed {
 				<small>
 					This message is only displayed to administrators.
 					<br />
-					Please <a href=" <?php echo get_edit_post_link( $post->ID ); ?> ">edit this page</a>, and remove the [wiki-embed] shortcode, or specify a url parameter.
+					Please <a href=" <?php echo esc_url( get_edit_post_link( $post->ID ) ); ?> ">edit this page</a>, and remove the [wiki-embed] shortcode, or specify a url parameter.
 				</small>
 			</div>
 			<hr />
@@ -1230,7 +1230,7 @@ Class Wiki_Embed {
 		);
 
 		if ( $plain_html ):
-			echo $content;
+			echo wp_kses_post( $content );
 		else:
 			?>
 			<!doctype html>
@@ -1241,19 +1241,19 @@ Class Wiki_Embed {
 			<!--[if (gte IE 9)|!(IE)]><!--> <html <?php language_attributes(); ?>> <!--<![endif]-->
 				<head>
 					<meta http-equiv="Content-Type" content="<?php bloginfo( 'html_type' ); ?>; charset=<?php bloginfo( 'charset' ); ?>" />
-					<title><?php echo urldecode(esc_attr($_GET['title'])); ?></title>
+					<title><?php echo esc_html( urldecode(esc_attr($_GET['title'])) ); ?></title>
 
 					<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js"></script>
 					<link media="screen" href="<?php bloginfo('stylesheet_url')?>" type="text/css" rel="stylesheet" >
-					<link media="screen" href="<?php echo WIKI_EMBED_URL ; ?>resources/css/wiki-embed.css" type="text/css" rel="stylesheet" >
-					<link media="screen" href="<?php echo WIKI_EMBED_URL ; ?>resources/css/wiki-overlay.css" type="text/css" rel="stylesheet" >
-					<script src="<?php echo WIKI_EMBED_URL ; ?>resources/js/wiki-embed-overlay.js" ></script>
+					<link media="screen" href="<?php echo esc_url( WIKI_EMBED_URL ) ; ?>resources/css/wiki-embed.css" type="text/css" rel="stylesheet" >
+					<link media="screen" href="<?php echo esc_url( WIKI_EMBED_URL ) ; ?>resources/css/wiki-overlay.css" type="text/css" rel="stylesheet" >
+					<script src="<?php echo esc_url( WIKI_EMBED_URL ) ; ?>resources/js/wiki-embed-overlay.js" ></script>
 				</head>
 				<body>
 					<div id="wiki-embed-iframe">
 						<div class="wiki-embed-content">
-							<h1 class="wiki-embed-title" ><?php echo $title; ?></h1>
-							<?php echo $content; ?>
+							<h1 class="wiki-embed-title" ><?php echo esc_html( $title ); ?></h1>
+							<?php echo wp_kses_post( $content ); ?>
 						</div>
 					</div>
 				</body>

@@ -15,7 +15,7 @@ function wikiembed_settings_page() {
 	$updated = false;
 	$option = "wikiembed_options";
 
-	if ( isset( $_POST[ $option ] ) ) {
+	if ( isset( $_POST[ $option ] ) && isset( $_POST['wikiembed_settings_nonce'] ) && wp_verify_nonce( $_POST['wikiembed_settings_nonce'], 'wikiembed_settings_save' ) ) {
 
 		$value = $_POST[ $option ];
 
@@ -37,6 +37,7 @@ function wikiembed_settings_page() {
 
 		<h2>Wiki Embed Settings</h2>
 		<form method="post" action="admin.php?page=wikiembed_settings_page">
+			<?php wp_nonce_field( 'wikiembed_settings_save', 'wikiembed_settings_nonce' ); ?>
 			<?php settings_fields('wikiembed_options'); ?>
 			<a href="#" id="show-help" >Explain More</a>
 
@@ -71,7 +72,7 @@ function wikiembed_settings_page() {
 						<div class="help-div">Loads wiki-embed css files on each page of the site.<br /></div>
 
 						<?php $disabled_tabs = ( empty($tabs_support) ? '' : 'disabled="disabled"'); ?>
-						<input type="checkbox" aria-required="true" value="1" <?php echo $disabled_tabs; ?> name="wikiembed_options[tabs-style]" id="wiki-embed-tab-style" <?php checked( (isset($wikiembed_options['tabs-style']) && $wikiembed_options['tabs-style'] )); ?> />
+						<input type="checkbox" aria-required="true" value="1" <?php echo esc_attr( $disabled_tabs ); ?> name="wikiembed_options[tabs-style]" id="wiki-embed-tab-style" <?php checked( (isset($wikiembed_options['tabs-style']) && $wikiembed_options['tabs-style'] )); ?> />
 						<span>
 							<?php if ( ! empty( $disabled_tabs ) ) { ?>
 								<em> Your theme support tabs styling</em>
@@ -83,7 +84,7 @@ function wikiembed_settings_page() {
 						<div class="help-div">Loads tabs css files on each page of the site.<br /></div>
 
 						<?php $disabled_accordion = ( empty($accordion_support) ? '' : 'disabled="disabled"'); ?>
-						<input type="checkbox" aria-required="true" value="1" <?php echo $disabled_accordion; ?> name="wikiembed_options[accordion-style]" id="wiki-embed-accordion-style" <?php checked( (isset($wikiembed_options['accordion-style']) && $wikiembed_options['accordion-style'] )); ?> />
+						<input type="checkbox" aria-required="true" value="1" <?php echo esc_attr( $disabled_accordion ); ?> name="wikiembed_options[accordion-style]" id="wiki-embed-accordion-style" <?php checked( (isset($wikiembed_options['accordion-style']) && $wikiembed_options['accordion-style'] )); ?> />
 						<span>
 							<?php if ( ! empty( $disabled_accordion ) ) { ?>
 								<em> Your theme support accordion styling</em>
@@ -211,7 +212,7 @@ function wikiembed_settings_page() {
 						<p><strong>Currently allowed urls.</strong><br />
 					 	<?php
 					 		foreach($links_array as $links):
-								echo $links."<br />";
+								echo esc_url( $links ) . "<br />";
 							endforeach;
 
 						endif;
@@ -222,7 +223,7 @@ function wikiembed_settings_page() {
 			</table>
 
 			<p class="submit">
-				<input type="submit" class="button-primary" value="<?php _e('Save Changes') ?>" />
+				<input type="submit" class="button-primary" value="<?php esc_attr_e('Save Changes') ?>" />
 			</p>
 		</form>
 	</div>

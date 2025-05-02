@@ -105,8 +105,8 @@ function wikiembed_list_page() {
 
 	<form method="post" acction="">
 	<ul class="subsubsub">
-		<li><a href="?page=wiki-embed" <?php if ( ! isset( $_GET['non_url_items'] ) ) { ?>class="current"<?php } ?> >All <span class="count">(<?php echo $total_parent_count; ?>)</span></a> |</li>
-		<li><a href="?page=wiki-embed&non_url_items=true" <?php if(isset($_GET['non_url_items'])) { ?>class="current"<?php } ?>>No Target URL <span class="count">(<?php echo $count_non_url_items;?>)</span></a></li>
+		<li><a href="?page=wiki-embed" <?php if ( ! isset( $_GET['non_url_items'] ) ) { ?>class="current"<?php } ?> >All <span class="count">(<?php echo wp_kses_post( $total_parent_count ); ?>)</span></a> |</li>
+		<li><a href="?page=wiki-embed&non_url_items=true" <?php if(isset($_GET['non_url_items'])) { ?>class="current"<?php } ?>>No Target URL <span class="count">(<?php echo wp_kses_post( $count_non_url_items );?>)</span></a></li>
 	</ul>
 	<div class="tablenav">
 		<div class="alignleft actions">
@@ -165,11 +165,11 @@ function wikiembed_list_page() {
 				?>
 				<tr valign="top" class="<?php echo ( $i % 2 ? 'alternate': ''); ?> parent" >
 					<th class="check-column" scope="row">
-						<input type="checkbox" value="<?php echo $hash; ?>" name="wikiembed[]">
+						<input type="checkbox" value="<?php echo esc_attr( $hash ); ?>" name="wikiembed[]">
 					</th>
 					<td>
 						<a href="<?php echo esc_url( $bits[0] ); ?>">
-							<?php echo $url; ?>
+							<?php echo esc_url( $url ); ?>
 							<br />
 							<span>source: <?php echo esc_url( $bits[0] );?></span>
 						</a>
@@ -189,7 +189,7 @@ function wikiembed_list_page() {
 							<p>
 								<span class="spacer">
 									<a href="<?php echo esc_url( $item['url'] ); ?>">
-										<?php echo $item['url']; ?>
+										<?php echo esc_url( $item['url'] ); ?>
 									</a>
 								</span>
 								<a href="#" class="add-target-url" id="<?php echo urlencode( $hash ); ?>">Edit</a>
@@ -199,7 +199,7 @@ function wikiembed_list_page() {
 								</span>
 							</p>
 							<p style="display:none;">
-								<input type="text" name="<?php echo urlencode( $hash ); ?>" class="" value="<?php echo $item['url']; ?>" size="80" />
+								<input type="text" name="<?php echo esc_attr( urlencode( $hash ) ); ?>" class="" value="<?php echo esc_url( $item['url'] ); ?>" size="80" />
 								<input type="button" value="Edit Target URL" class="button submit-target-url button-primary" />
 								<a href="#" class="cancel-tagert-url button-secondary">cancel</a>
 							</p>
@@ -210,7 +210,7 @@ function wikiembed_list_page() {
 							if ( ! isset( $item['expires_on'] ) )
 								$item['expires_on'] = 0;
 							if ( $item['expires_on'] > time() )
-								echo human_time_diff( date( 'U', $item['expires_on'] ) );
+								echo esc_html( human_time_diff( date( 'U', $item['expires_on'] ) ) );
 							else
 								echo "expired";
 						?>
@@ -230,24 +230,24 @@ function wikiembed_list_page() {
 			<?php endif; ?>
 		</tbody>
 	</table>
-	<!-- current time: <?php echo date("Y/m/d h:i:s A",time()); ?> -->
+	<!-- current time: <?php echo esc_html( date("Y/m/d h:i:s A",time()) ); ?> -->
 	<?php
 		if ( isset( $wikiembeds_parents ) ) :
 			?>
 			<div class="tablenav">
 				<div class="tablenav-pages">
 					<span class="displaying-num">
-						Displaying <?php echo (($page - 1) * $items_per_page) + 1; ?> &ndash;<?php echo $count_till; ?> of <?php echo $total_size; ?>
+						Displaying <?php echo absint( (($page - 1) * $items_per_page) + 1 ); ?> &ndash;<?php echo absint( $count_till ); ?> of <?php echo absint( $total_size ); ?>
 					</span>
 					<?php
 					for ( $i = 1; $i <= ceil( $total_size / $items_per_page ); $i++ ) {
 						if ( $i == $page ) {
 							?>
-							<span class="page-numbers current"><?php echo $i; ?></span>
+							<span class="page-numbers current"><?php echo absint( $i ); ?></span>
 							<?php
 						} else {
 							?>
-							<a href="admin.php?page=wiki-embed&p=<?php echo $i; ?>" class="page-numbers"> <?php echo $i; ?></a>
+							<a href="admin.php?page=wiki-embed&p=<?php echo absint( $i ); ?>" class="page-numbers"> <?php echo absint( $i ); ?></a>
 							<?php
 						}
 					}

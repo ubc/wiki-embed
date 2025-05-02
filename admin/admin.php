@@ -67,10 +67,10 @@ function wikiembed_admin_styles_list_page() {
  */
 function wikiembed_network_site_admin_options(){
 	?>
-		<h3><?php _e('Wiki Embed Settings') ?></h3>
+		<h3><?php esc_html_e('Wiki Embed Settings') ?></h3>
 		<table class="form-table">
 			<tr valign="top">
-				<th scope="row"><label for="wiki_embed_white_list"><?php _e('White List of Allowed Sites') ?></label></th>
+				<th scope="row"><label for="wiki_embed_white_list"><?php esc_html_e('White List of Allowed Sites') ?></label></th>
 				<td>
 	                <textarea type="text" name="wiki_embed_white_list" id="wiki_embed_white_list" class="regular-text" style="width:100%; height:200px;" ><?php echo esc_textarea( get_site_option('wiki_embed_white_list') ); ?> </textarea>
 					<br />
