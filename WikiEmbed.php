@@ -1267,7 +1267,8 @@ Class Wiki_Embed {
 		global $wpdb, $wp_query;
 
 		if ( ! is_admin() && $wp_query->is_search ) {
-			$join .= " LEFT JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND ( ".$wpdb->postmeta.".meta_key = 'wikiembed_content' ) ";
+			// Use a unique alias to avoid conflicts with meta_query JOINs
+			$join .= " LEFT JOIN ".$wpdb->postmeta." AS wikiembed_meta ON ".$wpdb->posts.".ID = wikiembed_meta.post_id AND ( wikiembed_meta.meta_key = 'wikiembed_content' ) ";
 		}
 
 		return $join;
@@ -1277,7 +1278,7 @@ Class Wiki_Embed {
 		global $wpdb, $wp, $wp_query;
 
 		if ( ! is_admin() && $wp_query->is_search ) {
-			$where .= " OR ( ".$wpdb->postmeta.".meta_value LIKE '%".$wp->query_vars['s']."%' ) ";
+			$where .= " OR ( wikiembed_meta.meta_value LIKE '%".$wp->query_vars['s']."%' ) ";
 		}
 
 		return $where;
@@ -1308,9 +1309,9 @@ Class Wiki_Embed {
 			$where = $where[0];
 
 			$where = explode( ")", $where, 2 );
-			$where = $where[0] . " OR ".$wpdb->postmeta.".meta_value LIKE '%".$search."%' ) " . $where[1];
+			$where = $where[0] . " OR wikiembed_meta.meta_value LIKE '%".$search."%' ) " . $where[1];
 
-			$join = " LEFT JOIN ".$wpdb->postmeta." ON ".$wpdb->posts.".ID = ".$wpdb->postmeta.".post_id AND ( ".$wpdb->postmeta.".meta_key = 'wikiembed_content' ) ";
+			$join = " LEFT JOIN ".$wpdb->postmeta." AS wikiembed_meta ON ".$wpdb->posts.".ID = wikiembed_meta.post_id AND ( wikiembed_meta.meta_key = 'wikiembed_content' ) ";
 			$query = $query . $join . "WHERE" . $where . "LIMIT" . $limit;
 		}
 
